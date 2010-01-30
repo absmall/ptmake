@@ -6,7 +6,7 @@
 using namespace std;
 
 struct _String {
-    string *s;
+    string s;
 };
 
 struct _StringList {
@@ -37,13 +37,15 @@ void print_rule(Rule *rule)
 			i != rule->header->targetlist->sl.end();
 			i ++)
 	{
+		cout << (*i)->s;
 	}
 	cout << endl;
 	cout << "Dependencies:" << endl;
-	for(list<String *>::iterator i = rule->header->targetlist->sl.begin();
-			i != rule->header->targetlist->sl.end();
+	for(list<String *>::iterator i = rule->header->dependencies->regular->sl.begin();
+			i != rule->header->dependencies->regular->sl.end();
 			i ++)
 	{
+		cout << (*i)->s;
 	}
 	cout << endl;
 }
