@@ -195,6 +195,9 @@ void parse_makefile( std::string filename )
 	inputBufferOffset = 0;
 	inputBufferSize = 0;
 	inputBuffer = (char *)malloc( 1 );
+    if( inputBuffer == NULL ) {
+        throw std::runtime_error( "Out of memory" );
+    }
 	f = fopen( filename.c_str(), "r" );
 	if( f == NULL ) {
 		throw std::runtime_error( "Could not open makefile" );

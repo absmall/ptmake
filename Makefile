@@ -1,10 +1,21 @@
+ENVIRONMENT=vc
+
 OBJS = main.o build.o find.o parse.o argpc.o argpcoption.o exception.o parser.o rules.o
+
+ifeq ($(ENVIRONMENT),vc)
+OBJS += subprocess_win.o
+endif
 
 BUILD_OPTIONS=warnings debug
 
 include bison.mak
-#include gcc.mak
+
+ifeq ($(ENVIRONMENT),vc)
 include vc.mak
+endif
+ifeq ($(ENVIRONMENT),gcc)
+include gcc.mak
+endif
 
 .SUFFIXES: 
 .PHONY:clean

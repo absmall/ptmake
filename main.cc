@@ -8,6 +8,7 @@
 using namespace std;
 
 bool makefile_specified = false;
+extern "C" int yydebug;
 std::string makefile;
 
 void set_makefile( std::string file )
@@ -15,6 +16,13 @@ void set_makefile( std::string file )
 	makefile_specified = true;
 	makefile = file;
 }
+
+#ifdef DEBUG
+void debug_mode()
+{
+	yydebug = 1;
+}
+#endif
 
 int main(int argc, char *argv[])
 {
@@ -30,6 +38,9 @@ int main(int argc, char *argv[])
 		options->setDoc( "Yet another make clone" );
 		options->setArgumentDescription( "FILE ..." );
 		options->addOption( ArgpcOption( "file", 'f', "file", "Read FILE as a makefile.", set_makefile ) );
+#ifdef DEBUG
+		options->addOption( ArgpcOption( "debug", 'd', "Enabled.", debug_mode ) );
+#endif
 		options->parse( &argc, argv );
 
 		if( !makefile_specified ) {
