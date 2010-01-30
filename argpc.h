@@ -51,7 +51,7 @@ class MissingArgumentException : public wexception
 {
 public:
 	MissingArgumentException( std::string name );
-	~MissingArgumentException( void ) throw( );
+	virtual ~MissingArgumentException( void ) throw( );
 	virtual const char *what( void ) const throw( );
 private:
 	std::string name;
@@ -61,7 +61,7 @@ class UnknownArgumentException : public wexception
 {
 public:
 	UnknownArgumentException( std::string name );
-	~UnknownArgumentException( void ) throw( );
+	virtual ~UnknownArgumentException( void ) throw( );
 	virtual const char *what( void ) const throw( );
 private:
 	std::string name;

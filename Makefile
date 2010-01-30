@@ -1,6 +1,6 @@
-OBJS = main.o find.o parse.o argpc.o argpcoption.o exception.o parser.o
+OBJS = main.o find.o parse.o argpc.o argpcoption.o exception.o parser.o rules.o
 
-CPPFLAGS = -g3 -I.
+CPPFLAGS = -Wall -g3 -I.
 
 .SUFFIXES: 
 

@@ -1,8 +1,10 @@
 #include <parse.h>
+#include <string>
 #include <iostream>
 #include <stdexcept>
 #include <stdlib.h>
 #include <string.h>
+#include <rules.h>
 #include <parser.h>
 
 enum Mode{
@@ -111,6 +113,8 @@ int normalParse()
 			}
 		}
 
+		yylval = (void *)new std::string( inputBuffer + inputBufferOffset,
+                                          inputBuffer + newBufferOffset );
 		inputBufferOffset = newBufferOffset;
 		return ID;
 	}

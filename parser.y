@@ -1,9 +1,23 @@
 %{
-	int yylex(void);
+#include <stdlib.h>
+#include <rules.h>
+#include <stringlist.h>
+int yylex(void);
+void yyerror(char *s);
+void setNormalMode();
+void setCommandMode();
 %}
-%token ID
-%token RULECOMMAND
 
+/*
+%union {
+	Dependencies *dependencies;
+	RuleHeader *ruleHeader;
+	Rule *rule;
+}
+*/
+
+%token  ID
+%token  RULECOMMAND
 %%
 
 program:
@@ -12,29 +26,33 @@ program:
 
 statement:
 	blankline
-	| rule
+	| rule					{ print_rule( $1 ); }
 
 blankline:
 	'\n'
 
 rule:
-	ruleheader rulebody			{ setNormalMode(); }
+	ruleheader rulebody			{ setNormalMode(); $$ = make_rule($1, $2); }
 	;
 
 ruleheader:
-	targetlist ':' dependencies '\n' 	{ setCommandMode(); }
+	targetlist ':' dependencies '\n' 	{ setCommandMode(); $$ = make_rule_header( $1, $3 ); }
 	;
 
 dependencies:
-	sourcelist
-	| sourcelist '|' sourcelist
+	sourcelist				{ $$ = make_dependencies($1, NULL); }
+	| sourcelist '|' sourcelist 		{ $$ = make_dependencies($1, $3); }
+	;
 	
 rulebody:
-	RULECOMMAND 
-	| rulebody RULECOMMAND ;
+	RULECOMMAND 				{ $$ = add_stringlist(new_stringlist(), $1); }
+	| rulebody RULECOMMAND 			{ $$ = add_stringlist($1, $2); }
+	;
 
-targetlist:
-	| targetlist ID ;
+targetlist:					{ $$ = new_stringlist(); }
+	| targetlist ID 			{ $$ = add_stringlist($1, $2); }
+	;
 
-sourcelist:
-	| sourcelist ID ;
+sourcelist:					{ $$ = new_stringlist(); }
+	| sourcelist ID 			{ $$ = add_stringlist($1, $2); }
+	;
