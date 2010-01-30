@@ -1,4 +1,3 @@
-#include <aprpp.h>
 #include <find.h>
 #include <globals.h>
 #include <sys/types.h>

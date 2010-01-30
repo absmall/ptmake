@@ -103,12 +103,46 @@ int normalParse()
 
 		inputBufferOffset = newBufferOffset;
 		return ID;
+	} else {
+		return 0;
 	}
 }
 
 int commandParse()
 {
-	throw std::runtime_error("Command parse not yet implemented");
+	int newBufferOffset;
+
+	// Commands must start with a tab, and go until a newline that
+	// is not escaped
+	if( inputBufferOffset == inputBufferSize ) {
+		if( !refillBuffer() ) {
+			return 0;
+		}
+	}
+	if( inputBuffer[ inputBufferOffset ] != '\t' ) {
+		// It's not a rule. Go to normal parser.
+		setNormalMode();
+		return normalParse();
+	}
+	
+	// Parse up to a newline, then check if it's escaped, and if it is,
+	// keep going
+	newBufferOffset = inputBufferOffset;
+	while( true ) {
+		while( newBufferOffset < inputBufferSize && inputBuffer[newBufferOffset] == '\n') {
+			newBufferOffset ++;
+		}
+
+		if( newBufferOffset != inputBufferSize
+		 && inputBuffer[ newBufferOffset - 1 ] != '\\' ) {
+			inputBufferOffset = newBufferOffset;
+			return RULECOMMAND;
+		}
+
+		if( !refillBuffer() ) {
+			return 0;
+		}
+	}
 }
 
 int yylex()

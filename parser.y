@@ -11,12 +11,11 @@ program:
 	;
 
 rule:
-	ruleheader				{ setNormalMode() }
-	| ruleheader rulebody			{ setNormalMode() }
+	ruleheader rulebody			{ setNormalMode(); }
 	;
 
 ruleheader:
-	targetlist ':' sourcelist '\n' 		{ setRuleMode() }
+	targetlist ':' sourcelist '\n' 		{ setCommandMode(); }
 	;
 
 rulebody:

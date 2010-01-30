@@ -1,7 +1,6 @@
-OBJS = main.o find.o aprpp.o parse.o argpc.o argpcoption.o exception.o parser.o
+OBJS = main.o find.o parse.o argpc.o argpcoption.o exception.o parser.o
 
-CPPFLAGS = -g3 -I. `pkg-config --cflags apr-1`
-LDFLAGS = `pkg-config --libs apr-1`
+CPPFLAGS = -g3 -I.
 
 .SUFFIXES: 
 
@@ -22,4 +21,4 @@ clean:
 make: $(OBJS)
 	g++ -g3 $(LDFLAGS) -o $@ $^
 
-parse.o: parser.h
+parse.o: | parser.h
