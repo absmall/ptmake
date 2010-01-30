@@ -5,7 +5,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include "rules.h"
+extern "C" {
 #include "parser.h"
+}
 
 enum Mode{
 	Normal,
