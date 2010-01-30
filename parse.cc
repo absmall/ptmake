@@ -129,13 +129,13 @@ int commandParse()
 	// keep going
 	newBufferOffset = inputBufferOffset;
 	while( true ) {
-		while( newBufferOffset < inputBufferSize && inputBuffer[newBufferOffset] == '\n') {
+		while( newBufferOffset < inputBufferSize && inputBuffer[newBufferOffset] != '\n') {
 			newBufferOffset ++;
 		}
 
 		if( newBufferOffset != inputBufferSize
 		 && inputBuffer[ newBufferOffset - 1 ] != '\\' ) {
-			inputBufferOffset = newBufferOffset;
+			inputBufferOffset = newBufferOffset + 1;
 			return RULECOMMAND;
 		}
 
@@ -147,15 +147,19 @@ int commandParse()
 
 int yylex()
 {
+	int ret;
+
 	switch( mode ) {
 		case Normal:
-			return normalParse();
+			ret = normalParse();
+			break;
 		case Command:
-			return commandParse();
+			ret = commandParse();
+			break;
 		default:
 			throw std::runtime_error("Internal error: Unexpected parser mode");
 	}
-	return 0;
+	return ret;
 }
 
 void yyerror(char *s)
