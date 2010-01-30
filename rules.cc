@@ -59,7 +59,15 @@ void print_rule(Rule *rule)
 	{
 		cout << (*i)->s;
 	}
-	cout << endl;
+    cout << endl;
+    cout << "Commands:" << endl;
+    for(list<String *>::iterator i = rule->commands->sl.begin();
+            i != rule->commands->sl.end();
+            i ++ )
+    {
+        cout << (*i)->s << endl;
+    }
+    cout << endl;
 }
 
 Rule *make_rule(RuleHeader *ruleHeader, StringList *commands)

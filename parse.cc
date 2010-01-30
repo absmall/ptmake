@@ -149,11 +149,15 @@ int commandParse()
 
 		if( newBufferOffset != inputBufferSize
 		 && inputBuffer[ newBufferOffset - 1 ] != '\\' ) {
+            yylval.s = new_string( inputBuffer + inputBufferOffset + 1,
+                                   inputBuffer + newBufferOffset );
 			inputBufferOffset = newBufferOffset + 1;
 			return RULECOMMAND;
 		}
 
 		if( !refillBuffer() ) {
+            yylval.s = new_string( inputBuffer + inputBufferOffset,
+                                   inputBuffer + newBufferOffset );
 			return RULECOMMAND;
 		}
 	}
@@ -173,13 +177,6 @@ int yylex()
 		default:
 			throw std::runtime_error("Internal error: Unexpected parser mode");
 	}
-#if 0
-	if( ret < 256 ) {
-		printf("yylex %c (%d)\n", ret, ret);
-	} else {
-		printf("yylex %d\n", ret);
-	}
-#endif
 	return ret;
 }
 
