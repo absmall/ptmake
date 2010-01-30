@@ -33,6 +33,14 @@ void print_rule(void *_rule)
 		cout << (*(*i));
 	}
 	cout << endl;
+	cout << "Dependencies:" << endl;
+	for(list<string *>::iterator i = rule->header->targetlist->begin();
+			i != rule->header->targetlist->end();
+			i ++)
+	{
+		cout << (*(*i));
+	}
+	cout << endl;
 }
 
 void *make_rule(void *_ruleHeader, void *_commands)

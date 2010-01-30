@@ -2,8 +2,6 @@
 extern "C" {
 #endif
 
-#define YYSTYPE void *
-
 void print_rule(void *);
 void *make_rule(void *, void *);
 void *make_rule_header(void *, void *);

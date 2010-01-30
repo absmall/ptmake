@@ -8,16 +8,18 @@ void setNormalMode();
 void setCommandMode();
 %}
 
-/*
 %union {
-	Dependencies *dependencies;
-	RuleHeader *ruleHeader;
-	Rule *rule;
+    void *opaque;
 }
-*/
 
-%token  ID
-%token  RULECOMMAND
+%token  <opaque>ID
+%token  <opaque>RULECOMMAND
+%type <opaque>rule
+%type <opaque>ruleheader
+%type <opaque>rulebody
+%type <opaque>targetlist
+%type <opaque>sourcelist
+%type <opaque>dependencies
 %%
 
 program:
@@ -26,7 +28,7 @@ program:
 
 statement:
 	blankline
-	| rule					{ print_rule( $1 ); }
+	| rule  					{ print_rule( $1 ); }
 
 blankline:
 	'\n'
