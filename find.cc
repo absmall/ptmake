@@ -1,8 +1,8 @@
 #include <aprpp.h>
 #include <find.h>
 #include <globals.h>
-#include <apr_tables.h>
-#include <apr_fnmatch.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 #include <stdexcept>
 
 const char *makefileNames[ ] = 
@@ -14,12 +14,9 @@ const char *makefileNames[ ] =
 
 bool test_file_exists( std::string pattern )
 {
-	AprPP aprpp;
-	apr_array_header_t *files;
+	struct stat buf;
 
-	apr_match_glob( pattern.c_str( ), &files, aprpp.getPool( ) );
-
-	return !apr_is_empty_array( files );
+	return !stat(pattern.c_str(), &buf);
 
 }
 
