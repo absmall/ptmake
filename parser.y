@@ -7,17 +7,28 @@
 %%
 
 program:
-	rule 					{ printf("Rule parsed\n"); }
+	| statement program
 	;
+
+statement:
+	blankline
+	| rule
+
+blankline:
+	'\n'
 
 rule:
 	ruleheader rulebody			{ setNormalMode(); }
 	;
 
 ruleheader:
-	targetlist ':' sourcelist '\n' 		{ setCommandMode(); }
+	targetlist ':' dependencies '\n' 	{ setCommandMode(); }
 	;
 
+dependencies:
+	sourcelist
+	| sourcelist '|' sourcelist
+	
 rulebody:
 	RULECOMMAND 
 	| rulebody RULECOMMAND ;

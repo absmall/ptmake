@@ -79,7 +79,7 @@ int normalParse()
 	}
 
 	// Choose the token type based on the first character
-	if( strchr(":\n\t", inputBuffer[ inputBufferOffset ] ) != NULL ) {
+	if( strchr("|:\n\t", inputBuffer[ inputBufferOffset ] ) != NULL ) {
 		return inputBuffer[ inputBufferOffset ++ ];
 	} else if( isalpha(inputBuffer[ inputBufferOffset ] ) ) {
 		// It's an identifier. Keep parsing as long as we see alphanumerics
@@ -159,6 +159,13 @@ int yylex()
 		default:
 			throw std::runtime_error("Internal error: Unexpected parser mode");
 	}
+#if 0
+	if( ret < 256 ) {
+		printf("yylex %c (%d)\n", ret, ret);
+	} else {
+		printf("yylex %d\n", ret);
+	}
+#endif
 	return ret;
 }
 
