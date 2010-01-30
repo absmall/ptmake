@@ -1,8 +1,9 @@
 #include <exception>
 #include <iostream>
-#include <find.h>
-#include <parse.h>
-#include <argpc.h>
+#include "find.h"
+#include "parse.h"
+#include "argpc.h"
+#include "build.h"
 
 using namespace std;
 
@@ -34,15 +35,11 @@ int main(int argc, char *argv[])
 		if( !makefile_specified ) {
 			makefile = find_makefile( );
 		}
+        for( int i = 1; i < argc; i ++ ) {
+            set_target( argv[i] );
+        }
 		parse_makefile( makefile );
-
-		if( argc > 1 ) {
-			for( int i = 1; i < argc; i ++ ) {
-				cout << "Using target " << argv[i] << endl;
-			}
-		} else {
-			cout << "Using first target " << endl;
-		}
+        print_targets();
 	} catch ( const std::exception &e ) {
 		cerr << "make: " << e.what() << endl;
 	}

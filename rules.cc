@@ -1,11 +1,14 @@
 #include <string>
 #include <list>
 #include <iostream>
-#include <rules.h>
+#include "rules.h"
+#include "build.h"
 
 using namespace std;
 
 struct _String {
+    _String() {}
+    _String(char *start, char *end) : s(start, end) {}
     string s;
 };
 
@@ -33,6 +36,15 @@ void print_rule(Rule *rule)
 	cout << "Rule:" << endl;
 	cout << "Targets:" << endl;
 
+    if( !has_target() ) {
+        // There was no target specified, so all targets become default targets
+        for(list<String *>::iterator i = rule->header->targetlist->sl.begin();
+                i != rule->header->targetlist->sl.end();
+                i ++)
+        {
+            set_target((*i)->s);
+        }
+    }
 	for(list<String *>::iterator i = rule->header->targetlist->sl.begin();
 			i != rule->header->targetlist->sl.end();
 			i ++)
@@ -88,4 +100,11 @@ StringList *add_stringlist(StringList *stringlist, String *string)
 	stringlist->sl.push_back( string );
 
 	return stringlist;
+}
+
+String *new_string(char *start, char *end)
+{
+    String *s = new String(start, end);
+
+    return s;
 }

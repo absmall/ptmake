@@ -1,6 +1,6 @@
 %{
 #include <stdlib.h>
-#include <rules.h>
+#include "rules.h"
 int yylex(void);
 void yyerror(char *s);
 void setNormalMode();

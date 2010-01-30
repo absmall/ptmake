@@ -12,6 +12,7 @@ void print_rule(Rule *);
 Rule *make_rule(RuleHeader *, StringList *);
 RuleHeader *make_rule_header(StringList *, Dependencies *);
 Dependencies *make_dependencies(StringList *, StringList *);
+String *new_string(char *start, char *end);
 StringList *new_stringlist();
 StringList *add_stringlist(StringList *slist, String *string);
 

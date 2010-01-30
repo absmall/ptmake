@@ -1,6 +1,6 @@
-OBJS = main.o find.o parse.o argpc.o argpcoption.o exception.o parser.o rules.o
+OBJS = main.o build.o find.o parse.o argpc.o argpcoption.o exception.o parser.o rules.o
 
-CPPFLAGS = -Wall -g3 -I.
+CPPFLAGS = -Wall -g3
 
 .SUFFIXES: 
 
@@ -15,8 +15,8 @@ clean:
 %.o:%.c
 	gcc -c $(CPPFLAGS) -o $@ $<
 
-%.c %.h:%.y
-	yacc -d -o $@ $<
+%.h %.c:%.y
+	yacc -d -o $*.c $<
 
 make.exe: $(OBJS)
 	g++ -g3 $(LDFLAGS) -o $@ $^

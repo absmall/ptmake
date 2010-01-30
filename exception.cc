@@ -1,6 +1,10 @@
-#include <exception.h>
+#include "exception.h"
 
 runtime_wexception::runtime_wexception( const std::string &s ) : s( s )
+{
+}
+
+runtime_wexception::~runtime_wexception( )
 {
 }
 

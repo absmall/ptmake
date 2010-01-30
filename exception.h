@@ -13,6 +13,7 @@ class runtime_wexception : public wexception
 {
 public:
 	runtime_wexception( const std::string &s );
+    virtual ~runtime_wexception( );
 	const char *what( void ) const throw( );
 private:
 	std::string s;
