@@ -4,7 +4,7 @@ CPPFLAGS = -g3 -I.
 
 .SUFFIXES: 
 
-all: make
+all: make.exe
 
 clean:
 	rm -f *.o
@@ -18,7 +18,7 @@ clean:
 %.c %.h:%.y
 	yacc -d -o $@ $<
 
-make: $(OBJS)
+make.exe: $(OBJS)
 	g++ -g3 $(LDFLAGS) -o $@ $^
 
 parse.o: | parser.h

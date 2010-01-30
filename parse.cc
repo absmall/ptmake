@@ -60,6 +60,16 @@ bool refillBuffer()
 	return newdata != 0;
 }
 
+bool isspecial(char c)
+{
+	return strchr( "|:\n\t", c ) != NULL;
+}
+
+bool isidchar(char c)
+{
+	return !isspecial(c) && c != ' ';
+}
+
 int normalParse()
 {
 	// Eat spaces
@@ -79,13 +89,13 @@ int normalParse()
 	}
 
 	// Choose the token type based on the first character
-	if( strchr("|:\n\t", inputBuffer[ inputBufferOffset ] ) != NULL ) {
+	if( isspecial( inputBuffer[ inputBufferOffset ] ) ) {
 		return inputBuffer[ inputBufferOffset ++ ];
-	} else if( isalpha(inputBuffer[ inputBufferOffset ] ) ) {
+	} else {
 		// It's an identifier. Keep parsing as long as we see alphanumerics
 		int newBufferOffset = inputBufferOffset;
 		while( true ) {
-			while( newBufferOffset < inputBufferSize && isalnum(inputBuffer[ newBufferOffset ] ) ) {
+			while( newBufferOffset < inputBufferSize && isidchar(inputBuffer[ newBufferOffset ] ) ) {
 				newBufferOffset ++;
 			}
 
@@ -103,8 +113,6 @@ int normalParse()
 
 		inputBufferOffset = newBufferOffset;
 		return ID;
-	} else {
-		return 0;
 	}
 }
 
