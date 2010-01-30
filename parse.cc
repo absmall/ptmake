@@ -141,8 +141,8 @@ int commandParse()
 	
 	// Parse up to a newline, then check if it's escaped, and if it is,
 	// keep going
-	newBufferOffset = inputBufferOffset;
 	while( true ) {
+		newBufferOffset = inputBufferOffset;
 		while( newBufferOffset < inputBufferSize && inputBuffer[newBufferOffset] != '\n') {
 			newBufferOffset ++;
 		}
@@ -154,7 +154,7 @@ int commandParse()
 		}
 
 		if( !refillBuffer() ) {
-			return 0;
+			return RULECOMMAND;
 		}
 	}
 }
