@@ -1,7 +1,6 @@
 %{
 #include <stdlib.h>
 #include <rules.h>
-#include <stringlist.h>
 int yylex(void);
 void yyerror(char *s);
 void setNormalMode();
@@ -9,17 +8,21 @@ void setCommandMode();
 %}
 
 %union {
-    void *opaque;
+    Rule *rule;
+    RuleHeader *ruleHeader;
+    Dependencies *dependencies;
+    StringList *sl;
+    String *s;
 }
 
-%token  <opaque>ID
-%token  <opaque>RULECOMMAND
-%type <opaque>rule
-%type <opaque>ruleheader
-%type <opaque>rulebody
-%type <opaque>targetlist
-%type <opaque>sourcelist
-%type <opaque>dependencies
+%token <s>ID
+%token <s>RULECOMMAND
+%type  <rule>rule
+%type  <ruleHeader>ruleheader
+%type  <sl>rulebody
+%type  <sl>targetlist
+%type  <sl>sourcelist
+%type  <dependencies>dependencies
 %%
 
 program:

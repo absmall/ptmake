@@ -5,49 +5,51 @@
 
 using namespace std;
 
-struct Dependencies {
-	list<string *> *regular;
-	list<string *> *orderOnly;
+struct _String {
+    string *s;
 };
 
-struct RuleHeader {
-	list<string *> *targetlist;
+struct _StringList {
+    list<String *> sl;
+};
+
+struct _Dependencies {
+	StringList *regular;
+	StringList *orderOnly;
+};
+
+struct _RuleHeader {
+	StringList *targetlist;
 	Dependencies *dependencies;
 };
 
-struct Rule {
+struct _Rule {
 	RuleHeader *header;
-	list<string *> *commands;
+	StringList *commands;
 };
 
-void print_rule(void *_rule)
+void print_rule(Rule *rule)
 {
-	Rule *rule = (Rule *)_rule;
-
 	cout << "Rule:" << endl;
 	cout << "Targets:" << endl;
-	for(list<string *>::iterator i = rule->header->targetlist->begin();
-			i != rule->header->targetlist->end();
+
+	for(list<String *>::iterator i = rule->header->targetlist->sl.begin();
+			i != rule->header->targetlist->sl.end();
 			i ++)
 	{
-		cout << (*(*i));
 	}
 	cout << endl;
 	cout << "Dependencies:" << endl;
-	for(list<string *>::iterator i = rule->header->targetlist->begin();
-			i != rule->header->targetlist->end();
+	for(list<String *>::iterator i = rule->header->targetlist->sl.begin();
+			i != rule->header->targetlist->sl.end();
 			i ++)
 	{
-		cout << (*(*i));
 	}
 	cout << endl;
 }
 
-void *make_rule(void *_ruleHeader, void *_commands)
+Rule *make_rule(RuleHeader *ruleHeader, StringList *commands)
 {
-	RuleHeader *ruleHeader = (RuleHeader *)_ruleHeader;
-	list<string *> *commands = (list<string *> *)_commands;
-
 	Rule *rule = new Rule;
 	rule->header = ruleHeader;
 	rule->commands = commands;
@@ -55,11 +57,8 @@ void *make_rule(void *_ruleHeader, void *_commands)
 	return rule;
 }
 
-void *make_rule_header(void *_targetlist, void *_dependencies)
+RuleHeader *make_rule_header(StringList *targetlist, Dependencies *dependencies)
 {
-	list<string *> *targetlist = (list<string *> *)_targetlist;
-	Dependencies *dependencies = (Dependencies *)_dependencies;
-
 	RuleHeader *ruleHeader = new RuleHeader;
 	ruleHeader->targetlist = targetlist;
 	ruleHeader->dependencies = dependencies;
@@ -67,11 +66,9 @@ void *make_rule_header(void *_targetlist, void *_dependencies)
 	return ruleHeader;
 }
 
-void *make_dependencies(void *_regular, void *_orderOnly)
+Dependencies *make_dependencies(StringList *regular, StringList *orderOnly)
 {
 	Dependencies *dep = new Dependencies;
-	list<string *> *regular = (list<string *> *)_regular;
-	list<string *> *orderOnly = (list<string *> *)_orderOnly;
 
 	dep->regular = regular;
 	dep->orderOnly = orderOnly;
@@ -79,15 +76,14 @@ void *make_dependencies(void *_regular, void *_orderOnly)
 	return dep;
 }
 
-void *new_stringlist()
+StringList *new_stringlist()
 {
-	return new list<string>;
+    return new StringList;
 }
 
-void *add_stringlist(void *_slist, void *_ns)
+StringList *add_stringlist(StringList *stringlist, String *string)
 {
-	list<string *> *slist = (list<string *> *)_slist;
-	string *ns = (string *)_ns;
-	slist->push_back(ns);
-	return _slist;
+	stringlist->sl.push_back( string );
+
+	return stringlist;
 }
