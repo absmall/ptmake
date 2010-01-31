@@ -8,7 +8,7 @@
 using namespace std;
 
 bool makefile_specified = false;
-extern "C" int yydebug;
+//extern "C" yydebug;
 std::string makefile;
 
 void set_makefile( std::string file )
@@ -20,7 +20,7 @@ void set_makefile( std::string file )
 #ifdef DEBUG
 void debug_mode()
 {
-	yydebug = 1;
+//	yydebug = 1;
 }
 #endif
 
@@ -49,7 +49,7 @@ int main(int argc, char *argv[])
         for( int i = 1; i < argc; i ++ ) {
             set_target( argv[i] );
         }
-		parse_makefile( makefile );
+		//parse_makefile( makefile );
         print_targets();
 	} catch ( const std::exception &e ) {
 		cerr << "make: " << e.what() << endl;

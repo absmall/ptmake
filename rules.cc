@@ -6,80 +6,52 @@
 
 using namespace std;
 
-struct _String {
-    _String() {}
-    _String(char *start, char *end) : s(start, end) {}
-    string s;
-};
-
-struct _StringList {
-    list<String *> sl;
-};
-
-struct _Dependencies {
-	StringList *regular;
-	StringList *orderOnly;
-};
-
-struct _RuleHeader {
-	StringList *targetlist;
-	Dependencies *dependencies;
-};
-
-struct _Rule {
-	RuleHeader *header;
-	StringList *commands;
-};
-
-void print_rule(Rule *rule)
+void Rule::print()
 {
 	cout << "Rule:" << endl;
 	cout << "Targets:" << endl;
 
     if( !has_target() ) {
         // There was no target specified, so all targets become default targets
-        for(list<String *>::iterator i = rule->header->targetlist->sl.begin();
-                i != rule->header->targetlist->sl.end();
+        for(list<string>::iterator i = header->targetlist->begin();
+                i != header->targetlist->end();
                 i ++)
         {
-            set_target((*i)->s);
+            set_target(*i);
         }
     }
-	for(list<String *>::iterator i = rule->header->targetlist->sl.begin();
-			i != rule->header->targetlist->sl.end();
+	for(list<string>::iterator i = header->targetlist->begin();
+			i != header->targetlist->end();
 			i ++)
 	{
-		cout << (*i)->s;
+		cout << (*i);
 	}
 	cout << endl;
 	cout << "Dependencies:" << endl;
-	for(list<String *>::iterator i = rule->header->dependencies->regular->sl.begin();
-			i != rule->header->dependencies->regular->sl.end();
+	for(list<string>::iterator i = header->dependencies->regular->begin();
+			i != header->dependencies->regular->end();
 			i ++)
 	{
-		cout << (*i)->s;
+		cout << (*i);
 	}
     cout << endl;
     cout << "Commands:" << endl;
-    for(list<String *>::iterator i = rule->commands->sl.begin();
-            i != rule->commands->sl.end();
+    for(list<string>::iterator i = commands->begin();
+            i != commands->end();
             i ++ )
     {
-        cout << (*i)->s << endl;
+        cout << (*i) << endl;
     }
     cout << endl;
 }
 
-Rule *make_rule(RuleHeader *ruleHeader, StringList *commands)
+Rule::Rule(RuleHeader *ruleHeader, list<string> *commands)
 {
-	Rule *rule = new Rule;
-	rule->header = ruleHeader;
-	rule->commands = commands;
-
-	return rule;
+	header = ruleHeader;
+	commands = commands;
 }
 
-RuleHeader *make_rule_header(StringList *targetlist, Dependencies *dependencies)
+RuleHeader *make_rule_header(list<string> *targetlist, Dependencies *dependencies)
 {
 	RuleHeader *ruleHeader = new RuleHeader;
 	ruleHeader->targetlist = targetlist;
@@ -88,7 +60,7 @@ RuleHeader *make_rule_header(StringList *targetlist, Dependencies *dependencies)
 	return ruleHeader;
 }
 
-Dependencies *make_dependencies(StringList *regular, StringList *orderOnly)
+Dependencies *make_dependencies(list<string> *regular, list<string> *orderOnly)
 {
 	Dependencies *dep = new Dependencies;
 
@@ -96,23 +68,4 @@ Dependencies *make_dependencies(StringList *regular, StringList *orderOnly)
 	dep->orderOnly = orderOnly;
 
 	return dep;
-}
-
-StringList *new_stringlist()
-{
-    return new StringList;
-}
-
-StringList *add_stringlist(StringList *stringlist, String *string)
-{
-	stringlist->sl.push_back( string );
-
-	return stringlist;
-}
-
-String *new_string(char *start, char *end)
-{
-    String *s = new String(start, end);
-
-    return s;
 }
