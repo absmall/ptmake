@@ -1,24 +1,16 @@
 #include <string>
-
-struct Dependencies {
-	std::list<std::string> *regular;
-	std::list<std::string> *orderOnly;
-};
-
-struct RuleHeader {
-	std::list<std::string> *targetlist;
-	Dependencies *dependencies;
-};
+#include <list>
 
 class Rule {
 public:
-    Rule(RuleHeader *ruleHeader, std::list<std::string> *commands);
+    Rule();
     void print();
+    void addTarget(const std::string &target);
+    void addCommand(const std::string &command);
+    static Rule *find(const std::string &target);
 
 private:
-	RuleHeader *header;
-	std::list<std::string> *commands;
+    std::list<std::string> targets;
+	std::list<std::string> commands;
+    static std::list<Rule *> rules;
 };
-
-RuleHeader *make_rule_header(std::list<std::string> *, Dependencies *);
-Dependencies *make_dependencies(std::list<std::string> *, std::list<std::string> *);

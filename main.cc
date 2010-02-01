@@ -4,6 +4,7 @@
 #include "parse.h"
 #include "argpc.h"
 #include "build.h"
+#include "rules.h"
 
 using namespace std;
 
@@ -50,7 +51,10 @@ int main(int argc, char *argv[])
             set_target( argv[i] );
         }
 		//parse_makefile( makefile );
+        Rule *r = new Rule();
+        r->addTarget("make.exe");
         print_targets();
+        build_targets();
 	} catch ( const std::exception &e ) {
 		cerr << "make: " << e.what() << endl;
 	}
