@@ -49,7 +49,6 @@ int main(int argc, char *argv[])
         for( int i = 1; i < argc; i ++ ) {
             set_target( argv[i] );
         }
-		parse_makefile( makefile );
         print_targets();
 	} catch ( const std::exception &e ) {
 		cerr << "make: " << e.what() << endl;

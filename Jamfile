@@ -1,5 +1,8 @@
-C++ = g++ ;
-LINK = g++ ;
+if $(UNIX)
+{
+    C++ = g++ ;
+    LINK = g++ ;
+}
 
 SOURCES = main.cc build.cc find.cc argpc.cc argpcoption.cc exception.cc rules.cc ;
 
