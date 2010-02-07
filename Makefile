@@ -1,4 +1,9 @@
+OS := $(shell uname -o)
+ifeq ($(OS),GNU/Linux)
+ENVIRONMENT=gcc
+else
 ENVIRONMENT=vc
+endif
 
 OBJS = main.o build.o find.o parse.o argpc.o argpcoption.o exception.o parser.o rules.o
 
