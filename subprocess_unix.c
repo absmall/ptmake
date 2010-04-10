@@ -18,7 +18,8 @@ void trace(const char *command)
 	if( child == 0 ) {
 		ptrace(PTRACE_TRACEME, 0, NULL, NULL);
 		printf("Tracing %s\n", command);
-		system(command);
+		
+		execl("/bin/sh", "sh", "-c", command, NULL);
 	} else {
 		while(1) {
 			wait(&status);
