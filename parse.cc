@@ -1,5 +1,6 @@
 #include "parse.h"
 #include <string>
+#include <stdio.h>
 #include <iostream>
 #include <stdexcept>
 #include <stdlib.h>
