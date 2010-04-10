@@ -5,6 +5,7 @@
 #include "rules.h"
 #include "build.h"
 #include "exception.h"
+#include "subprocess.h"
 
 using namespace std;
 
@@ -22,52 +23,59 @@ void Rule::print()
 		cout << (*i);
 	}
 	cout << endl;
-    cout << "Commands:" << endl;
-    for(list<string>::iterator i = commands.begin();
-            i != commands.end();
-            i ++ )
-    {
-        cout << (*i) << endl;
-    }
-    cout << endl;
+	cout << "Commands:" << endl;
+	for(list<string>::iterator i = commands.begin();
+			i != commands.end();
+			i ++ )
+	{
+		cout << (*i) << endl;
+	}
+	cout << endl;
+}
+
+void Rule::execute()
+{
+	for(list<string>::iterator i = commands.begin(); i != commands.end(); i ++ ) {
+		trace(i->c_str());
+	}
 }
 
 Rule::Rule( )
 {
-    rules.push_back(this);
+	rules.push_back(this);
 }
 
 Rule *Rule::find(const string &target)
 {
-    Rule *r;
-    bool foundARule = false;
-    for(list<Rule *>::iterator i = rules.begin(); i != rules.end(); i ++ )
-    {
-        std::list<std::string>::iterator b, e;
-        b = (*i)->targets.begin();
-        e = (*i)->targets.end();
-        if( e != std::find(b, e, target) ) {
-            if( foundARule ) {
-                // We have multiple rules to build the target
-                throw runtime_wexception( "Multiple rules" );
-            }
-            foundARule = true;
-            r = *i;
-        }
-    }
+	Rule *r;
+	bool foundARule = false;
+	for(list<Rule *>::iterator i = rules.begin(); i != rules.end(); i ++ )
+	{
+		std::list<std::string>::iterator b, e;
+		b = (*i)->targets.begin();
+		e = (*i)->targets.end();
+		if( e != std::find(b, e, target) ) {
+			if( foundARule ) {
+				// We have multiple rules to build the target
+				throw runtime_wexception( "Multiple rules" );
+			}
+			foundARule = true;
+			r = *i;
+		}
+	}
 
-    if( foundARule ) {
-        return r;
-    } else {
-        throw runtime_wexception( "No rule" );
-    }
+	if( foundARule ) {
+		return r;
+	} else {
+		throw runtime_wexception( "No rule" );
+	}
 }
 
 void Rule::addTarget(const std::string &target)
 {
-    targets.push_back(target);
+	targets.push_back(target);
 }
 void Rule::addCommand(const std::string &command)
 {
-    commands.push_back(command);
+	commands.push_back(command);
 }

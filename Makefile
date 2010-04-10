@@ -11,6 +11,10 @@ ifeq ($(ENVIRONMENT),vc)
 OBJS += subprocess_win.o
 endif
 
+ifeq ($(ENVIRONMENT),gcc)
+OBJS += subprocess_unix.o
+endif
+
 BUILD_OPTIONS=warnings debug
 
 include bison.mak
