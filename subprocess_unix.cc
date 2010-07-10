@@ -6,7 +6,7 @@
 #include <asm/ptrace-abi.h>
 #include <sys/wait.h>
 
-void build(char *command)
+void build(const char *command)
 {
 	char l;
 	int i, status;
@@ -47,7 +47,7 @@ void build(char *command)
 	}
 }
 
-int main(int argc, char *argv[])
+int main(int argc, const char *argv[])
 {
 	if( argc >= 2 ) {
 		build(argv[1]);
