@@ -9,7 +9,7 @@
 
 using namespace std;
 
-void build(string command)
+void build(string command, void (*callback)(string filename))
 {
 	char l;
 	int i, status;
@@ -28,7 +28,7 @@ void build(string command)
 			name = ptrace(PTRACE_PEEKUSER, child, 4 * EBX, NULL);
 			if( orig_eax == 5 ) {
 				int done;
-				cout <<"The child opened ";
+				string s;
 				done = 0;
 				while( !done ) {
 					c = ptrace(PTRACE_PEEKDATA, child, name, NULL);
@@ -40,22 +40,27 @@ void build(string command)
 							done = 1;
 							break;
 						}
-						cout << l;
+						s += l;
 					}
 				}
-				cout << endl;
+				callback(s);
 			}
 			ptrace(PTRACE_SYSCALL, child, NULL, NULL);
 		}
 	}
 }
 
+void print(string s)
+{
+	cout << "The child opened " << s << endl;
+}
+
 int main(int argc, const char *argv[])
 {
 	if( argc >= 2 ) {
-		build(argv[1]);
+		build(argv[1], print);
 	} else {
-		build("/bin/ls");
+		build("/bin/ls", print);
 	}
 
 	return 0;
