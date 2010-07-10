@@ -6,30 +6,54 @@
 #include <asm/ptrace-abi.h>
 #include <sys/wait.h>
 
-int main(int argc, char *argv[])
+void build(char *command)
 {
-	int status;
-	long orig_eax;
+	char l;
+	int i, status;
+	long orig_eax, name,c;
 	pid_t child;
 
 	child = fork();
 	if( child == 0 ) {
 		ptrace(PTRACE_TRACEME, 0, NULL, NULL);
-		if( argc >= 2 ) {
-			execl(argv[1], argv[1], NULL);
-		} else {
-			execl("/bin/ls", "ls", NULL);
-		}
+		execl(command, command, NULL);
 	} else {
 		while(1) {
 			wait(&status);
 			if(WIFEXITED(status)) break;
 			orig_eax = ptrace(PTRACE_PEEKUSER, child, 4 * ORIG_EAX, NULL);
+			name = ptrace(PTRACE_PEEKUSER, child, 4 * EBX, NULL);
 			if( orig_eax == 5 ) {
-				printf("The child made a system call %ld\n", orig_eax);
+				int done;
+				printf("The child opened ");
+				done = 0;
+				while( !done ) {
+					c = ptrace(PTRACE_PEEKDATA, child, name, NULL);
+					for( i = 0; i < 4; i ++ ) {
+						l = c & 0xFF;
+						c >>= 8;
+						name ++;
+						if( l == 0 ) {
+							done = 1;
+							break;
+						}
+						printf("%c", l);
+					}
+				}
+				printf("\n");
 			}
 			ptrace(PTRACE_SYSCALL, child, NULL, NULL);
 		}
 	}
+}
+
+int main(int argc, char *argv[])
+{
+	if( argc >= 2 ) {
+		build(argv[1]);
+	} else {
+		build("/bin/ls");
+	}
+
 	return 0;
 }
