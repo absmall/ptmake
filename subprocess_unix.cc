@@ -1,12 +1,15 @@
 #include <stdlib.h>
 #include <errno.h>
-#include <stdio.h>
+#include <iostream>
+#include <string>
 #include <unistd.h>
 #include <sys/ptrace.h>
 #include <asm/ptrace-abi.h>
 #include <sys/wait.h>
 
-void build(const char *command)
+using namespace std;
+
+void build(string command)
 {
 	char l;
 	int i, status;
@@ -16,7 +19,7 @@ void build(const char *command)
 	child = fork();
 	if( child == 0 ) {
 		ptrace(PTRACE_TRACEME, 0, NULL, NULL);
-		execl(command, command, NULL);
+		execl(command.c_str(), command.c_str(), NULL);
 	} else {
 		while(1) {
 			wait(&status);
@@ -25,7 +28,7 @@ void build(const char *command)
 			name = ptrace(PTRACE_PEEKUSER, child, 4 * EBX, NULL);
 			if( orig_eax == 5 ) {
 				int done;
-				printf("The child opened ");
+				cout <<"The child opened ";
 				done = 0;
 				while( !done ) {
 					c = ptrace(PTRACE_PEEKDATA, child, name, NULL);
@@ -37,10 +40,10 @@ void build(const char *command)
 							done = 1;
 							break;
 						}
-						printf("%c", l);
+						cout << l;
 					}
 				}
-				printf("\n");
+				cout << endl;
 			}
 			ptrace(PTRACE_SYSCALL, child, NULL, NULL);
 		}
