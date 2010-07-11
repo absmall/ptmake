@@ -4,11 +4,12 @@
 #include "parse.h"
 #include "argpc.h"
 #include "build.h"
+#include "rules.h"
 
 using namespace std;
 
 bool makefile_specified = false;
-extern "C" int yydebug;
+//extern "C" yydebug;
 std::string makefile;
 
 void set_makefile( std::string file )
@@ -20,7 +21,7 @@ void set_makefile( std::string file )
 #ifdef DEBUG
 void debug_mode()
 {
-	yydebug = 1;
+//	yydebug = 1;
 }
 #endif
 
@@ -39,7 +40,7 @@ int main(int argc, char *argv[])
 		options->setArgumentDescription( "FILE ..." );
 		options->addOption( ArgpcOption( "file", 'f', "file", "Read FILE as a makefile.", set_makefile ) );
 #ifdef DEBUG
-		options->addOption( ArgpcOption( "debug", 'd', "Enabled.", debug_mode ) );
+		options->addOption( ArgpcOption( "debug", 'd', "Ouput debugging information", debug_mode ) );
 #endif
 		options->parse( &argc, argv );
 
@@ -49,7 +50,11 @@ int main(int argc, char *argv[])
         for( int i = 1; i < argc; i ++ ) {
             set_target( argv[i] );
         }
+		//parse_makefile( makefile );
+        Rule *r = new Rule();
+        r->addTarget("make.exe");
         print_targets();
+        build_targets();
 	} catch ( const std::exception &e ) {
 		cerr << "make: " << e.what() << endl;
 	}

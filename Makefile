@@ -5,10 +5,14 @@ else
 ENVIRONMENT=vc
 endif
 
-OBJS = main.o build.o find.o parse.o argpc.o argpcoption.o exception.o parser.o rules.o
+OBJS = main.o build.o find.o argpc.o argpcoption.o exception.o rules.o
 
 ifeq ($(ENVIRONMENT),vc)
 OBJS += subprocess_win.o
+endif
+
+ifeq ($(ENVIRONMENT),gcc)
+OBJS += subprocess_unix.o
 endif
 
 BUILD_OPTIONS=warnings debug

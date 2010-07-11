@@ -1,118 +1,73 @@
 #include <string>
 #include <list>
 #include <iostream>
+#include <algorithm>
 #include "rules.h"
 #include "build.h"
+#include "exception.h"
 
 using namespace std;
 
-struct _String {
-    _String() {}
-    _String(char *start, char *end) : s(start, end) {}
-    string s;
-};
+std::list<Rule *> Rule::rules;
 
-struct _StringList {
-    list<String *> sl;
-};
-
-struct _Dependencies {
-	StringList *regular;
-	StringList *orderOnly;
-};
-
-struct _RuleHeader {
-	StringList *targetlist;
-	Dependencies *dependencies;
-};
-
-struct _Rule {
-	RuleHeader *header;
-	StringList *commands;
-};
-
-void print_rule(Rule *rule)
+void Rule::print()
 {
 	cout << "Rule:" << endl;
 	cout << "Targets:" << endl;
 
-    if( !has_target() ) {
-        // There was no target specified, so all targets become default targets
-        for(list<String *>::iterator i = rule->header->targetlist->sl.begin();
-                i != rule->header->targetlist->sl.end();
-                i ++)
-        {
-            set_target((*i)->s);
-        }
-    }
-	for(list<String *>::iterator i = rule->header->targetlist->sl.begin();
-			i != rule->header->targetlist->sl.end();
+	for(list<string>::iterator i = targets.begin();
+			i != targets.end();
 			i ++)
 	{
-		cout << (*i)->s;
+		cout << (*i);
 	}
 	cout << endl;
-	cout << "Dependencies:" << endl;
-	for(list<String *>::iterator i = rule->header->dependencies->regular->sl.begin();
-			i != rule->header->dependencies->regular->sl.end();
-			i ++)
-	{
-		cout << (*i)->s;
-	}
-    cout << endl;
     cout << "Commands:" << endl;
-    for(list<String *>::iterator i = rule->commands->sl.begin();
-            i != rule->commands->sl.end();
+    for(list<string>::iterator i = commands.begin();
+            i != commands.end();
             i ++ )
     {
-        cout << (*i)->s << endl;
+        cout << (*i) << endl;
     }
     cout << endl;
 }
 
-Rule *make_rule(RuleHeader *ruleHeader, StringList *commands)
+Rule::Rule( )
 {
-	Rule *rule = new Rule;
-	rule->header = ruleHeader;
-	rule->commands = commands;
-
-	return rule;
+    rules.push_back(this);
 }
 
-RuleHeader *make_rule_header(StringList *targetlist, Dependencies *dependencies)
+Rule *Rule::find(const string &target)
 {
-	RuleHeader *ruleHeader = new RuleHeader;
-	ruleHeader->targetlist = targetlist;
-	ruleHeader->dependencies = dependencies;
+    Rule *r;
+    bool foundARule = false;
+    for(list<Rule *>::iterator i = rules.begin(); i != rules.end(); i ++ )
+    {
+        std::list<std::string>::iterator b, e;
+        b = (*i)->targets.begin();
+        e = (*i)->targets.end();
+        if( e != std::find(b, e, target) ) {
+            if( foundARule ) {
+                // We have multiple rules to build the target
+                throw runtime_wexception( "Multiple rules" );
+            }
+            foundARule = true;
+            r = *i;
+        }
+    }
 
-	return ruleHeader;
+    if( foundARule ) {
+        return r;
+    } else {
+        throw runtime_wexception( "No rule" );
+    }
 }
 
-Dependencies *make_dependencies(StringList *regular, StringList *orderOnly)
+void Rule::addTarget(const std::string &target)
 {
-	Dependencies *dep = new Dependencies;
-
-	dep->regular = regular;
-	dep->orderOnly = orderOnly;
-
-	return dep;
+    targets.push_back(target);
 }
-
-StringList *new_stringlist()
+void Rule::addCommand(const std::string &command)
 {
-    return new StringList;
-}
-
-StringList *add_stringlist(StringList *stringlist, String *string)
-{
-	stringlist->sl.push_back( string );
-
-	return stringlist;
-}
-
-String *new_string(char *start, char *end)
-{
-    String *s = new String(start, end);
-
-    return s;
+    commands.push_back(command);
 }

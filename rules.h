@@ -1,21 +1,16 @@
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include <string>
+#include <list>
 
-typedef struct _Dependencies Dependencies;
-typedef struct _RuleHeader RuleHeader;
-typedef struct _Rule Rule;
-typedef struct _StringList StringList;
-typedef struct _String String;
+class Rule {
+public:
+    Rule();
+    void print();
+    void addTarget(const std::string &target);
+    void addCommand(const std::string &command);
+    static Rule *find(const std::string &target);
 
-void print_rule(Rule *);
-Rule *make_rule(RuleHeader *, StringList *);
-RuleHeader *make_rule_header(StringList *, Dependencies *);
-Dependencies *make_dependencies(StringList *, StringList *);
-String *new_string(char *start, char *end);
-StringList *new_stringlist();
-StringList *add_stringlist(StringList *slist, String *string);
-
-#ifdef __cplusplus
-}
-#endif
+private:
+    std::list<std::string> targets;
+	std::list<std::string> commands;
+    static std::list<Rule *> rules;
+};
