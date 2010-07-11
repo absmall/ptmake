@@ -1,14 +1,8 @@
 #ifndef __SUBPROCESS_H__
 #define __SUBPROCESS_H__
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include <string>
 
-void trace(const char *command);
-
-#ifdef __cplusplus
-}
-#endif
+void trace(std::string command, void (*callback)(std::string filename));
 
 #endif /* __SUBPROCESS_H__ */

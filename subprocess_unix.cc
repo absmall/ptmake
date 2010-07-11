@@ -7,10 +7,11 @@
 #include <asm/ptrace-abi.h>
 #include <sys/wait.h>
 #include <syscall.h>
+#include "subprocess.h"
 
 using namespace std;
 
-void run(string command, void (*callback)(string filename))
+void trace(string command, void (*callback)(string filename))
 {
 	char l;
 	int i, status;
