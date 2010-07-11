@@ -40,7 +40,7 @@ int main(int argc, char *argv[])
 		options->setArgumentDescription( "FILE ..." );
 		options->addOption( ArgpcOption( "file", 'f', "file", "Read FILE as a makefile.", set_makefile ) );
 #ifdef DEBUG
-		options->addOption( ArgpcOption( "debug", 'd', "Enabled.", debug_mode ) );
+		options->addOption( ArgpcOption( "debug", 'd', "Ouput debugging information", debug_mode ) );
 #endif
 		options->parse( &argc, argv );
 
