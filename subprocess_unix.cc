@@ -14,7 +14,7 @@ void run(string command, void (*callback)(string filename))
 {
 	char l;
 	int i, status;
-	long orig_eax, name,c;
+	long syscall_id, name,c;
 	pid_t child;
 
 	child = fork();
@@ -26,12 +26,12 @@ void run(string command, void (*callback)(string filename))
 			wait(&status);
 			if(WIFEXITED(status)) break;
 #if defined(__i386)
-			orig_eax = ptrace(PTRACE_PEEKUSER, child, 4 * ORIG_EAX, NULL);
+			syscall_id = ptrace(PTRACE_PEEKUSER, child, 4 * ORIG_EAX, NULL);
 #elif defined(__x86_64)
 			ret = ptrace(PTRACE_PEEKUSER, child, 8 * ORIG_RAX, NULL);
 #endif
 			name = ptrace(PTRACE_PEEKUSER, child, 4 * EBX, NULL);
-			switch( orig_eax ) {
+			switch( syscall_id ) {
 				case __NR_open:
 				{
 					int done;
@@ -92,7 +92,7 @@ void run(string command, void (*callback)(string filename))
 				case __NR_close:
 					break;
 				default:
-					cout << "The child made a system call " << orig_eax << endl;
+					cout << "The child made a system call " << syscall_id << endl;
 					break;
 			}
 			ptrace(PTRACE_SYSCALL, child, NULL, NULL);
