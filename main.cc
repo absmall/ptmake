@@ -54,7 +54,7 @@ int main(int argc, char *argv[])
         Rule *r = new Rule();
         r->addTarget("sample.txt");
         r->addCommand("echo hello > sample.txt");
-	print_targets();
+		print_targets();
         build_targets();
 	} catch ( const std::exception &e ) {
 		cerr << "make: " << e.what() << endl;
