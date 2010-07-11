@@ -9,7 +9,7 @@
 
 using namespace std;
 
-void build(string command, void (*callback)(string filename))
+void run(string command, void (*callback)(string filename))
 {
 	char l;
 	int i, status;
