@@ -49,19 +49,3 @@ void build(string command, void (*callback)(string filename))
 		}
 	}
 }
-
-void print(string s)
-{
-	cout << "The child opened " << s << endl;
-}
-
-int main(int argc, const char *argv[])
-{
-	if( argc >= 2 ) {
-		build(argv[1], print);
-	} else {
-		build("/bin/ls", print);
-	}
-
-	return 0;
-}

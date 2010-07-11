@@ -1,7 +1,7 @@
 C++ = g++ ;
 LINK = g++ ;
 
-# SOURCES = main.cc build.cc find.cc argpc.cc argpcoption.cc exception.cc rules.cc ;
+SOURCES = main.cc build.cc find.cc argpc.cc argpcoption.cc exception.cc rules.cc ;
 
 if $(UNIX) { SOURCES += subprocess_unix.cc ; }
 if $(NT) { SOURCES += subprocess_win.c ; }
