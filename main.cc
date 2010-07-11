@@ -50,10 +50,10 @@ int main(int argc, char *argv[])
         for( int i = 1; i < argc; i ++ ) {
             set_target( argv[i] );
         }
-		//parse_makefile( makefile );
         Rule *r = new Rule();
         r->addTarget("sample.txt");
         r->addCommand("echo hello > sample.txt");
+		set_target("sample.txt");
 		print_targets();
         build_targets();
 	} catch ( const std::exception &e ) {

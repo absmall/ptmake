@@ -18,10 +18,12 @@ void trace(string command, void (*callback)(string filename))
 	long syscall_id, name,c;
 	pid_t child;
 
+	cout << "Executing " << command << endl;
+
 	child = fork();
 	if( child == 0 ) {
 		ptrace(PTRACE_TRACEME, 0, NULL, NULL);
-		execl(command.c_str(), command.c_str(), NULL);
+		execl("/bin/sh", "sh", command.c_str(), NULL);
 	} else {
 		while(1) {
 			wait(&status);

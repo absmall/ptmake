@@ -33,10 +33,15 @@ void Rule::print()
 	cout << endl;
 }
 
+void print(std::string filename)
+{
+	cout << "Depends on " << filename << endl;
+}
+
 void Rule::execute()
 {
 	for(list<string>::iterator i = commands.begin(); i != commands.end(); i ++ ) {
-//		trace(i->c_str());
+		trace(*i, ::print);
 	}
 }
 
