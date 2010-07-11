@@ -64,7 +64,7 @@ void run(string command, void (*callback)(string filename))
 				case __NR_fcntl:
 					cout << "Fcntl call" << endl;
 					break;
-#if 0
+#if defined(__x86_64)
 				case __NR_arch_prctl:
 					cout << "Arch prctl call" << endl;
 					break;
