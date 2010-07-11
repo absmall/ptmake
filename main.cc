@@ -52,8 +52,9 @@ int main(int argc, char *argv[])
         }
 		//parse_makefile( makefile );
         Rule *r = new Rule();
-        r->addTarget("make.exe");
-        print_targets();
+        r->addTarget("sample.txt");
+        r->addCommand("echo hello > sample.txt");
+	print_targets();
         build_targets();
 	} catch ( const std::exception &e ) {
 		cerr << "make: " << e.what() << endl;
