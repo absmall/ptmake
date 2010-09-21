@@ -11,6 +11,55 @@
 
 using namespace std;
 
+#ifdef DEBUG
+struct
+{
+	int id;
+	const char *statement;
+} debugprints[] = {
+	{ __NR_stat, "stat" },
+	{ __NR_access, "access" },
+	{ __NR_open, "open" },
+	{ __NR_geteuid32, "geteuid32" },
+	{ __NR_set_thread_area, "set_thread_area" },
+	{ __NR_stat64, "stat64" },
+	{ __NR_fstat, "fstat" },
+	{ __NR_fstat64, "fstat64" },
+	{ __NR_mmap2, "mmap2" },
+	{ __NR_fcntl, "fcntl" },
+#if defined(__x86_64)
+	{ __NR_arch_prctl, "arch prctl" },
+#endif
+	{ __NR_execve, "execve" },
+	{ __NR_dup2, "dup2" },
+	{ __NR_exit_group, "exit group" },
+	{ __NR_mmap, "mmap" },
+	{ __NR_mprotect, "mprotect" },
+	{ __NR_getppid, "getppid" },
+	{ __NR_brk, "brk" },
+	{ __NR_geteuid, "geteuid" },
+	{ __NR_getpid, "getpid" },
+	{ __NR_munmap, "munmap" },
+	{ __NR_read, "read" },
+	{ __NR_write, "write" },
+	{ __NR_rt_sigaction, "rt_sigaction" },
+	{ __NR_close, "close" },
+};
+
+void debugprint( int syscall_id )
+{
+	unsigned int i;
+
+	for( i = 0; i < sizeof(debugprints)/sizeof(debugprints[0]); i ++ ) {
+		if( debugprints[ i ].id == syscall_id ) {
+			cout << debugprints[ i ].statement << " call" << endl;
+			return;
+		}
+	}
+	cout << "The child made a system call " << syscall_id << endl;
+}
+#endif
+
 void trace(string command, void (*callback)(string filename))
 {
 	char l;
@@ -23,10 +72,12 @@ void trace(string command, void (*callback)(string filename))
 	child = fork();
 	if( child == 0 ) {
 		ptrace(PTRACE_TRACEME, 0, NULL, NULL);
+		ptrace(PTRACE_SETOPTIONS, 0, NULL, PTRACE_O_TRACEFORK | PTRACE_O_TRACEVFORK | PTRACE_O_TRACECLONE | PTRACE_O_TRACEEXEC);
 		execl("/bin/sh", "sh", command.c_str(), NULL);
 	} else {
 		while(1) {
-			wait(&status);
+			child = wait(&status);
+//			cout << child << ": status: " << status << " is signalled? " << WIFSIGNALED(status) << endl;
 			if(WIFEXITED(status)) break;
 #if defined(__i386)
 			syscall_id = ptrace(PTRACE_PEEKUSER, child, 4 * ORIG_EAX, NULL);
@@ -34,8 +85,14 @@ void trace(string command, void (*callback)(string filename))
 			ret = ptrace(PTRACE_PEEKUSER, child, 8 * ORIG_RAX, NULL);
 #endif
 			name = ptrace(PTRACE_PEEKUSER, child, 4 * EBX, NULL);
+#ifdef DEBUG
+			debugprint( syscall_id );
+#endif
 			switch( syscall_id ) {
+				case __NR_stat:
+				case __NR_access:
 				case __NR_open:
+				case __NR_stat64:
 				{
 					int done;
 					string s;
@@ -55,48 +112,6 @@ void trace(string command, void (*callback)(string filename))
 					}
 					callback(s);
 				}
-				case __NR_stat:
-					cout << "Stat call" << endl;
-					break;
-				case __NR_fstat:
-					cout << "fstat call" << endl;
-					break;
-				case __NR_access:
-					cout << "Access call" << endl;
-					break;
-				case __NR_fcntl:
-					cout << "Fcntl call" << endl;
-					break;
-#if defined(__x86_64)
-				case __NR_arch_prctl:
-					cout << "Arch prctl call" << endl;
-					break;
-#endif
-				case __NR_execve:
-					cout << "Execve call" << endl;
-					break;
-				case __NR_dup2:
-					cout << "Dup2 call" << endl;
-					break;
-				case __NR_exit_group:
-					cout << "Exit group call" << endl;
-					break;
-				// Don't care about these ones
-				case __NR_mmap:
-				case __NR_mprotect:
-				case __NR_getppid:
-				case __NR_brk:
-				case __NR_geteuid:
-				case __NR_getpid:
-				case __NR_munmap:
-				case __NR_read:
-				case __NR_write:
-				case __NR_rt_sigaction:
-				case __NR_close:
-					break;
-				default:
-					cout << "The child made a system call " << syscall_id << endl;
-					break;
 			}
 			ptrace(PTRACE_SYSCALL, child, NULL, NULL);
 		}
