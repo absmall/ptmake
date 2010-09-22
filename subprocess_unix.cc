@@ -8,6 +8,7 @@
 #include <sys/wait.h>
 #include <syscall.h>
 #include "subprocess.h"
+#include "globals.h"
 
 using namespace std;
 
@@ -86,7 +87,9 @@ void trace(string command, void (*callback)(string filename))
 #endif
 			name = ptrace(PTRACE_PEEKUSER, child, 4 * EBX, NULL);
 #ifdef DEBUG
-			debugprint( syscall_id );
+			if( debug ) {
+				debugprint( syscall_id );
+			}
 #endif
 			switch( syscall_id ) {
 				case __NR_stat:

@@ -9,6 +9,7 @@
 using namespace std;
 
 bool makefile_specified = false;
+bool debug = false;
 //extern "C" yydebug;
 std::string makefile;
 
@@ -22,6 +23,7 @@ void set_makefile( std::string file )
 void debug_mode()
 {
 //	yydebug = 1;
+	debug = 1;
 }
 #endif
 
