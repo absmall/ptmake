@@ -61,7 +61,7 @@ void debugprint( int syscall_id )
 }
 #endif
 
-void trace(string command, void (*callback)(string filename))
+void Subprocess::trace(string command)
 {
 	char l;
 	int i, status;

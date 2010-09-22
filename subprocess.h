@@ -4,6 +4,11 @@
 #include <list>
 #include <string>
 
-void trace(std::string command, void (*callback)(std::string filename));
+class Subprocess
+{
+public:
+	void trace(std::string command);
+	virtual void callback(std::string filename) = 0;
+};
 
 #endif /* __SUBPROCESS_H__ */

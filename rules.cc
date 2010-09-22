@@ -38,10 +38,15 @@ void print(std::string filename)
 	cout << "Depends on " << filename << endl;
 }
 
+void Rule::callback(std::string filename)
+{
+	::print(filename);
+}
+
 void Rule::execute()
 {
 	for(list<string>::iterator i = commands.begin(); i != commands.end(); i ++ ) {
-		trace(*i, ::print);
+		trace(*i);
 	}
 }
 
