@@ -73,7 +73,7 @@ void trace(string command, void (*callback)(string filename))
 	if( child == 0 ) {
 		ptrace(PTRACE_TRACEME, 0, NULL, NULL);
 		ptrace(PTRACE_SETOPTIONS, 0, NULL, PTRACE_O_TRACEFORK | PTRACE_O_TRACEVFORK | PTRACE_O_TRACECLONE | PTRACE_O_TRACEEXEC);
-		execl("/bin/sh", "sh", command.c_str(), NULL);
+		execl("/bin/sh", "sh", "-c", command.c_str(), NULL);
 	} else {
 		while(1) {
 			child = wait(&status);
