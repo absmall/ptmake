@@ -120,4 +120,5 @@ void Subprocess::trace(string command)
 			ptrace(PTRACE_SYSCALL, child, NULL, NULL);
 		}
 	}
+	cout << command << " completed" << endl;
 }

@@ -10,6 +10,7 @@
 using namespace std;
 
 std::list<Rule *> Rule::rules;
+std::set<std::string> Rule::buildCache;
 
 void Rule::print()
 {
@@ -41,6 +42,11 @@ void print(std::string filename)
 void Rule::callback(std::string filename)
 {
 	::print(filename);
+	try {
+		try_to_build(filename);
+	} catch( wexception &e ) {
+		// Do nothing
+	}
 }
 
 void Rule::execute()
@@ -79,6 +85,19 @@ Rule *Rule::find(const string &target)
 	} else {
 		throw runtime_wexception( "No rule" );
 	}
+}
+
+void Rule::try_to_build(const string &target)
+{
+	// See if we have already built this
+	if( buildCache.find(target) != buildCache.end() ) {
+		// Already built
+		return;
+	}
+
+	buildCache.insert(target);
+	Rule *r = Rule::find(target);
+	r->execute();
 }
 
 void Rule::addTarget(const std::string &target)
