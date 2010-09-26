@@ -5,7 +5,7 @@ else
 ENVIRONMENT=vc
 endif
 
-OBJS = main.o build.o find.o argpc.o argpcoption.o exception.o rules.o
+OBJS = main.o build.o find.o argpc.o argpcoption.o exception.o rules.o static_rules.o
 
 ifeq ($(ENVIRONMENT),vc)
 OBJS += subprocess_win.o

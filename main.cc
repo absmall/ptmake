@@ -12,6 +12,7 @@ bool makefile_specified = false;
 bool debug = false;
 //extern "C" yydebug;
 std::string makefile;
+void static_rules();
 
 void set_makefile( std::string file )
 {
@@ -46,12 +47,16 @@ int main(int argc, char *argv[])
 #endif
 		options->parse( &argc, argv );
 
+		// This should be parsing a makefile eventually
+		static_rules();
+
 		if( !makefile_specified ) {
 			makefile = find_makefile( );
 		}
 		for( int i = 1; i < argc; i ++ ) {
 			set_target( argv[i] );
 		}
+
 		set_default_target();
 		print_targets();
 		build_targets();
