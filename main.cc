@@ -52,9 +52,6 @@ int main(int argc, char *argv[])
 		for( int i = 1; i < argc; i ++ ) {
 			set_target( argv[i] );
 		}
-		Rule *r = new Rule();
-		r->addTarget("main.o");
-		r->addCommand("g++ -c -Wall -DDEBUG -g3 -o main.o main.cc");
 		set_default_target();
 		print_targets();
 		build_targets();
