@@ -45,19 +45,21 @@ struct
 	{ __NR_write, "write" },
 	{ __NR_rt_sigaction, "rt_sigaction" },
 	{ __NR_close, "close" },
+	{ __NR_clone, "clone" },
+	{ __NR_wait4, "wait4" },
 };
 
-void debugprint( int syscall_id )
+void debugprint( int pid, int syscall_id )
 {
 	unsigned int i;
 
 	for( i = 0; i < sizeof(debugprints)/sizeof(debugprints[0]); i ++ ) {
 		if( debugprints[ i ].id == syscall_id ) {
-			cout << debugprints[ i ].statement << " call" << endl;
+			cout << pid << ": " << debugprints[ i ].statement << " call" << endl;
 			return;
 		}
 	}
-	cout << "The child made a system call " << syscall_id << endl;
+	cout << pid << " made a system call " << syscall_id << endl;
 }
 #endif
 
@@ -73,12 +75,11 @@ void Subprocess::trace(string command)
 	child = fork();
 	if( child == 0 ) {
 		ptrace(PTRACE_TRACEME, 0, NULL, NULL);
-		ptrace(PTRACE_SETOPTIONS, 0, NULL, PTRACE_O_TRACEFORK | PTRACE_O_TRACEVFORK | PTRACE_O_TRACECLONE | PTRACE_O_TRACEEXEC);
 		execl("/bin/sh", "sh", "-c", command.c_str(), NULL);
 	} else {
 		while(1) {
 			child = wait(&status);
-//			cout << child << ": status: " << status << " is signalled? " << WIFSIGNALED(status) << endl;
+			ptrace(PTRACE_SETOPTIONS, child, NULL, PTRACE_O_TRACEFORK | PTRACE_O_TRACEVFORK | PTRACE_O_TRACECLONE | PTRACE_O_TRACEEXEC);
 			if(WIFEXITED(status)) break;
 #if defined(__i386)
 			syscall_id = ptrace(PTRACE_PEEKUSER, child, 4 * ORIG_EAX, NULL);
@@ -88,7 +89,7 @@ void Subprocess::trace(string command)
 			name = ptrace(PTRACE_PEEKUSER, child, 4 * EBX, NULL);
 #ifdef DEBUG
 			if( debug ) {
-				debugprint( syscall_id );
+				debugprint( child, syscall_id );
 			}
 #endif
 			switch( syscall_id ) {
