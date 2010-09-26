@@ -89,3 +89,13 @@ void Rule::addCommand(const std::string &command)
 {
 	commands.push_back(command);
 }
+
+void Rule::setDefaultTargets(void)
+{
+	if( !rules.empty() ) {
+		Rule *r = *rules.begin();
+		for(list<string>::iterator i = r->targets.begin(); i != r->targets.end(); i ++ ) {
+			set_target(*i);
+		}
+	}
+}

@@ -1,5 +1,6 @@
 #include <string>
 #include <list>
+#include <set>
 #include "subprocess.h"
 
 class Rule : public Subprocess {
@@ -11,6 +12,7 @@ class Rule : public Subprocess {
 		void execute();
 		static Rule *find(const std::string &target);
 		void callback(std::string filename);
+		static void setDefaultTargets(void);
 
 	private:
 		std::list<std::string> targets;

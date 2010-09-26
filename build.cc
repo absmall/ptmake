@@ -8,6 +8,14 @@
 using namespace std;
 
 list<string> targets;
+set<string> built_cache;
+
+void set_default_target()
+{
+	if( !has_target() ) {
+		Rule::setDefaultTargets();
+	}
+}
 
 void set_target(string target)
 {
@@ -29,6 +37,9 @@ void print_targets()
 // For each target, look for a rule that builds the target
 void build_targets()
 {
+	if( targets.empty() ) {
+		cerr << "No target specified" << endl;
+	}
 	for(list<string>::iterator i = targets.begin(); i != targets.end(); i ++ ) {
 		try {
 			Rule *r = Rule::find(*i);
