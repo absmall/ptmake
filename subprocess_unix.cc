@@ -126,5 +126,5 @@ void Subprocess::trace(string command)
 			}
 		}
 	}
-	cout << command << " completed" << endl;
+	cout << "Completed " << command << endl;
 }
