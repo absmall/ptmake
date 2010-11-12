@@ -47,6 +47,7 @@ struct
 	{ __NR_close, "close" },
 	{ __NR_clone, "clone" },
 	{ __NR_wait4, "wait4" },
+	{ __NR_unlink, "unlink" },
 };
 
 void debugprint( int pid, int syscall_id )
@@ -117,7 +118,12 @@ void Subprocess::trace(string command)
 					callback(s);
 				}
 			}
-			ptrace(PTRACE_SYSCALL, child, NULL, NULL);
+			if( syscall_id == __NR_exit_group ) {
+				// Detach here - otherwise, the parent of a further subprocess gets a SIGTRAP on child exit
+				ptrace(PTRACE_DETACH, child, NULL, NULL);
+			} else {
+				ptrace(PTRACE_SYSCALL, child, NULL, NULL);
+			}
 		}
 	}
 	cout << command << " completed" << endl;
