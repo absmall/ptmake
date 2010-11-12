@@ -2,6 +2,7 @@
 #include <list>
 #include <iostream>
 #include <algorithm>
+#include "file.h"
 #include "rules.h"
 #include "build.h"
 #include "exception.h"
@@ -50,6 +51,7 @@ void Rule::callback(std::string filename)
 
 void Rule::execute()
 {
+	targetTime = fileTimeEarliest( targets );
 	for(list<string>::iterator i = commands.begin(); i != commands.end(); i ++ ) {
 		trace(*i);
 	}
