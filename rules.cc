@@ -41,7 +41,6 @@ void print(std::string filename)
 
 void Rule::callback(std::string filename)
 {
-	::print(filename);
 	try {
 		try_to_build(filename);
 	} catch( wexception &e ) {
