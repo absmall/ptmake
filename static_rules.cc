@@ -14,7 +14,7 @@ void static_rules()
 
 	Rule *make = new Rule();
 	make->addTarget("make.exe");
-	make->addCommand("g++ -DYYDEBUG -g3 -o make.exe main.o build.o find.o argpc.o argpcoption.o exception.o rules.o static_rules.o subprocess_unix.o");
+	make->addCommand("g++ -DYYDEBUG -g3 -o make.exe main.o build.o find.o argpc.o argpcoption.o exception.o rules.o static_rules.o file_unix.o subprocess_unix.o");
 
 	Rule *main = new Rule();
 	main->addTarget("main.o");
@@ -47,6 +47,10 @@ void static_rules()
 	Rule *static_rules = new Rule();
 	static_rules->addTarget("static_rules.o");
 	static_rules->addCommand("g++ -c -Wall -DDEBUG -g3 -o static_rules.o static_rules.cc");
+
+	Rule *file_rules = new Rule();
+	file_rules->addTarget("file_unix.o");
+	file_rules->addCommand("g++ -c -Wall -DDEBUG -g3 -o file_unix.o file_unix.cc");
 
 	Rule *subprocess_unix = new Rule();
 	subprocess_unix->addTarget("subprocess_unix.o");
