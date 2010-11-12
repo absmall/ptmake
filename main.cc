@@ -53,7 +53,6 @@ int main(int argc, char *argv[])
 			set_target( argv[i] );
 		}
 		set_default_target();
-		print_targets();
 		build_targets();
 	} catch ( const std::exception &e ) {
 		cerr << "make: " << e.what() << endl;

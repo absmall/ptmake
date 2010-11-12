@@ -42,7 +42,6 @@ void build_targets()
 	}
 	for(list<string>::iterator i = targets.begin(); i != targets.end(); i ++ ) {
 		try {
-			cout << "Making " << *i << " using rule:" << endl;
 			Rule::try_to_build( *i );
 		} catch (wexception &e) {
 			cerr << "Building " << *i << " failed: " << e.what() << endl;
