@@ -17,7 +17,7 @@ struct
 {
 	int id;
 	const char *statement;
-} debugprints[] = {
+} static debugprints[] = {
 	{ __NR_stat, "stat" },
 	{ __NR_access, "access" },
 	{ __NR_open, "open" },
