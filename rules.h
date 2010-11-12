@@ -16,6 +16,7 @@ class Rule : public Subprocess {
 		static void setDefaultTargets(void);
 
 	private:
+		time_t targetTime;
 		std::list<std::string> targets;
 		std::list<std::string> commands;
 		static std::list<Rule *> rules;

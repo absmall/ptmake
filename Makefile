@@ -13,6 +13,7 @@ endif
 
 ifeq ($(ENVIRONMENT),gcc)
 OBJS += subprocess_unix.o
+OBJS += file_unix.o
 endif
 
 BUILD_OPTIONS=warnings debug
