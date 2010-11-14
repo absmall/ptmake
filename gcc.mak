@@ -6,7 +6,7 @@ LDFLAGS:=$(filter debug, $(BUILD_OPTIONS))
 CPPFLAGS:=$(subst warnings,-Wall,$(CPPFLAGS))
 CPPFLAGS:=$(subst debug,-DYYDEBUG -DDEBUG -g3,$(CPPFLAGS))
 CXXFLAGS:=$(subst warnings,-Wall,$(CXXFLAGS))
-CXXFLAGS:=$(subst debug,-DDEBUG -g3,$(CXXFLAGS))
+CXXFLAGS:=$(subst debug,-DYYDEBUG -DDEBUG -g3,$(CXXFLAGS))
 LDFLAGS:=$(subst debug,-DYYDEBUG -g3,$(LDFLAGS))
 
 CC=gcc -c $(CPPFLAGS)
