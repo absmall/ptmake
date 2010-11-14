@@ -1,5 +1,7 @@
 %{
 #define YYSTYPE void*
+#include <list>
+#include <string>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -99,6 +101,7 @@ int yylex()
 	while( inputBufferOffset == inputBufferSize ) {
 		// Read  new line
 		inputBufferOffset = 0;
+		if( feof(f) ) return END;
 		while( !feof( f ) ) {
 			fgets(inputBuffer + inputBufferOffset, inputBufferMaxSize - inputBufferOffset, f);
 			inputBufferSize = strlen( inputBuffer );
@@ -166,31 +169,43 @@ void yyerror(char *s)
 	throw std::runtime_error( "Parse error" );
 }
 
-void print_rule( void *)
+void print_rule( void *rule)
 {
+	((Rule *)rule)->print();
 }
 
-void * make_rule( void *, void *)
+void * make_rule( void *rule, void *commands)
 {
-	return NULL;
+	((Rule *)rule)->addCommandList( (std::list<std::string> *)commands );
+	return rule;
 }
 
-void * make_rule_header( void *, void *)
+void * make_rule_header( void *targets, void *dependencies)
 {
-	return NULL;
+	Rule *r = new Rule;
+
+	r->addTargetList( (std::list<std::string> *)targets );
+	return r;
 }
 
-void * make_dependencies( void *, void *)
+void * make_dependencies( void *main, void *orderOnly)
 {
+	// We don't currently track dependencies. It may be useful to track them at
+	// some point for debugging, but I never want to expect them
+	delete (std::list<std::string> *)main;
+	if( orderOnly != NULL ) {
+		delete (std::list<std::string> *)orderOnly;
+	}
 	return NULL;
 }
 
 void * new_stringlist()
 {
-	return NULL;
+	return new std::list<std::string>;
 }
 
-void * add_stringlist( void *, void *)
+void * add_stringlist( void *list, void *s)
 {
-	return NULL;
+	((std::list<std::string> *)list)->push_back((std::string)(char *)s);
+	return list;
 }

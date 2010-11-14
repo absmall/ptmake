@@ -8,7 +8,9 @@ class Rule : public Subprocess {
 		Rule();
 		void print();
 		void addTarget(const std::string &target);
+		void addTargetList(std::list<std::string> *targetList);
 		void addCommand(const std::string &command);
+		void addCommandList(std::list<std::string> *commandList);
 		void execute();
 		static Rule *find(const std::string &target);
 		static void try_to_build(const std::string &target);
@@ -17,8 +19,8 @@ class Rule : public Subprocess {
 
 	private:
 		time_t targetTime;
-		std::list<std::string> targets;
-		std::list<std::string> commands;
+		std::list<std::string> *targets;
+		std::list<std::string> *commands;
 		static std::list<Rule *> rules;
 		static std::set<std::string> buildCache;
 };

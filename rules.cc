@@ -16,23 +16,27 @@ std::set<std::string> Rule::buildCache;
 void Rule::print()
 {
 	cout << "Rule:" << endl;
-	cout << "Targets:" << endl;
 
-	for(list<string>::iterator i = targets.begin();
-			i != targets.end();
-			i ++)
-	{
-		cout << (*i);
+	if( targets != NULL ) {
+		cout << "Targets:" << endl;
+		for(list<string>::iterator i = targets->begin();
+				i != targets->end();
+				i ++)
+		{
+			cout << (*i);
+		}
+		cout << endl;
 	}
-	cout << endl;
-	cout << "Commands:" << endl;
-	for(list<string>::iterator i = commands.begin();
-			i != commands.end();
-			i ++ )
-	{
-		cout << (*i) << endl;
+	if( commands != NULL ) {
+		cout << "Commands:" << endl;
+		for(list<string>::iterator i = commands->begin();
+				i != commands->end();
+				i ++ )
+		{
+			cout << (*i) << endl;
+		}
+		cout << endl;
 	}
-	cout << endl;
 }
 
 void print(std::string filename)
@@ -51,8 +55,9 @@ void Rule::callback(std::string filename)
 
 void Rule::execute()
 {
-	targetTime = fileTimeEarliest( targets );
-	for(list<string>::iterator i = commands.begin(); i != commands.end(); i ++ ) {
+	if( targets == NULL || commands == NULL ) return;
+	targetTime = fileTimeEarliest( *targets );
+	for(list<string>::iterator i = commands->begin(); i != commands->end(); i ++ ) {
 		trace(*i);
 	}
 }
@@ -60,6 +65,8 @@ void Rule::execute()
 Rule::Rule( )
 {
 	rules.push_back(this);
+	targets = NULL;
+	commands = NULL;
 }
 
 Rule *Rule::find(const string &target)
@@ -69,8 +76,9 @@ Rule *Rule::find(const string &target)
 	for(list<Rule *>::iterator i = rules.begin(); i != rules.end(); i ++ )
 	{
 		std::list<std::string>::iterator b, e;
-		b = (*i)->targets.begin();
-		e = (*i)->targets.end();
+		if( (*i)->targets == NULL ) continue;
+		b = (*i)->targets->begin();
+		e = (*i)->targets->end();
 		if( e != std::find(b, e, target) ) {
 			if( foundARule ) {
 				// We have multiple rules to build the target
@@ -103,18 +111,44 @@ void Rule::try_to_build(const string &target)
 
 void Rule::addTarget(const std::string &target)
 {
-	targets.push_back(target);
+	if( targets == NULL ) {
+		targets = new list<string>;
+	}
+	targets->push_back(target);
 }
+
+void Rule::addTargetList(std::list<std::string> *targetList)
+{
+	if( targets != NULL ) {
+		delete targets;
+	}
+
+	targets = targetList;
+}
+
 void Rule::addCommand(const std::string &command)
 {
-	commands.push_back(command);
+	if( commands == NULL ) {
+		commands = new list<string>;
+	}
+	commands->push_back(command);
+}
+
+void Rule::addCommandList(std::list<std::string> *commandList)
+{
+	if( commands != NULL ) {
+		delete commands;
+	}
+
+	commands = commandList;
 }
 
 void Rule::setDefaultTargets(void)
 {
 	if( !rules.empty() ) {
 		Rule *r = *rules.begin();
-		for(list<string>::iterator i = r->targets.begin(); i != r->targets.end(); i ++ ) {
+		if( r->targets == NULL ) throw runtime_wexception("First rule has no targets");
+		for(list<string>::iterator i = r->targets->begin(); i != r->targets->end(); i ++ ) {
 			set_target(*i);
 		}
 	}
