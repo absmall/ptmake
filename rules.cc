@@ -10,6 +10,7 @@
 
 using namespace std;
 
+extern bool debug;
 std::list<Rule *> Rule::rules;
 std::set<std::string> Rule::buildCache;
 
@@ -46,6 +47,9 @@ void print(std::string filename)
 
 void Rule::callback(std::string filename)
 {
+	if( debug ) {
+		::print(filename);
+	}
 	try {
 		try_to_build(filename);
 	} catch( wexception &e ) {
@@ -56,7 +60,11 @@ void Rule::callback(std::string filename)
 void Rule::execute()
 {
 	if( targets == NULL || commands == NULL ) return;
-	targetTime = fileTimeEarliest( *targets );
+	try {
+		targetTime = fileTimeEarliest( *targets );
+	} catch( ... ) {
+		// No target time, so definitely rebuild
+	}
 	for(list<string>::iterator i = commands->begin(); i != commands->end(); i ++ ) {
 		trace(*i);
 	}
