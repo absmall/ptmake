@@ -39,7 +39,7 @@ program: END
 
 statement:
 	blankline
-	| rule  					{ print_rule( $1 ); }
+	| rule  					{ }
 
 blankline:
 	'\n'
@@ -117,7 +117,14 @@ int yylex()
 
 		// If the first character is a tab, this is a command
 		if( inputBuffer[0] == '\t' ) {
+			int length;
 			yylval = (void *)(inputBuffer + 1);
+
+			// Knock any carriage returns off the end
+			length = strlen( inputBuffer ) - 1;
+			while( length > 0 && strchr("\r\n", inputBuffer[ length ] )) inputBuffer[ length-- ] = 0;
+
+			// Consume the whole string
 			inputBufferOffset = inputBufferSize;
 			return RULECOMMAND;
 		}
