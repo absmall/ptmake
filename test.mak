@@ -1,5 +1,5 @@
 make.exe:
-	g++ -DYYDEBUG -g3 `libgcrypt-config --cflags --libs` -o make.exe main.o build.o find.o file_unix.o argpc.o argpcoption.o subprocess_unix.o exception.o rules.o parser.o
+	g++ -ldb -DYYDEBUG -g3 `libgcrypt-config --cflags --libs` -o make.exe main.o build.o find.o file_unix.o argpc.o argpcoption.o subprocess_unix.o exception.o rules.o parser.o dependencies.o
 
 main.o:
 	g++ -c -Wall -DYYDEBUG -DDEBUG -g3 `libgcrypt-config --cflags` -o main.o main.cc
@@ -27,6 +27,9 @@ parser.o:
 
 file_unix.o:
 	g++ -c -Wall -DYYDEBUG -DDEBUG -g3 `libgcrypt-config --cflags` -o file_unix.o file_unix.cc
+
+dependencies.o:
+	g++ -c -Wall -DYYDEBUG -DDEBUG -g3 `libgcrypt-config --cflags` -o dependencies.o dependencies.cc
 
 subprocess_unix.o:
 	g++ -c -Wall -DYYDEBUG -DDEBUG -g3 `libgcrypt-config --cflags` -o subprocess_unix.o subprocess_unix.cc

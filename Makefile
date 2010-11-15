@@ -5,7 +5,8 @@ else
 ENVIRONMENT=vc
 endif
 
-OBJS = main.o build.o find.o argpc.o argpcoption.o exception.o rules.o parser.o
+OBJS = main.o build.o find.o argpc.o argpcoption.o exception.o rules.o parser.o dependencies.o
+LIBS = -ldb
 
 ifeq ($(ENVIRONMENT),vc)
 OBJS += subprocess_win.o

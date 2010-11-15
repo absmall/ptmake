@@ -11,7 +11,7 @@ LDFLAGS:=$(subst debug,-DYYDEBUG -g3,$(LDFLAGS))
 
 CC=gcc -c $(CPPFLAGS)
 CXX=g++ -c $(CXXFLAGS)
-LD=g++ $(LDFLAGS)
+LD=g++ $(LDFLAGS) $(LIBS)
 OUTPUT=-o
 
 %.o : %.cc
@@ -21,4 +21,4 @@ OUTPUT=-o
 	gcc -c $(CPPFLAGS) `libgcrypt-config --cflags` -o $@ $<
 
 make.exe : $(OBJS)
-	g++ $(LDFLAGS) `libgcrypt-config --cflags --libs` -o $@ $^
+	$(LD) `libgcrypt-config --cflags --libs` -o $@ $^
