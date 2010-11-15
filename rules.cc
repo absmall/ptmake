@@ -189,7 +189,7 @@ void Rule::recalcHash(void)
 	}
 	gcry_md_final( hd );
 
-	hash = (string)(char *)gcry_md_read( hd, 0 );
+	memcpy( hash, gcry_md_read(hd, 0), 32 );
 
 	gcry_md_close( hd );
 }

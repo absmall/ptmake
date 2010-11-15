@@ -23,7 +23,7 @@ class Rule : public Subprocess {
 		 * that are user-configurable
 		 */
 		void recalcHash(void);
-		std::string hash;
+		unsigned char hash[32];
 		time_t targetTime;
 		std::list<std::string> *targets;
 		std::list<std::string> *commands;
