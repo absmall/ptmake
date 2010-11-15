@@ -2,6 +2,7 @@
 #include <list>
 #include <set>
 #include "subprocess.h"
+#include <gcrypt.h>
 
 class Rule : public Subprocess {
 	public:
@@ -18,6 +19,11 @@ class Rule : public Subprocess {
 		static void setDefaultTargets(void);
 
 	private:
+		/* Recalculate a hash that describes this rule. It's based on all paramters
+		 * that are user-configurable
+		 */
+		void recalcHash(void);
+		std::string hash;
 		time_t targetTime;
 		std::list<std::string> *targets;
 		std::list<std::string> *commands;

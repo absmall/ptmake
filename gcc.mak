@@ -15,10 +15,10 @@ LD=g++ $(LDFLAGS)
 OUTPUT=-o
 
 %.o : %.cc
-	g++ -c $(CXXFLAGS) -o $@ $<
+	g++ -c $(CXXFLAGS) `libgcrypt-config --cflags` -o $@ $<
 
 %.o : %.c
-	gcc -c $(CPPFLAGS) -o $@ $<
+	gcc -c $(CPPFLAGS) `libgcrypt-config --cflags` -o $@ $<
 
 make.exe : $(OBJS)
-	g++ $(LDFLAGS) -o $@ $^
+	g++ $(LDFLAGS) `libgcrypt-config --cflags --libs` -o $@ $^

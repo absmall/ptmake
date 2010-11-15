@@ -2,6 +2,7 @@
 #include <list>
 #include <iostream>
 #include <algorithm>
+#include <gcrypt.h>
 #include "file.h"
 #include "rules.h"
 #include "build.h"
@@ -123,6 +124,8 @@ void Rule::addTarget(const std::string &target)
 		targets = new list<string>;
 	}
 	targets->push_back(target);
+
+	recalcHash();
 }
 
 void Rule::addTargetList(std::list<std::string> *targetList)
@@ -132,6 +135,8 @@ void Rule::addTargetList(std::list<std::string> *targetList)
 	}
 
 	targets = targetList;
+
+	recalcHash();
 }
 
 void Rule::addCommand(const std::string &command)
@@ -140,6 +145,8 @@ void Rule::addCommand(const std::string &command)
 		commands = new list<string>;
 	}
 	commands->push_back(command);
+
+	recalcHash();
 }
 
 void Rule::addCommandList(std::list<std::string> *commandList)
@@ -149,6 +156,8 @@ void Rule::addCommandList(std::list<std::string> *commandList)
 	}
 
 	commands = commandList;
+
+	recalcHash();
 }
 
 void Rule::setDefaultTargets(void)
@@ -160,4 +169,27 @@ void Rule::setDefaultTargets(void)
 			set_target(*i);
 		}
 	}
+}
+
+void Rule::recalcHash(void)
+{
+	gcry_md_hd_t hd;
+
+	gcry_md_open( &hd, GCRY_MD_SHA256, 0);
+	if( targets != NULL ) {
+		for(list<string>::iterator i = targets->begin(); i != targets->end(); i ++ ) {
+			gcry_md_write( hd, i->c_str(), i->size() );
+		}
+	}
+
+	if (commands != NULL ) {
+		for(list<string>::iterator i = commands->begin(); i != commands->end(); i ++ ) {
+			gcry_md_write( hd, i->c_str(), i->size() );
+		}
+	}
+	gcry_md_final( hd );
+
+	hash = (string)(char *)gcry_md_read( hd, 0 );
+
+	gcry_md_close( hd );
 }
