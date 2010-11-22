@@ -42,7 +42,8 @@ void build_targets()
 	}
 	for(list<string>::iterator i = targets.begin(); i != targets.end(); i ++ ) {
 		try {
-			Rule::try_to_build( *i );
+			Rule *r = Rule::find( *i );
+			r->execute();
 		} catch (wexception &e) {
 			cerr << "Building " << *i << " failed: " << e.what() << endl;
 		}

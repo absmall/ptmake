@@ -8,6 +8,7 @@
 #include "build.h"
 #include "exception.h"
 #include "subprocess.h"
+#include "dependencies.h"
 
 using namespace std;
 
@@ -107,13 +108,28 @@ Rule *Rule::find(const string &target)
 
 void Rule::try_to_build(const string &target)
 {
+	list<string> *deps;
+
 	// See if we have already built this
 	if( buildCache.find(target) != buildCache.end() ) {
 		// Already built
 		return;
 	}
 
+	// See if we have dependencies in the database
+	deps = retrieve_dependencies( hash );
+	if( deps != NULL ) {
+		for( list<string>::iterator i = deps->begin(); i != deps->end(); i ++ ) {
+			cout << target << " depends on " << *i << endl;
+		}
+		delete deps;
+	}
+	
+	// We don't know the dependencies, have to
+	// build
+
 	buildCache.insert(target);
+	add_dependencies( hash, target );
 	Rule *r = Rule::find(target);
 	r->execute();
 }

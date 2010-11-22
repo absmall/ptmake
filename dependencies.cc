@@ -6,6 +6,43 @@
 
 using namespace std;
 
+void clear_dependencies(unsigned char hash[32])
+{
+	DB *dbp;
+	DBT key;
+	u_int32_t flags;
+	int ret;
+
+	ret = db_create( &dbp, NULL, 0);
+	if( ret != 0 ) {
+		throw runtime_wexception("Failed to create database");
+	}
+
+	dbp->set_flags(dbp, DB_DUPSORT);
+	if( ret != 0 ) {
+		dbp->close(dbp, 0);
+		throw runtime_wexception("Failed to make database sorted");
+	}
+
+	flags = DB_CREATE;
+
+	ret = dbp->open(dbp, NULL, "makefile.dep", NULL, DB_BTREE, flags, 0);
+	if( ret != 0 ) {
+		dbp->close(dbp, 0);
+		throw runtime_wexception("Failed to open database");
+	}
+
+	memset( &key, 0, sizeof(DBT) );
+
+	key.data = hash;
+	key.ulen = 32;
+	key.flags = DB_DBT_USERMEM;
+
+	ret = dbp->del(dbp, NULL, &key, 0);
+
+	dbp->close(dbp, 0);
+}
+
 void add_dependencies(unsigned char hash[32], string dep)
 {
 	DBT key, data;
@@ -27,7 +64,7 @@ void add_dependencies(unsigned char hash[32], string dep)
 		throw runtime_wexception("Failed to create database for write");
 	}
 
-	dbp->set_flags(dbp, DB_DUPSORT);
+	ret = dbp->set_flags(dbp, DB_DUPSORT);
 	if( ret != 0 ) {
 		dbp->close(dbp, 0);
 		throw runtime_wexception("Failed to make database sorted for write");

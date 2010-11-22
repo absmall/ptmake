@@ -14,7 +14,7 @@ class Rule : public Subprocess {
 		void addCommandList(std::list<std::string> *commandList);
 		void execute();
 		static Rule *find(const std::string &target);
-		static void try_to_build(const std::string &target);
+		void try_to_build(const std::string &target);
 		void callback(std::string filename);
 		static void setDefaultTargets(void);
 
