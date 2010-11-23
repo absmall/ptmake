@@ -67,6 +67,7 @@ void Rule::execute()
 	} catch( ... ) {
 		// No target time, so definitely rebuild
 	}
+	clear_dependencies( hash );
 	for(list<string>::iterator i = commands->begin(); i != commands->end(); i ++ ) {
 		trace(*i);
 	}

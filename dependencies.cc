@@ -35,10 +35,15 @@ void clear_dependencies(unsigned char hash[32])
 	memset( &key, 0, sizeof(DBT) );
 
 	key.data = hash;
-	key.ulen = 32;
-	key.flags = DB_DBT_USERMEM;
+	key.size = 32;
+	key.flags = 0;
 
 	ret = dbp->del(dbp, NULL, &key, 0);
+	if( ret != 0 && ret != DB_NOTFOUND ) {
+		dbp->close(dbp, 0);
+		printf("ret=%s\n", db_strerror(ret));
+		throw runtime_wexception("Failed to delete key");
+	}
 
 	dbp->close(dbp, 0);
 }
@@ -57,7 +62,7 @@ void add_dependencies(unsigned char hash[32], string dep)
 	key.size = 32;
 
 	data.data = (void *)dep.c_str();
-	data.ulen = dep.length();
+	data.size = dep.length();
 
 	ret = db_create( &dbp, NULL, 0);
 	if( ret != 0 ) {
