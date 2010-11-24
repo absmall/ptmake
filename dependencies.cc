@@ -49,7 +49,7 @@ void clear_dependencies(unsigned char hash[32])
 	dbp->close(dbp, 0);
 }
 
-void add_dependencies(unsigned char hash[32], string dep)
+void add_dependencies(unsigned char hash[32], string dep, bool success)
 {
 	DBT key, data;
 	DB *dbp;
@@ -92,14 +92,14 @@ void add_dependencies(unsigned char hash[32], string dep)
 	dbp->close(dbp, 0);
 }
 
-list<string> *retrieve_dependencies(unsigned char hash[32])
+list<pair<string, bool> > *retrieve_dependencies(unsigned char hash[32])
 {
 	DB *dbp;
 	DBC *cursor;
 	DBT key, data;
 	u_int32_t flags;
 	int ret;
-	list<string> *deps = NULL;
+	list<pair<string, bool> > *deps = NULL;
 
 	ret = db_create( &dbp, NULL, 0);
 	if( ret != 0 ) {
@@ -133,9 +133,9 @@ list<string> *retrieve_dependencies(unsigned char hash[32])
 	ret = cursor->get(cursor, &key, &data, DB_SET);
 	while( ret != DB_NOTFOUND ) {
 		if( deps == NULL ) {
-			deps = new list<string>;
+			deps = new list<pair<string, bool> >;
 		}
-		deps->push_back(string((const char *)data.data, (string::size_type)data.size));
+		deps->push_back(pair<string,bool>(string((const char *)data.data, (string::size_type)data.size), false));
 		ret = cursor->get(cursor, &key, &data, DB_NEXT_DUP);
 	}
 	if( data.data != NULL ) {

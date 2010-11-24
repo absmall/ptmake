@@ -53,7 +53,7 @@ void Rule::callback(std::string filename, bool success)
 		::print(filename, success);
 	}
 	try {
-		try_to_build(filename);
+		try_to_build(filename, success);
 	} catch( wexception &e ) {
 		// Do nothing
 	}
@@ -61,7 +61,7 @@ void Rule::callback(std::string filename, bool success)
 
 void Rule::execute()
 {
-	list<string> *deps;
+	list<pair<string, bool> > *deps;
 
 	if( targets == NULL || commands == NULL ) return;
 	try {
@@ -73,7 +73,7 @@ void Rule::execute()
 	// See if we have dependencies in the database
 	deps = retrieve_dependencies( hash );
 	if( deps != NULL ) {
-		for( list<string>::iterator i = deps->begin(); i != deps->end(); i ++ ) {
+		for( list<pair<string, bool> >::iterator i = deps->begin(); i != deps->end(); i ++ ) {
 //			cout << hash << " depends on " << *i << endl;
 		}
 		delete deps;
@@ -82,7 +82,7 @@ void Rule::execute()
 	// We don't know the dependencies, have to
 	// build
 	clear_dependencies( hash );
-	for(list<string>::iterator i = commands->begin(); i != commands->end(); i ++ ) {
+	for(list<string >::iterator i = commands->begin(); i != commands->end(); i ++ ) {
 		trace(*i);
 	}
 }
@@ -121,7 +121,7 @@ Rule *Rule::find(const string &target)
 	}
 }
 
-void Rule::try_to_build(const string &target)
+void Rule::try_to_build(const string &target, bool exists)
 {
 	// See if we have already built this
 	if( buildCache.find(target) != buildCache.end() ) {
@@ -130,7 +130,7 @@ void Rule::try_to_build(const string &target)
 	}
 
 	buildCache.insert(target);
-	add_dependencies( hash, target );
+	add_dependencies( hash, target, exists );
 	Rule *r = Rule::find(target);
 	r->execute();
 }
