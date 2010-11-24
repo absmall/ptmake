@@ -61,12 +61,26 @@ void Rule::callback(std::string filename)
 
 void Rule::execute()
 {
+	list<string> *deps;
+
 	if( targets == NULL || commands == NULL ) return;
 	try {
 		targetTime = fileTimeEarliest( *targets );
 	} catch( ... ) {
 		// No target time, so definitely rebuild
 	}
+
+	// See if we have dependencies in the database
+	deps = retrieve_dependencies( hash );
+	if( deps != NULL ) {
+		for( list<string>::iterator i = deps->begin(); i != deps->end(); i ++ ) {
+//			cout << hash << " depends on " << *i << endl;
+		}
+		delete deps;
+	}
+	
+	// We don't know the dependencies, have to
+	// build
 	clear_dependencies( hash );
 	for(list<string>::iterator i = commands->begin(); i != commands->end(); i ++ ) {
 		trace(*i);
@@ -109,25 +123,11 @@ Rule *Rule::find(const string &target)
 
 void Rule::try_to_build(const string &target)
 {
-	list<string> *deps;
-
 	// See if we have already built this
 	if( buildCache.find(target) != buildCache.end() ) {
 		// Already built
 		return;
 	}
-
-	// See if we have dependencies in the database
-	deps = retrieve_dependencies( hash );
-	if( deps != NULL ) {
-		for( list<string>::iterator i = deps->begin(); i != deps->end(); i ++ ) {
-			cout << target << " depends on " << *i << endl;
-		}
-		delete deps;
-	}
-	
-	// We don't know the dependencies, have to
-	// build
 
 	buildCache.insert(target);
 	add_dependencies( hash, target );

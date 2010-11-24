@@ -1,5 +1,6 @@
 #include <db.h>
 #include <string.h>
+#include <stdlib.h>
 #include <string>
 #include <list>
 #include "exception.h"
@@ -125,16 +126,20 @@ list<string> *retrieve_dependencies(unsigned char hash[32])
 	memset( &data, 0, sizeof(DBT) );
 
 	key.data = hash;
-	key.ulen = 32;
-	key.flags = DB_DBT_USERMEM;
+	key.size = 32;
+
+	data.flags = DB_DBT_REALLOC;
 
 	ret = cursor->get(cursor, &key, &data, DB_SET);
 	while( ret != DB_NOTFOUND ) {
 		if( deps == NULL ) {
 			deps = new list<string>;
 		}
-		deps->push_back(string((const char *)data.data, (string::size_type)data.ulen));
+		deps->push_back(string((const char *)data.data, (string::size_type)data.size));
 		ret = cursor->get(cursor, &key, &data, DB_NEXT_DUP);
+	}
+	if( data.data != NULL ) {
+		free( data.data );
 	}
 
 	dbp->close(dbp, 0);
