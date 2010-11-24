@@ -70,6 +70,7 @@ void Subprocess::trace(string command)
 	int i, status;
 	long syscall_id, name,c;
 	pid_t child;
+	bool insyscall = false;
 
 	cout << "Executing " << command << endl;
 
@@ -101,6 +102,12 @@ void Subprocess::trace(string command)
 				{
 					int done;
 					string s;
+
+					if( !insyscall ) {
+						insyscall = true;
+						break;
+					}
+					insyscall = false;
 					done = 0;
 					while( !done ) {
 						c = ptrace(PTRACE_PEEKDATA, child, name, NULL);
