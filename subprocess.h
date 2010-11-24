@@ -8,7 +8,7 @@ class Subprocess
 {
 public:
 	void trace(std::string command);
-	virtual void callback(std::string filename) = 0;
+	virtual void callback(std::string filename, bool success) = 0;
 };
 
 #endif /* __SUBPROCESS_H__ */

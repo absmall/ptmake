@@ -42,15 +42,15 @@ void Rule::print()
 	}
 }
 
-void print(std::string filename)
+void print(std::string filename, bool success)
 {
-	cout << "Depends on " << filename << endl;
+	cout << "Depends on " << filename << "(" << success << ")" << endl;
 }
 
-void Rule::callback(std::string filename)
+void Rule::callback(std::string filename, bool success)
 {
 	if( debug ) {
-		::print(filename);
+		::print(filename, success);
 	}
 	try {
 		try_to_build(filename);

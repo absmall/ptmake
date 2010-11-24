@@ -50,17 +50,17 @@ struct
 	{ __NR_unlink, "unlink" },
 };
 
-void debugprint( int pid, int syscall_id )
+void debugprint( int pid, int syscall_id, int returnVal )
 {
 	unsigned int i;
 
 	for( i = 0; i < sizeof(debugprints)/sizeof(debugprints[0]); i ++ ) {
 		if( debugprints[ i ].id == syscall_id ) {
-			cout << pid << ": " << debugprints[ i ].statement << " call" << endl;
+			cout << pid << ": " << debugprints[ i ].statement << " call (" << returnVal << ")" << endl;
 			return;
 		}
 	}
-	cout << pid << " made a system call " << syscall_id << endl;
+	cout << pid << " made a system call " << syscall_id << " returning " << returnVal << endl;
 }
 #endif
 
@@ -68,7 +68,7 @@ void Subprocess::trace(string command)
 {
 	char l;
 	int i, status;
-	long syscall_id, name,c;
+	long syscall_id, name,c, returnVal;
 	pid_t child;
 	bool insyscall = false;
 
@@ -89,9 +89,10 @@ void Subprocess::trace(string command)
 			ret = ptrace(PTRACE_PEEKUSER, child, 8 * ORIG_RAX, NULL);
 #endif
 			name = ptrace(PTRACE_PEEKUSER, child, 4 * EBX, NULL);
+			returnVal = ptrace(PTRACE_PEEKUSER, child, 4 * EAX, NULL);
 #ifdef DEBUG
 			if( debug ) {
-				debugprint( child, syscall_id );
+				debugprint( child, syscall_id, returnVal );
 			}
 #endif
 			switch( syscall_id ) {
@@ -122,7 +123,7 @@ void Subprocess::trace(string command)
 							s += l;
 						}
 					}
-					callback(s);
+					callback(s, returnVal >= 0);
 				}
 			}
 			if( syscall_id == __NR_exit_group ) {
