@@ -104,11 +104,7 @@ void Subprocess::trace(string command)
 					int done;
 					string s;
 
-					if( !insyscall ) {
-						insyscall = true;
-						break;
-					}
-					insyscall = false;
+					insyscall ^= 1;
 					done = 0;
 					while( !done ) {
 						c = ptrace(PTRACE_PEEKDATA, child, name, NULL);
@@ -123,7 +119,11 @@ void Subprocess::trace(string command)
 							s += l;
 						}
 					}
-					callback(s, returnVal >= 0);
+					if( insyscall ) {
+						callback_entry(s);
+					} else {
+						callback_exit(s, returnVal >= 0);
+					}
 				}
 			}
 			if( syscall_id == __NR_exit_group ) {

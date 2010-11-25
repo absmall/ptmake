@@ -42,21 +42,44 @@ void Rule::print()
 	}
 }
 
-void print(std::string filename, bool success)
+void print(std::string filename, int status)
 {
-	cout << "Depends on " << filename << "(" << success << ")" << endl;
+	cout << "Depends on " << filename << "(" << status << ")" << endl;
 }
-
-void Rule::callback(std::string filename, bool success)
+void Rule::callback_entry(std::string filename)
 {
+	// See if we have already built this
+	if( buildCache.find(filename) != buildCache.end() ) {
+		// Already built
+		return;
+	}
+	buildCache.insert(filename);
+
 	if( debug ) {
-		::print(filename, success);
+		::print(filename, 8);
 	}
 	try {
-		try_to_build(filename, success);
+		Rule *r = Rule::find(filename);
+		r->execute();
+		add_dependencies( hash, filename, true );
 	} catch( wexception &e ) {
 		// Do nothing
 	}
+}
+
+void Rule::callback_exit(std::string filename, bool success)
+{
+	// See if we have already built this
+	if( buildCache.find(filename) != buildCache.end() ) {
+		// Already built
+		return;
+	}
+	buildCache.insert(filename);
+
+	if( debug ) {
+		::print(filename, success);
+	}
+	add_dependencies( hash, filename, success );
 }
 
 void Rule::execute()
@@ -119,20 +142,6 @@ Rule *Rule::find(const string &target)
 	} else {
 		throw runtime_wexception( "No rule" );
 	}
-}
-
-void Rule::try_to_build(const string &target, bool exists)
-{
-	// See if we have already built this
-	if( buildCache.find(target) != buildCache.end() ) {
-		// Already built
-		return;
-	}
-
-	buildCache.insert(target);
-	add_dependencies( hash, target, exists );
-	Rule *r = Rule::find(target);
-	r->execute();
 }
 
 void Rule::addTarget(const std::string &target)
