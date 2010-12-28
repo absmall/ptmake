@@ -53,7 +53,6 @@ void Rule::callback_entry(std::string filename)
 		// Already built
 		return;
 	}
-	buildCache.insert(filename);
 
 	if( debug ) {
 		::print(filename, 8);
@@ -61,6 +60,7 @@ void Rule::callback_entry(std::string filename)
 	try {
 		Rule *r = Rule::find(filename);
 		r->execute();
+		buildCache.insert(filename);
 		add_dependencies( hash, filename, true );
 	} catch( wexception &e ) {
 		// Do nothing
@@ -82,32 +82,75 @@ void Rule::callback_exit(std::string filename, bool success)
 	add_dependencies( hash, filename, success );
 }
 
-void Rule::execute()
+bool Rule::execute()
 {
+	bool needsRebuild = false;
 	list<pair<string, bool> > *deps;
 
-	if( targets == NULL || commands == NULL ) return;
+	if( built ) return false;
+	built = true;
+	if( targets == NULL || commands == NULL ) return false;
 	try {
 		targetTime = fileTimeEarliest( *targets );
 	} catch( ... ) {
 		// No target time, so definitely rebuild
 	}
 
+	if( debug ) {
+		cout << "Try to build: " << *targets->begin() << "(" << targetTime << ")" << endl;
+	}
+
 	// See if we have dependencies in the database
 	deps = retrieve_dependencies( hash );
+	// If we know the dependencies, we may be able to avoid building. If we
+	// don't know the dependencies, we definitely have to rebuild.
 	if( deps != NULL ) {
 		for( list<pair<string, bool> >::iterator i = deps->begin(); i != deps->end(); i ++ ) {
-//			cout << hash << " depends on " << *i << endl;
+			// If the file has a rule, we need to try to rebuild it, and rebuild if that
+			// succeeds.
+			// If the file doesn't have a rule, then:
+			// If the file didn't exist before, and it still doesn't, we don't need to
+			// rebuild.
+			// If the file didn't exist before, and it does now, we need to rebuild.
+			// If the file existed before and doesn't exist now, we need to rebuild.
+			// If the file existed before and still exists, we need to rebuild if the
+			// file is newer
+			if( debug ) {
+				cout << "Dependency " << i->first << "(" << i->second << ")" << endl;
+			}
+			try {
+				// Use a rule to rebuild
+				Rule *r = Rule::find(i->first.c_str());
+				if( r->execute() ) {
+					cout << "Success, need to rebuild" << endl;
+					needsRebuild = true;
+				}
+			} catch (...) {
+				bool status;
+				time_t t;
+				status = fileTime(i->first, t);
+				if( (status ^ i->second) || t > targetTime ) {
+					cout << "No rule, need to rebuild because of " << i->first << ": status " << i->second << " time " << t << endl;
+					needsRebuild = true;
+				}
+			}
 		}
 		delete deps;
+
+		if( !needsRebuild ) {
+			return false;
+		}
 	}
 	
 	// We don't know the dependencies, have to
 	// build
+	cout << "Dependencies unknown, must build" << endl;
 	clear_dependencies( hash );
 	for(list<string >::iterator i = commands->begin(); i != commands->end(); i ++ ) {
 		trace(*i);
 	}
+
+	return true;
 }
 
 Rule::Rule( )
@@ -115,15 +158,17 @@ Rule::Rule( )
 	rules.push_back(this);
 	targets = NULL;
 	commands = NULL;
+	built = false;
 }
 
 Rule *Rule::find(const string &target)
 {
 	Rule *r;
 	bool foundARule = false;
+	
 	for(list<Rule *>::iterator i = rules.begin(); i != rules.end(); i ++ )
 	{
-		std::list<std::string>::iterator b, e;
+		std::list<std::string>::iterator b, e, te;
 		if( (*i)->targets == NULL ) continue;
 		b = (*i)->targets->begin();
 		e = (*i)->targets->end();

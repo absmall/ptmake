@@ -4,8 +4,36 @@
 #include <string>
 #include <list>
 #include "exception.h"
+#include <iostream>
+#include <sstream>
 
 using namespace std;
+
+extern bool debug;
+
+string printhash(unsigned char hash[32])
+{
+	char buf[64];
+	int i;
+	char c;
+
+	for(i=0; i < 32; i ++ ) {
+		c = hash[i] >> 4;
+		if( c < 10 ) {
+			buf[i*2] = c+'0';
+		} else {
+			buf[i*2] = c-10+'A';
+		}
+		c = hash[i] & 31;
+		if( c < 10 ) {
+			buf[i*2+1] = c+'0';
+		} else {
+			buf[i*2+1] = c-10+'A';
+		}
+	}
+
+	return string(buf);
+}
 
 void clear_dependencies(unsigned char hash[32])
 {
@@ -13,6 +41,10 @@ void clear_dependencies(unsigned char hash[32])
 	DBT key;
 	u_int32_t flags;
 	int ret;
+
+	if( debug ) {
+		cout << "Clearing dependencies for " << printhash(hash) << endl;
+	}
 
 	ret = db_create( &dbp, NULL, 0);
 	if( ret != 0 ) {
@@ -55,6 +87,11 @@ void add_dependencies(unsigned char hash[32], string dep, bool success)
 	DB *dbp;
 	int ret;
 	u_int32_t flags;
+	unsigned char *tempBuf;
+
+	if( debug ) {
+		cout << "Adding dependencies for " << printhash(hash) << endl;
+	}
 
 	memset(&key, 0, sizeof(DBT));
 	memset(&data, 0, sizeof(DBT));
@@ -62,8 +99,11 @@ void add_dependencies(unsigned char hash[32], string dep, bool success)
 	key.data = hash;
 	key.size = 32;
 
-	data.data = (void *)dep.c_str();
-	data.size = dep.length();
+	tempBuf = (unsigned char *)malloc( dep.length() + 2 );
+	memcpy( tempBuf, dep.c_str(), dep.length() + 1 );
+	tempBuf[ dep.length() + 1 ] = success;
+	data.data = (void *)tempBuf;
+	data.size = dep.length()+2;
 
 	ret = db_create( &dbp, NULL, 0);
 	if( ret != 0 ) {
@@ -89,6 +129,8 @@ void add_dependencies(unsigned char hash[32], string dep, bool success)
 		throw runtime_wexception("Could not insert record");
 	}
 
+	free( tempBuf );
+
 	dbp->close(dbp, 0);
 }
 
@@ -100,6 +142,10 @@ list<pair<string, bool> > *retrieve_dependencies(unsigned char hash[32])
 	u_int32_t flags;
 	int ret;
 	list<pair<string, bool> > *deps = NULL;
+
+	if( debug ) {
+		cout << "Retrieving dependencies for " << printhash(hash) << endl;
+	}
 
 	ret = db_create( &dbp, NULL, 0);
 	if( ret != 0 ) {
@@ -135,7 +181,7 @@ list<pair<string, bool> > *retrieve_dependencies(unsigned char hash[32])
 		if( deps == NULL ) {
 			deps = new list<pair<string, bool> >;
 		}
-		deps->push_back(pair<string,bool>(string((const char *)data.data, (string::size_type)data.size), false));
+		deps->push_back(pair<string,bool>(string((const char *)data.data, (string::size_type)data.size), ((char *)data.data)[ data.size - 1 ]));
 		ret = cursor->get(cursor, &key, &data, DB_NEXT_DUP);
 	}
 	if( data.data != NULL ) {

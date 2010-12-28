@@ -2,6 +2,8 @@
 #include <errno.h>
 #include <iostream>
 #include <string>
+#include <string.h>
+#include <map>
 #include <unistd.h>
 #include <sys/ptrace.h>
 #include <asm/ptrace-abi.h>
@@ -70,13 +72,15 @@ void Subprocess::trace(string command)
 	int i, status;
 	long syscall_id, name,c, returnVal;
 	pid_t child;
-	bool insyscall = false;
+	bool insyscall;
+	map<pid_t,bool> insyscallMap;
 
 	cout << "Executing " << command << endl;
 
 	child = fork();
 	if( child == 0 ) {
 		ptrace(PTRACE_TRACEME, 0, NULL, NULL);
+		sleep(1);
 		execl("/bin/sh", "sh", "-c", command.c_str(), NULL);
 	} else {
 		while(1) {
@@ -92,7 +96,7 @@ void Subprocess::trace(string command)
 			returnVal = ptrace(PTRACE_PEEKUSER, child, 4 * EAX, NULL);
 #ifdef DEBUG
 			if( debug ) {
-				debugprint( child, syscall_id, returnVal );
+				//debugprint( child, syscall_id, returnVal );
 			}
 #endif
 			switch( syscall_id ) {
@@ -103,8 +107,16 @@ void Subprocess::trace(string command)
 				{
 					int done;
 					string s;
+					map<pid_t,bool>::iterator it = insyscallMap.find(child);
 
-					insyscall ^= 1;
+					if( it != insyscallMap.end() ) {
+						it->second ^= 1;
+						insyscall = it->second;
+					} else {
+						// New process
+						insyscallMap[ child ] = true;
+						insyscall = true;
+					}
 					done = 0;
 					while( !done ) {
 						c = ptrace(PTRACE_PEEKDATA, child, name, NULL);
@@ -119,6 +131,16 @@ void Subprocess::trace(string command)
 							s += l;
 						}
 					}
+
+					// There should be a more elegant way to do this - we want to exclude
+					// proc and sys because they contain files whose timestamps constantly
+					// increment, and we exclude tmp because tools may write then read
+					// temporary files there, and we don't want to depend on those.
+					if( !strncmp(s.c_str(), "/proc", 5 ) ) break;
+					if( !strncmp(s.c_str(), "/sys", 4 ) ) break;
+					if( !strncmp(s.c_str(), "/tmp", 4 ) ) break;
+					if( !strncmp(s.c_str(), ".", 2 ) ) break;
+
 					if( insyscall ) {
 						callback_entry(s);
 					} else {
@@ -128,6 +150,7 @@ void Subprocess::trace(string command)
 			}
 			if( syscall_id == __NR_exit_group ) {
 				// Detach here - otherwise, the parent of a further subprocess gets a SIGTRAP on child exit
+				insyscallMap.erase(child);
 				ptrace(PTRACE_DETACH, child, NULL, NULL);
 			} else {
 				ptrace(PTRACE_SYSCALL, child, NULL, NULL);

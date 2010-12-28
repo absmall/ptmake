@@ -12,7 +12,7 @@ class Rule : public Subprocess {
 		void addTargetList(std::list<std::string> *targetList);
 		void addCommand(const std::string &command);
 		void addCommandList(std::list<std::string> *commandList);
-		void execute();
+		bool execute();
 		static Rule *find(const std::string &target);
 		void callback_entry(std::string filename);
 		void callback_exit(std::string filename, bool success);
@@ -22,6 +22,7 @@ class Rule : public Subprocess {
 		/* Recalculate a hash that describes this rule. It's based on all paramters
 		 * that are user-configurable
 		 */
+		bool built;
 		void recalcHash(void);
 		unsigned char hash[32];
 		time_t targetTime;
