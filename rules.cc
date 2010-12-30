@@ -120,7 +120,7 @@ bool Rule::execute()
 			}
 			try {
 				// Use a rule to rebuild
-				Rule *r = Rule::find(i->first.c_str());
+				Rule *r = Rule::find(i->first);
 				if( r->execute() ) {
 					cout << "Success, need to rebuild" << endl;
 					needsRebuild = true;

@@ -181,7 +181,7 @@ list<pair<string, bool> > *retrieve_dependencies(unsigned char hash[32])
 		if( deps == NULL ) {
 			deps = new list<pair<string, bool> >;
 		}
-		deps->push_back(pair<string,bool>(string((const char *)data.data, (string::size_type)data.size), ((char *)data.data)[ data.size - 1 ]));
+		deps->push_back(pair<string,bool>(string((const char *)data.data, (string::size_type)data.size - 2), ((char *)data.data)[ data.size - 1 ]));
 		ret = cursor->get(cursor, &key, &data, DB_NEXT_DUP);
 	}
 	if( data.data != NULL ) {
