@@ -122,15 +122,25 @@ bool Rule::execute()
 				// Use a rule to rebuild
 				Rule *r = Rule::find(i->first);
 				if( r->execute() ) {
-					cout << "Success, need to rebuild" << endl;
+					// It was rebuilt, so we need to rebuild the primary target
 					needsRebuild = true;
+				} else {
+					bool status;
+					time_t t;
+					// If it wasn't rebuilt, but is already newer, we still
+					// have to rebuild.
+					status = fileTime(i->first, t);
+					if( !status || t > targetTime ) {
+						cout << "Generated file out of date, need to rebuild because of " << i->first << ": (" << status << " ^ " << i->second << ") || " << ctime(&t) << " > " << ctime(&targetTime) << endl;
+						needsRebuild = true;
+					}
 				}
 			} catch (...) {
 				bool status;
 				time_t t;
 				status = fileTime(i->first, t);
 				if( (status ^ i->second) || t > targetTime ) {
-					cout << "No rule, need to rebuild because of " << i->first << ": status " << i->second << " time " << t << endl;
+					cout << "No rule to rebuild " << i->first << ": (" << status << " ^ " << i->second << ") || " << ctime(&t) << " > " << ctime(&targetTime) << endl;
 					needsRebuild = true;
 				}
 			}
@@ -140,11 +150,13 @@ bool Rule::execute()
 		if( !needsRebuild ) {
 			return false;
 		}
+		cout << "Dependency updated, must build" << endl;
+	} else {
+		// We don't know the dependencies, have to
+		// build
+		cout << "Dependencies unknown, must build" << endl;
 	}
 	
-	// We don't know the dependencies, have to
-	// build
-	cout << "Dependencies unknown, must build" << endl;
 	clear_dependencies( hash );
 	for(list<string >::iterator i = commands->begin(); i != commands->end(); i ++ ) {
 		trace(*i);
