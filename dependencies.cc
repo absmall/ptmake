@@ -134,6 +134,61 @@ void add_dependencies(unsigned char hash[32], string dep, bool success)
 	dbp->close(dbp, 0);
 }
 
+void add_dependencies(unsigned char hash[32], const std::list<std::pair<std::string, bool> > &deps)
+{
+	DBT key, data;
+	DB *dbp;
+	int ret;
+	u_int32_t flags;
+	unsigned char *tempBuf;
+
+	if( debug ) {
+		cout << "Adding list of dependencies for " << printhash(hash) << endl;
+	}
+
+	memset(&key, 0, sizeof(DBT));
+	memset(&data, 0, sizeof(DBT));
+
+	key.data = hash;
+	key.size = 32;
+
+	ret = db_create( &dbp, NULL, 0);
+	if( ret != 0 ) {
+		throw runtime_wexception("Failed to create database for write");
+	}
+
+	ret = dbp->set_flags(dbp, DB_DUPSORT);
+	if( ret != 0 ) {
+		dbp->close(dbp, 0);
+		throw runtime_wexception("Failed to make database sorted for write");
+	}
+
+	flags = DB_CREATE;
+
+	ret = dbp->open(dbp, NULL, "makefile.dep", NULL, DB_BTREE, flags, 0);
+	if( ret != 0 ) {
+		dbp->close(dbp, 0);
+		throw runtime_wexception("Failed to open database for write");
+	}
+
+	for( std::list<std::pair<std::string, bool> >::const_iterator i = deps.begin(); i != deps.end(); i ++ ) {
+		tempBuf = (unsigned char *)malloc( i->first.length() + 2 );
+		memcpy( tempBuf, i->first.c_str(), i->first.length() + 1 );
+		tempBuf[ i->first.length() + 1 ] = i->second;
+		data.data = (void *)tempBuf;
+		data.size = i->first.length()+2;
+
+		ret = dbp->put(dbp, NULL, &key, &data, 0);
+		if( ret != 0 ) {
+			throw runtime_wexception("Could not insert record");
+		}
+
+		free( tempBuf );
+	}
+
+	dbp->close(dbp, 0);
+}
+
 list<pair<string, bool> > *retrieve_dependencies(unsigned char hash[32])
 {
 	DB *dbp;

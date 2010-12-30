@@ -161,9 +161,7 @@ bool Rule::execute()
 	for(list<string >::iterator i = commands->begin(); i != commands->end(); i ++ ) {
 		trace(*i);
 	}
-	for(list<pair<string,bool> >::iterator i = dependencies.begin(); i != dependencies.end(); i ++ ) {
-		add_dependencies( hash, i->first, i->second );
-	}
+	add_dependencies( hash, dependencies );
 	dependencies.clear();
 
 	return true;
