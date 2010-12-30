@@ -139,7 +139,7 @@ bool Rule::execute()
 				bool status;
 				time_t t;
 				status = fileTime(i->first, t);
-				if( (status ^ i->second) || t > targetTime ) {
+				if( (status ^ i->second) || (status && t > targetTime) ) {
 					cout << "No rule to rebuild " << i->first << ": (" << status << " ^ " << i->second << ") || " << ctime(&t) << " > " << ctime(&targetTime) << endl;
 					needsRebuild = true;
 				}
