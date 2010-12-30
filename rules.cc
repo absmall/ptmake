@@ -61,7 +61,7 @@ void Rule::callback_entry(std::string filename)
 		Rule *r = Rule::find(filename);
 		r->execute();
 		buildCache.insert(filename);
-		add_dependencies( hash, filename, true );
+		dependencies.push_back( pair<string,bool>(filename, true) );
 	} catch( wexception &e ) {
 		// Do nothing
 	}
@@ -75,11 +75,11 @@ void Rule::callback_exit(std::string filename, bool success)
 		return;
 	}
 	buildCache.insert(filename);
+	dependencies.push_back( pair<string,bool>(filename, success) );
 
 	if( debug ) {
 		::print(filename, success);
 	}
-	add_dependencies( hash, filename, success );
 }
 
 bool Rule::execute()
@@ -161,6 +161,10 @@ bool Rule::execute()
 	for(list<string >::iterator i = commands->begin(); i != commands->end(); i ++ ) {
 		trace(*i);
 	}
+	for(list<pair<string,bool> >::iterator i = dependencies.begin(); i != dependencies.end(); i ++ ) {
+		add_dependencies( hash, i->first, i->second );
+	}
+	dependencies.clear();
 
 	return true;
 }
