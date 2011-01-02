@@ -14,7 +14,6 @@ using namespace std;
 
 extern bool debug;
 std::list<Rule *> Rule::rules;
-//std::set<std::string> Rule::buildCache;
 
 void Rule::print()
 {
@@ -54,22 +53,12 @@ void print(std::string filename, int status)
 
 void Rule::callback_entry(std::string filename)
 {
-	// See if we have already built this
-#if 0
-	if( buildCache.find(filename) != buildCache.end() ) {
-		// Already built
-		dependencies.push_back( pair<string,bool>(filename, true) );
-		return;
-	}
-#endif
-
 	if( debug ) {
 		::print(filename);
 	}
 	try {
 		Rule *r = Rule::find(filename);
 		r->execute();
-		//buildCache.insert(filename);
 		dependencies.insert( pair<string,bool>(filename, true) );
 	} catch( wexception &e ) {
 		// Do nothing
@@ -78,15 +67,6 @@ void Rule::callback_entry(std::string filename)
 
 void Rule::callback_exit(std::string filename, bool success)
 {
-	// See if we have already built this
-#if 0
-	if( buildCache.find(filename) != buildCache.end() ) {
-		// Already built
-		dependencies.push_back( pair<string,bool>(filename, success) );
-		return;
-	}
-#endif
-	//buildCache.insert(filename);
 	dependencies.insert( pair<string,bool>(filename, success) );
 
 	if( debug ) {
