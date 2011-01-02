@@ -15,7 +15,7 @@ time_t fileTime(const std::string &file);
  * Return the file access time for a specified file. Return value indicates
  * whether or not the file exists
  */
-bool fileTime(const std::string &file, time_t &time);
+bool fileTime(const std::string &file, time_t &time, bool *isDir);
 
 /*
  * Return the earliest file access time for any of a set of files

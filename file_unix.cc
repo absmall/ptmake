@@ -4,7 +4,7 @@
 #include "file.h"
 #include "exception.h"
 
-bool fileTime(const std::string &file, time_t &time)
+bool fileTime(const std::string &file, time_t &time, bool *isDir)
 {
 	struct stat s;
 
@@ -13,6 +13,7 @@ bool fileTime(const std::string &file, time_t &time)
 	}
 
 	time = s.st_mtime;
+	*isDir = S_ISDIR(s.st_mode);
 	return true;
 }
 
