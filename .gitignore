@@ -1,0 +1,6 @@
+*.o
+make.exe
+makefile.dep
+tags
+parser.cc
+parser.hh

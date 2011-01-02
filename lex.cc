@@ -6,34 +6,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include "rules.h"
-extern "C" {
-#include "parser.h"
-}
+#include "parser.hh"
 
-enum Mode{
-	Normal,
-	Command
-};
-
-static Mode mode;
-static char *inputBuffer;
-static int inputBufferSize;
-static int inputBufferOffset;
-static FILE *f;
-
-extern "C" {
 void yyparse();
 
-void setNormalMode()
-{
-	mode = Normal;
-}
-
-void setCommandMode()
-{
-	mode = Command;
-}
-
+#if 0
 bool refillBuffer()
 {
 	int newdata;
@@ -64,19 +41,73 @@ bool refillBuffer()
 	// return whether or not we read anything
 	return newdata != 0;
 }
+#endif
 
-bool isspecial(char c)
+#if 0
+int commandParse()
 {
-	return strchr( "|:\n\t", c ) != NULL;
+	int newBufferOffset;
+
+	// Commands must start with a tab, and go until a newline that
+	// is not escaped
+	if( inputBufferOffset == inputBufferSize ) {
+		if( !refillBuffer() ) {
+			return 0;
+		}
+	}
+	
+	// Parse up to a newline, then check if it's escaped, and if it is,
+	// keep going
+	while( true ) {
+		newBufferOffset = inputBufferOffset;
+		while( newBufferOffset < inputBufferSize && inputBuffer[newBufferOffset] != '\n') {
+			newBufferOffset ++;
+		}
+
+		if( newBufferOffset != inputBufferSize
+		 && inputBuffer[ newBufferOffset - 1 ] != '\\' ) {
+            yylval = new_string( inputBuffer + inputBufferOffset + 1,
+                                 inputBuffer + newBufferOffset );
+			inputBufferOffset = newBufferOffset + 1;
+			return RULECOMMAND;
+		}
+
+		if( !refillBuffer() ) {
+            yylval.s = new_string( inputBuffer + inputBufferOffset,
+                                   inputBuffer + newBufferOffset );
+			return RULECOMMAND;
+		}
+	}
 }
+#endif
 
-bool isidchar(char c)
+#if 0
+int yylex()
 {
-	return !isspecial(c) && c != ' ';
-}
+	// See if we have a line
+	if( inputBufferOffset == inputBufferSize ) {
+		// Read  new line
+		int length;
+		inputBufferOffset = 0;
+		while( !feof( f ) ) {
+			fgets(inputBuffer + inputBufferOffset, inputBufferMaxSize - inputBufferOffset, f);
+			length = strlen( inputBuffer );
+			if( length == 0 || inputBuffer[ length - 1 ] != '\n') {
+				inputBufferOffset = inputBufferMaxSize - 1;
+				inputBufferMaxSize *= 2;
+				inputBuffer = (char *)realloc( inputBuffer, inputBufferMaxSize );
+			} else {
+				break;
+			}
+		}
 
-int normalParse()
-{
+		// If the first character is a tab, this is a command
+		if( inputBuffer[0] == '\t' ) {
+			yylval = (void *)inputBuffer + 1;
+			return RULECOMMAND;
+		}
+	}
+#if 0
 	// Eat spaces
 	while( true ) {
 		while( inputBufferOffset < inputBufferSize && inputBuffer[inputBufferOffset] == ' ') {
@@ -121,88 +152,9 @@ int normalParse()
 		inputBufferOffset = newBufferOffset;
 		return ID;
 	}
+#endif
+	return ID;
 }
+#endif
 
-int commandParse()
-{
-	int newBufferOffset;
 
-	// Commands must start with a tab, and go until a newline that
-	// is not escaped
-	if( inputBufferOffset == inputBufferSize ) {
-		if( !refillBuffer() ) {
-			return 0;
-		}
-	}
-	if( inputBuffer[ inputBufferOffset ] != '\t' ) {
-		// It's not a rule. Go to normal parser.
-		setNormalMode();
-		return normalParse();
-	}
-	
-	// Parse up to a newline, then check if it's escaped, and if it is,
-	// keep going
-	while( true ) {
-		newBufferOffset = inputBufferOffset;
-		while( newBufferOffset < inputBufferSize && inputBuffer[newBufferOffset] != '\n') {
-			newBufferOffset ++;
-		}
-
-		if( newBufferOffset != inputBufferSize
-		 && inputBuffer[ newBufferOffset - 1 ] != '\\' ) {
-            yylval.s = new_string( inputBuffer + inputBufferOffset + 1,
-                                   inputBuffer + newBufferOffset );
-			inputBufferOffset = newBufferOffset + 1;
-			return RULECOMMAND;
-		}
-
-		if( !refillBuffer() ) {
-            yylval.s = new_string( inputBuffer + inputBufferOffset,
-                                   inputBuffer + newBufferOffset );
-			return RULECOMMAND;
-		}
-	}
-}
-
-int yylex()
-{
-	int ret;
-
-	switch( mode ) {
-		case Normal:
-			ret = normalParse();
-			break;
-		case Command:
-			ret = commandParse();
-			break;
-		default:
-			throw std::runtime_error("Internal error: Unexpected parser mode");
-	}
-	return ret;
-}
-
-void yyerror(char *s)
-{
-	throw std::runtime_error( "Parse error" );
-}
-}
-
-void parse_makefile( std::string filename )
-{
-	mode = Normal;
-	inputBufferOffset = 0;
-	inputBufferSize = 0;
-	inputBuffer = (char *)malloc( 1 );
-    if( inputBuffer == NULL ) {
-        throw std::runtime_error( "Out of memory" );
-    }
-	f = fopen( filename.c_str(), "r" );
-	if( f == NULL ) {
-		throw std::runtime_error( "Could not open makefile" );
-	}
-
-	yyparse();
-
-	free( inputBuffer );
-	fclose( f );
-}

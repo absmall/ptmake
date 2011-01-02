@@ -2,7 +2,12 @@
 #include <errno.h>
 #include <iostream>
 #include <string>
+#include <string.h>
+#include <map>
 #include <unistd.h>
+#include <fcntl.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 #include <sys/ptrace.h>
 #include <asm/ptrace-abi.h>
 #include <sys/wait.h>
@@ -50,17 +55,29 @@ struct
 	{ __NR_unlink, "unlink" },
 };
 
-void debugprint( int pid, int syscall_id )
+#if defined(__i386)
+#define RETURNVAL (4 * EAX)
+#define ARG1 (4 * EBX)
+#define ARG2 (4 * ECX)
+#define ARG3 (4 * EDX)
+#elif defined(__x86_64)
+#define RETURNVAL (8 * RAX)
+#define ARG1 (8 * RBX)
+#define ARG2 (8 * RCX)
+#define ARG3 (8 * RDX)
+#endif
+
+void debugprint( int pid, int syscall_id, int returnVal )
 {
 	unsigned int i;
 
 	for( i = 0; i < sizeof(debugprints)/sizeof(debugprints[0]); i ++ ) {
 		if( debugprints[ i ].id == syscall_id ) {
-			cout << pid << ": " << debugprints[ i ].statement << " call" << endl;
+			cout << pid << ": " << debugprints[ i ].statement << " call (" << returnVal << ")" << endl;
 			return;
 		}
 	}
-	cout << pid << " made a system call " << syscall_id << endl;
+	cout << pid << " made a system call " << syscall_id << " returning " << returnVal << endl;
 }
 #endif
 
@@ -68,14 +85,17 @@ void Subprocess::trace(string command)
 {
 	char l;
 	int i, status;
-	long syscall_id, name,c;
+	long syscall_id, c, returnVal;
 	pid_t child;
+	bool insyscall;
+	map<pid_t,bool> insyscallMap;
 
 	cout << "Executing " << command << endl;
 
 	child = fork();
 	if( child == 0 ) {
 		ptrace(PTRACE_TRACEME, 0, NULL, NULL);
+		sleep(1);
 		execl("/bin/sh", "sh", "-c", command.c_str(), NULL);
 	} else {
 		while(1) {
@@ -85,12 +105,11 @@ void Subprocess::trace(string command)
 #if defined(__i386)
 			syscall_id = ptrace(PTRACE_PEEKUSER, child, 4 * ORIG_EAX, NULL);
 #elif defined(__x86_64)
-			ret = ptrace(PTRACE_PEEKUSER, child, 8 * ORIG_RAX, NULL);
+			syscall_id = ptrace(PTRACE_PEEKUSER, child, 8 * ORIG_RAX, NULL);
 #endif
-			name = ptrace(PTRACE_PEEKUSER, child, 4 * EBX, NULL);
 #ifdef DEBUG
 			if( debug ) {
-				debugprint( child, syscall_id );
+				//debugprint( child, syscall_id, returnVal );
 			}
 #endif
 			switch( syscall_id ) {
@@ -101,13 +120,38 @@ void Subprocess::trace(string command)
 				{
 					int done;
 					string s;
+					map<pid_t,bool>::iterator it = insyscallMap.find(child);
+
+					if( it != insyscallMap.end() ) {
+						it->second ^= 1;
+						insyscall = it->second;
+					} else {
+						// New process
+						insyscallMap[ child ] = true;
+						insyscall = true;
+					}
+					
+					// See if this is being accessed for write. If it is,
+					// that's not a dependency
+					if( syscall_id == __NR_stat ) {
+					} else if( syscall_id == __NR_access ) {
+						returnVal = ptrace(PTRACE_PEEKUSER, child, ARG2, NULL);
+						if( returnVal == W_OK ) break;
+					} else if( syscall_id == __NR_open ) {
+						returnVal = ptrace(PTRACE_PEEKUSER, child, ARG2, NULL);
+						if( returnVal & O_CREAT ) break;
+					} else if( syscall_id == __NR_stat64 ) {
+					}
+
+					// The first argument for all of these 
+					returnVal = ptrace(PTRACE_PEEKUSER, child, ARG1, NULL);
 					done = 0;
 					while( !done ) {
-						c = ptrace(PTRACE_PEEKDATA, child, name, NULL);
+						c = ptrace(PTRACE_PEEKDATA, child, returnVal, NULL);
 						for( i = 0; i < 4; i ++ ) {
 							l = c & 0xFF;
 							c >>= 8;
-							name ++;
+							returnVal ++;
 							if( l == 0 ) {
 								done = 1;
 								break;
@@ -115,16 +159,32 @@ void Subprocess::trace(string command)
 							s += l;
 						}
 					}
-					callback(s);
+
+					// There should be a more elegant way to do this - we want to exclude
+					// proc and sys because they contain files whose timestamps constantly
+					// increment, and we exclude tmp because tools may write then read
+					// temporary files there, and we don't want to depend on those.
+					if( !strncmp(s.c_str(), "/proc", 5 ) ) break;
+					if( !strncmp(s.c_str(), "/sys", 4 ) ) break;
+					if( !strncmp(s.c_str(), "/tmp", 4 ) ) break;
+					if( !strncmp(s.c_str(), ".", 2 ) ) break;
+
+					if( insyscall ) {
+						callback_entry(s);
+					} else {
+						callback_exit(s, ptrace(PTRACE_PEEKUSER, child, RETURNVAL, NULL) >= 0);
+					}
 				}
 			}
 			if( syscall_id == __NR_exit_group ) {
 				// Detach here - otherwise, the parent of a further subprocess gets a SIGTRAP on child exit
+				insyscallMap.erase(child);
 				ptrace(PTRACE_DETACH, child, NULL, NULL);
 			} else {
 				ptrace(PTRACE_SYSCALL, child, NULL, NULL);
 			}
 		}
 	}
+
 	cout << "Completed " << command << endl;
 }
