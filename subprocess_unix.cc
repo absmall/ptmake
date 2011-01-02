@@ -8,6 +8,8 @@
 #include <fcntl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+// What does this do? The ptrace-abi.h checks for it, so better define it...
+#define __FRAME_OFFSETS
 #include <sys/ptrace.h>
 #include <asm/ptrace-abi.h>
 #include <sys/wait.h>
@@ -26,16 +28,9 @@ struct
 	{ __NR_stat, "stat" },
 	{ __NR_access, "access" },
 	{ __NR_open, "open" },
-	{ __NR_geteuid32, "geteuid32" },
 	{ __NR_set_thread_area, "set_thread_area" },
-	{ __NR_stat64, "stat64" },
 	{ __NR_fstat, "fstat" },
-	{ __NR_fstat64, "fstat64" },
-	{ __NR_mmap2, "mmap2" },
 	{ __NR_fcntl, "fcntl" },
-#if defined(__x86_64)
-	{ __NR_arch_prctl, "arch prctl" },
-#endif
 	{ __NR_execve, "execve" },
 	{ __NR_dup2, "dup2" },
 	{ __NR_exit_group, "exit group" },
@@ -53,6 +48,15 @@ struct
 	{ __NR_clone, "clone" },
 	{ __NR_wait4, "wait4" },
 	{ __NR_unlink, "unlink" },
+#if defined(__x86_64)
+	{ __NR_arch_prctl, "arch prctl" },
+#endif
+#if defined(__i386__)
+	{ __NR_geteuid32, "geteuid32" },
+	{ __NR_stat64, "stat64" },
+	{ __NR_fstat64, "fstat64" },
+	{ __NR_mmap2, "mmap2" },
+#endif
 };
 
 #if defined(__i386)
@@ -62,8 +66,8 @@ struct
 #define ARG3 (4 * EDX)
 #elif defined(__x86_64)
 #define RETURNVAL (8 * RAX)
-#define ARG1 (8 * RBX)
-#define ARG2 (8 * RCX)
+#define ARG1 (8 * RDI)
+#define ARG2 (8 * RSI)
 #define ARG3 (8 * RDX)
 #endif
 
@@ -116,7 +120,9 @@ void Subprocess::trace(string command)
 				case __NR_stat:
 				case __NR_access:
 				case __NR_open:
+#if defined(__i386__)
 				case __NR_stat64:
+#endif
 				{
 					int done;
 					string s;
@@ -133,14 +139,12 @@ void Subprocess::trace(string command)
 					
 					// See if this is being accessed for write. If it is,
 					// that's not a dependency
-					if( syscall_id == __NR_stat ) {
-					} else if( syscall_id == __NR_access ) {
+					if( syscall_id == __NR_access ) {
 						returnVal = ptrace(PTRACE_PEEKUSER, child, ARG2, NULL);
 						if( returnVal == W_OK ) break;
 					} else if( syscall_id == __NR_open ) {
 						returnVal = ptrace(PTRACE_PEEKUSER, child, ARG2, NULL);
 						if( returnVal & O_CREAT ) break;
-					} else if( syscall_id == __NR_stat64 ) {
 					}
 
 					// The first argument for all of these 
