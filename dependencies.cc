@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string>
 #include <list>
+#include <set>
 #include "exception.h"
 #include <iostream>
 #include <sstream>
@@ -134,7 +135,7 @@ void add_dependencies(unsigned char hash[32], string dep, bool success)
 	dbp->close(dbp, 0);
 }
 
-void add_dependencies(unsigned char hash[32], const std::list<std::pair<std::string, bool> > &deps)
+void add_dependencies(unsigned char hash[32], const std::set<std::pair<std::string, bool> > &deps)
 {
 	DBT key, data;
 	DB *dbp;
@@ -171,7 +172,7 @@ void add_dependencies(unsigned char hash[32], const std::list<std::pair<std::str
 		throw runtime_wexception("Failed to open database for write");
 	}
 
-	for( std::list<std::pair<std::string, bool> >::const_iterator i = deps.begin(); i != deps.end(); i ++ ) {
+	for( std::set<std::pair<std::string, bool> >::const_iterator i = deps.begin(); i != deps.end(); i ++ ) {
 		tempBuf = (unsigned char *)malloc( i->first.length() + 2 );
 		memcpy( tempBuf, i->first.c_str(), i->first.length() + 1 );
 		tempBuf[ i->first.length() + 1 ] = i->second;

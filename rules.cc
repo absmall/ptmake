@@ -14,7 +14,7 @@ using namespace std;
 
 extern bool debug;
 std::list<Rule *> Rule::rules;
-std::set<std::string> Rule::buildCache;
+//std::set<std::string> Rule::buildCache;
 
 void Rule::print()
 {
@@ -42,26 +42,35 @@ void Rule::print()
 	}
 }
 
+void print(std::string filename)
+{
+	cout << "Depends on " << filename << endl;
+}
+
 void print(std::string filename, int status)
 {
 	cout << "Depends on " << filename << "(" << status << ")" << endl;
 }
+
 void Rule::callback_entry(std::string filename)
 {
 	// See if we have already built this
+#if 0
 	if( buildCache.find(filename) != buildCache.end() ) {
 		// Already built
+		dependencies.push_back( pair<string,bool>(filename, true) );
 		return;
 	}
+#endif
 
 	if( debug ) {
-		::print(filename, 8);
+		::print(filename);
 	}
 	try {
 		Rule *r = Rule::find(filename);
 		r->execute();
-		buildCache.insert(filename);
-		dependencies.push_back( pair<string,bool>(filename, true) );
+		//buildCache.insert(filename);
+		dependencies.insert( pair<string,bool>(filename, true) );
 	} catch( wexception &e ) {
 		// Do nothing
 	}
@@ -70,12 +79,15 @@ void Rule::callback_entry(std::string filename)
 void Rule::callback_exit(std::string filename, bool success)
 {
 	// See if we have already built this
+#if 0
 	if( buildCache.find(filename) != buildCache.end() ) {
 		// Already built
+		dependencies.push_back( pair<string,bool>(filename, success) );
 		return;
 	}
-	buildCache.insert(filename);
-	dependencies.push_back( pair<string,bool>(filename, success) );
+#endif
+	//buildCache.insert(filename);
+	dependencies.insert( pair<string,bool>(filename, success) );
 
 	if( debug ) {
 		::print(filename, success);
@@ -140,7 +152,7 @@ bool Rule::execute()
 				time_t t;
 				status = fileTime(i->first, t);
 				if( (status ^ i->second) || (status && t > targetTime) ) {
-					cout << "No rule to rebuild " << i->first << ": (" << status << " ^ " << i->second << ") || " << ctime(&t) << " > " << ctime(&targetTime) << endl;
+					cout << "No rule to rebuild " << i->first << ": (" << status << " ^ " << i->second << ") || " << ctime(&t) << "(" << t << ")" << " > " << ctime(&targetTime) << "(" << targetTime << ")" << endl;
 					needsRebuild = true;
 				}
 			}
@@ -160,6 +172,8 @@ bool Rule::execute()
 	clear_dependencies( hash );
 	for(list<string >::iterator i = commands->begin(); i != commands->end(); i ++ ) {
 		trace(*i);
+
+		// Touch the targets in case something else updated last in the build process 
 	}
 	add_dependencies( hash, dependencies );
 	dependencies.clear();

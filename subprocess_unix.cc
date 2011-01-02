@@ -5,6 +5,9 @@
 #include <string.h>
 #include <map>
 #include <unistd.h>
+#include <fcntl.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 #include <sys/ptrace.h>
 #include <asm/ptrace-abi.h>
 #include <sys/wait.h>
@@ -52,6 +55,18 @@ struct
 	{ __NR_unlink, "unlink" },
 };
 
+#if defined(__i386)
+#define RETURNVAL (4 * EAX)
+#define ARG1 (4 * EBX)
+#define ARG2 (4 * ECX)
+#define ARG3 (4 * EDX)
+#elif defined(__x86_64)
+#define RETURNVAL (8 * RAX)
+#define ARG1 (8 * RBX)
+#define ARG2 (8 * RCX)
+#define ARG3 (8 * RDX)
+#endif
+
 void debugprint( int pid, int syscall_id, int returnVal )
 {
 	unsigned int i;
@@ -70,7 +85,7 @@ void Subprocess::trace(string command)
 {
 	char l;
 	int i, status;
-	long syscall_id, name,c, returnVal;
+	long syscall_id, c, returnVal;
 	pid_t child;
 	bool insyscall;
 	map<pid_t,bool> insyscallMap;
@@ -90,10 +105,8 @@ void Subprocess::trace(string command)
 #if defined(__i386)
 			syscall_id = ptrace(PTRACE_PEEKUSER, child, 4 * ORIG_EAX, NULL);
 #elif defined(__x86_64)
-			ret = ptrace(PTRACE_PEEKUSER, child, 8 * ORIG_RAX, NULL);
+			syscall_id = ptrace(PTRACE_PEEKUSER, child, 8 * ORIG_RAX, NULL);
 #endif
-			name = ptrace(PTRACE_PEEKUSER, child, 4 * EBX, NULL);
-			returnVal = ptrace(PTRACE_PEEKUSER, child, 4 * EAX, NULL);
 #ifdef DEBUG
 			if( debug ) {
 				//debugprint( child, syscall_id, returnVal );
@@ -117,13 +130,28 @@ void Subprocess::trace(string command)
 						insyscallMap[ child ] = true;
 						insyscall = true;
 					}
+					
+					// See if this is being accessed for write. If it is,
+					// that's not a dependency
+					if( syscall_id == __NR_stat ) {
+					} else if( syscall_id == __NR_access ) {
+						returnVal = ptrace(PTRACE_PEEKUSER, child, ARG2, NULL);
+						if( returnVal == W_OK ) break;
+					} else if( syscall_id == __NR_open ) {
+						returnVal = ptrace(PTRACE_PEEKUSER, child, ARG2, NULL);
+						if( returnVal & O_CREAT ) break;
+					} else if( syscall_id == __NR_stat64 ) {
+					}
+
+					// The first argument for all of these 
+					returnVal = ptrace(PTRACE_PEEKUSER, child, ARG1, NULL);
 					done = 0;
 					while( !done ) {
-						c = ptrace(PTRACE_PEEKDATA, child, name, NULL);
+						c = ptrace(PTRACE_PEEKDATA, child, returnVal, NULL);
 						for( i = 0; i < 4; i ++ ) {
 							l = c & 0xFF;
 							c >>= 8;
-							name ++;
+							returnVal ++;
 							if( l == 0 ) {
 								done = 1;
 								break;
@@ -144,7 +172,7 @@ void Subprocess::trace(string command)
 					if( insyscall ) {
 						callback_entry(s);
 					} else {
-						callback_exit(s, returnVal >= 0);
+						callback_exit(s, ptrace(PTRACE_PEEKUSER, child, RETURNVAL, NULL) >= 0);
 					}
 				}
 			}
@@ -157,5 +185,6 @@ void Subprocess::trace(string command)
 			}
 		}
 	}
+
 	cout << "Completed " << command << endl;
 }

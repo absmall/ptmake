@@ -28,7 +28,7 @@ class Rule : public Subprocess {
 		time_t targetTime;
 		std::list<std::string> *targets;
 		std::list<std::string> *commands;
-		std::list<std::pair<std::string, bool> > dependencies;
+		std::set<std::pair<std::string, bool> > dependencies;
 		static std::list<Rule *> rules;
 		static std::set<std::string> buildCache;
 };
