@@ -33,7 +33,7 @@ string printhash(unsigned char hash[32])
 		}
 	}
 
-	return string(buf);
+	return string(buf, 64);
 }
 
 void clear_dependencies(unsigned char hash[32])
