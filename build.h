@@ -12,7 +12,7 @@ void set_default_target();
 bool has_target();
 void set_target(std::string target);
 void print_targets();
-void build_targets();
+int build_targets();
 extern std::set<std::string> built_cache;
 
 #endif /* __BUILD_H__ */

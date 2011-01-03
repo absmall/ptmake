@@ -35,8 +35,9 @@ void print_targets()
 }
 
 // For each target, look for a rule that builds the target
-void build_targets()
+int build_targets()
 {
+	int ret = 0;
 	if( targets.empty() ) {
 		cerr << "No target specified" << endl;
 	}
@@ -44,10 +45,12 @@ void build_targets()
 		try {
 			Rule *r = Rule::find( *i );
 			if( !r->execute() ) {
-				cout << "ptmake: `" << *i << "' is up-to-date" << endl;
+				cout << "ptmake: `" << *i << "' is up to date." << endl;
 			}
 		} catch (wexception &e) {
 			cerr << "Building " << *i << " failed: " << e.what() << endl;
+			ret = 1;
 		}
 	}
+	return ret;
 }

@@ -29,6 +29,7 @@ void debug_mode()
 
 int main(int argc, char *argv[])
 {
+	int ret;
 	try {
 		Argpc *options = Argpc::getInstance( );
 
@@ -54,9 +55,10 @@ int main(int argc, char *argv[])
 			set_target( argv[i] );
 		}
 		set_default_target();
-		build_targets();
+		ret = build_targets();
 	} catch ( const std::exception &e ) {
 		cerr << "make: " << e.what() << endl;
+		return 1;
 	}
-	return 0;
+	return ret;
 }
