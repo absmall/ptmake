@@ -8,8 +8,7 @@
 #include <fcntl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-// What does this do? The ptrace-abi.h checks for it, so better define it...
-#define __FRAME_OFFSETS
+#include <sys/reg.h>
 #include <sys/ptrace.h>
 #include <asm/ptrace-abi.h>
 #include <sys/wait.h>
@@ -71,7 +70,7 @@ struct
 #define ARG3 (8 * RDX)
 #endif
 
-void debugprint( int pid, int syscall_id, int returnVal )
+void debugprint( int pid, long syscall_id, int returnVal )
 {
 	unsigned int i;
 
@@ -113,7 +112,7 @@ void Subprocess::trace(string command)
 #endif
 #ifdef DEBUG
 			if( debug ) {
-				//debugprint( child, syscall_id, returnVal );
+				debugprint( child, syscall_id, returnVal );
 			}
 #endif
 			switch( syscall_id ) {
