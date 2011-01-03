@@ -43,7 +43,9 @@ void build_targets()
 	for(list<string>::iterator i = targets.begin(); i != targets.end(); i ++ ) {
 		try {
 			Rule *r = Rule::find( *i );
-			r->execute();
+			if( !r->execute() ) {
+				cout << "ptmake: `" << *i << "' is up-to-date" << endl;
+			}
 		} catch (wexception &e) {
 			cerr << "Building " << *i << " failed: " << e.what() << endl;
 		}
