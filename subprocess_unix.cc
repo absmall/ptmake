@@ -58,18 +58,6 @@ struct
 #endif
 };
 
-#if defined(__i386)
-#define RETURNVAL (4 * EAX)
-#define ARG1 (4 * EBX)
-#define ARG2 (4 * ECX)
-#define ARG3 (4 * EDX)
-#elif defined(__x86_64)
-#define RETURNVAL (8 * RAX)
-#define ARG1 (8 * RDI)
-#define ARG2 (8 * RSI)
-#define ARG3 (8 * RDX)
-#endif
-
 void debugprint( int pid, long syscall_id, int returnVal )
 {
 	unsigned int i;
@@ -82,6 +70,18 @@ void debugprint( int pid, long syscall_id, int returnVal )
 	}
 	cout << pid << " made a system call " << syscall_id << " returning " << returnVal << endl;
 }
+#endif
+
+#if defined(__i386)
+#define RETURNVAL (4 * EAX)
+#define ARG1 (4 * EBX)
+#define ARG2 (4 * ECX)
+#define ARG3 (4 * EDX)
+#elif defined(__x86_64)
+#define RETURNVAL (8 * RAX)
+#define ARG1 (8 * RDI)
+#define ARG2 (8 * RSI)
+#define ARG3 (8 * RDX)
 #endif
 
 void Subprocess::trace(string command)
