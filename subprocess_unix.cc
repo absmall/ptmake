@@ -98,7 +98,6 @@ void Subprocess::trace(string command)
 	child = fork();
 	if( child == 0 ) {
 		ptrace(PTRACE_TRACEME, 0, NULL, NULL);
-		sleep(1);
 		execl("/bin/sh", "sh", "-c", command.c_str(), NULL);
 	} else {
 		while(1) {
