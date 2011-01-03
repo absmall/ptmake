@@ -93,7 +93,10 @@ void Subprocess::trace(string command)
 	bool insyscall;
 	map<pid_t,bool> insyscallMap;
 
-	cout << "Executing " << command << endl;
+	if( debug ) {
+		cout << "Executing ";
+	}
+	cout << command << endl;
 
 	child = fork();
 	if( child == 0 ) {
@@ -188,5 +191,7 @@ void Subprocess::trace(string command)
 		}
 	}
 
-	cout << "Completed " << command << endl;
+	if( debug ) {
+		cout << "Completed " << command << endl;
+	}
 }
