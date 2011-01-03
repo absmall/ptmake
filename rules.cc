@@ -155,7 +155,9 @@ bool Rule::execute()
 	} else {
 		// We don't know the dependencies, have to
 		// build
-		cout << "Dependencies unknown, must build" << endl;
+		if( debug ) {
+			cout << "Dependencies unknown, must build" << endl;
+		}
 	}
 	
 	clear_dependencies( hash );
