@@ -11,6 +11,7 @@
 using namespace std;
 
 extern bool debug;
+string depfile = "makefile.dep";
 
 string printhash(unsigned char hash[32])
 {
@@ -60,7 +61,7 @@ void clear_dependencies(unsigned char hash[32])
 
 	flags = DB_CREATE;
 
-	ret = dbp->open(dbp, NULL, "makefile.dep", NULL, DB_BTREE, flags, 0);
+	ret = dbp->open(dbp, NULL, depfile.c_str(), NULL, DB_BTREE, flags, 0);
 	if( ret != 0 ) {
 		dbp->close(dbp, 0);
 		throw runtime_wexception("Failed to open database");
@@ -119,7 +120,7 @@ void add_dependencies(unsigned char hash[32], string dep, bool success)
 
 	flags = DB_CREATE;
 
-	ret = dbp->open(dbp, NULL, "makefile.dep", NULL, DB_BTREE, flags, 0);
+	ret = dbp->open(dbp, NULL, depfile.c_str(), NULL, DB_BTREE, flags, 0);
 	if( ret != 0 ) {
 		dbp->close(dbp, 0);
 		throw runtime_wexception("Failed to open database for write");
@@ -166,7 +167,7 @@ void add_dependencies(unsigned char hash[32], const std::set<std::pair<std::stri
 
 	flags = DB_CREATE;
 
-	ret = dbp->open(dbp, NULL, "makefile.dep", NULL, DB_BTREE, flags, 0);
+	ret = dbp->open(dbp, NULL, depfile.c_str(), NULL, DB_BTREE, flags, 0);
 	if( ret != 0 ) {
 		dbp->close(dbp, 0);
 		throw runtime_wexception("Failed to open database for write");
@@ -216,7 +217,7 @@ list<pair<string, bool> > *retrieve_dependencies(unsigned char hash[32])
 
 	flags = DB_CREATE;
 
-	ret = dbp->open(dbp, NULL, "makefile.dep", NULL, DB_BTREE, flags, 0);
+	ret = dbp->open(dbp, NULL, depfile.c_str(), NULL, DB_BTREE, flags, 0);
 	if( ret != 0 ) {
 		dbp->close(dbp, 0);
 		throw runtime_wexception("Failed to open database");

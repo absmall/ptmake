@@ -12,11 +12,17 @@ bool makefile_specified = false;
 bool debug = false;
 extern int yydebug;
 std::string makefile;
+extern std::string depfile;
 
 void set_makefile( std::string file )
 {
 	makefile_specified = true;
 	makefile = file;
+}
+
+void set_depfile( std::string file )
+{
+	depfile = file;
 }
 
 #ifdef DEBUG
@@ -42,6 +48,7 @@ int main(int argc, char *argv[])
 		options->setDoc( "Yet another make clone" );
 		options->setArgumentDescription( "FILE ..." );
 		options->addOption( ArgpcOption( "file", 'f', "file", "Read FILE as a makefile.", set_makefile ) );
+		options->addOption( ArgpcOption( "depfile", 'b', "depfile", "Use specified file as dependency database.", set_depfile ) );
 #ifdef DEBUG
 		options->addOption( ArgpcOption( "debug", 'd', "Ouput debugging information", debug_mode ) );
 #endif
