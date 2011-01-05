@@ -25,9 +25,9 @@ void Argpc::addOption( const ArgpcOption &o ) {
 	options.push_back( o );
 }
 
-void Argpc::addOption( basic_string<char> s, const ArgpcOption &o ) {
+void Argpc::addOption( basic_string<char> group, const ArgpcOption &o ) {
 	options.push_back( o );
-	options.back().group = new ArgpcGroup( s, o.group );
+	options.back().group = new ArgpcGroup( group, o.group );
 }
 
 void Argpc::addHelp( void )
