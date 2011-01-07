@@ -1,0 +1,13 @@
+Short-term:
+-Make the program robust against interruption (atomic commits to the database, etc.)
+-Parse more gnumake syntax
+-Use gettext
+
+Medium-term:
+-Implement a jam parser
+-Implement something to output the dependency database to graphviz (separate program?)
+
+Long-term:
+-Turn everything except the parsers and driver into a library that can be shared among the backends.
+-See if I can use this as a backend with gnumake's frontend
+-Implement a daemon mode that monitors the filesystem for changes to any dependencies
