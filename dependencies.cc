@@ -83,59 +83,6 @@ void clear_dependencies(unsigned char hash[32])
 	dbp->close(dbp, 0);
 }
 
-void add_dependencies(unsigned char hash[32], string dep, bool success)
-{
-	DBT key, data;
-	DB *dbp;
-	int ret;
-	u_int32_t flags;
-	unsigned char *tempBuf;
-
-	if( debug ) {
-		cout << "Adding dependencies for " << printhash(hash) << endl;
-	}
-
-	memset(&key, 0, sizeof(DBT));
-	memset(&data, 0, sizeof(DBT));
-
-	key.data = hash;
-	key.size = 32;
-
-	tempBuf = (unsigned char *)malloc( dep.length() + 2 );
-	memcpy( tempBuf, dep.c_str(), dep.length() + 1 );
-	tempBuf[ dep.length() + 1 ] = success;
-	data.data = (void *)tempBuf;
-	data.size = dep.length()+2;
-
-	ret = db_create( &dbp, NULL, 0);
-	if( ret != 0 ) {
-		throw runtime_wexception("Failed to create database for write");
-	}
-
-	ret = dbp->set_flags(dbp, DB_DUPSORT);
-	if( ret != 0 ) {
-		dbp->close(dbp, 0);
-		throw runtime_wexception("Failed to make database sorted for write");
-	}
-
-	flags = DB_CREATE;
-
-	ret = dbp->open(dbp, NULL, depfile.c_str(), NULL, DB_BTREE, flags, 0);
-	if( ret != 0 ) {
-		dbp->close(dbp, 0);
-		throw runtime_wexception("Failed to open database for write");
-	}
-
-	ret = dbp->put(dbp, NULL, &key, &data, 0);
-	if( ret != 0 ) {
-		throw runtime_wexception("Could not insert record");
-	}
-
-	free( tempBuf );
-
-	dbp->close(dbp, 0);
-}
-
 void add_dependencies(unsigned char hash[32], const std::set<std::pair<std::string, bool> > &deps)
 {
 	DBT key, data;
