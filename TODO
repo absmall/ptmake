@@ -2,10 +2,14 @@ Short-term:
 -Make the program robust against interruption (atomic commits to the database, etc.)
 -Parse more gnumake syntax
 -Use gettext
+-Allow a config file to specify the directories to be ignored (/proc, /sys, /tmp)
+-Improve the situation with temporary files. I think programs that generate temporary files in the current directory don't work.
 
 Medium-term:
 -Implement a jam parser
 -Implement something to output the dependency database to graphviz (separate program?)
+-Track targets as well an dependencies
+-Mode to output when dependencies differ from the dependencies specified (to verify that fallback is working for platforms that can't support ptmake)
 
 Long-term:
 -Turn everything except the parsers and driver into a library that can be shared among the backends.
