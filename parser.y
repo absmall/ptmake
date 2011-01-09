@@ -8,7 +8,7 @@
 #include <stdexcept>
 #include "rules.h"
 int yylex(void);
-void yyerror(char *s);
+void yyerror(const char *s);
 void print_rule( void *);
 void * make_rule( void *, void *);
 void * make_rule_header( void *, void *);
@@ -171,7 +171,7 @@ void parse_makefile( std::string filename )
 	fclose( f );
 }
 
-void yyerror(char *s)
+void yyerror(const char *s)
 {
 	throw std::runtime_error( "Parse error" );
 }
