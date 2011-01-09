@@ -5,7 +5,7 @@ else
 ENVIRONMENT=vc
 endif
 
-OBJS = main.o build.o find.o argpc.o argpcoption.o exception.o rules.o parser.o dependencies.o
+OBJS = main.o build.o find.o argpc.o argpcoption.o exception.o rules.o make.o dependencies.o
 
 ifeq ($(ENVIRONMENT),vc)
 OBJS += subprocess_win.o
@@ -33,7 +33,7 @@ endif
 all: make
 
 clean:
-	rm -f *.o parser.cc parser.hh make
+	rm -f *.o make.cc make.hh make
 
 %.hh %.cc:%.y
 	$(YACC) -d -o $*.cc $<

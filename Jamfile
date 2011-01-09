@@ -7,10 +7,10 @@ if $(UNIX)
 C++FLAGS += `libgcrypt-config --cflags ` ;
 LINKFLAGS += `libgcrypt-config --cflags --libs` -ldb ;
 
-SOURCES = main.cc build.cc find.cc argpc.cc argpcoption.cc exception.cc rules.cc parser.cc dependencies.cc ;
+SOURCES = main.cc build.cc find.cc argpc.cc argpcoption.cc exception.cc rules.cc make.cc dependencies.cc ;
 
 if $(UNIX) { SOURCES += subprocess_unix.cc file_unix.cc ; }
 if $(NT) { SOURCES += subprocess_win.cc ; }
 
-Yacc parser.cc : parser.y ;
+Yacc make.cc : make.y ;
 Main make : $(SOURCES) ;
