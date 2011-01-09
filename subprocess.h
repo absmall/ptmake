@@ -15,7 +15,6 @@ public:
 	virtual void callback_entry(std::string filename) = 0;
 	
 	/* Callback when leaving a filesystem access */
-	virtual void callback_entry(std::string filename) = 0;
 	virtual void callback_exit(std::string filename, bool success) = 0;
 };
 
