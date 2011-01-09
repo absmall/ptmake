@@ -5,7 +5,13 @@ else
 ENVIRONMENT=vc
 endif
 
-OBJS = main.o build.o find.o argpc.o argpcoption.o exception.o rules.o make.o dependencies.o
+BUILD_OPTIONS=warnings debug make
+
+OBJS = main.o build.o find.o argpc.o argpcoption.o exception.o rules.o dependencies.o
+
+ifeq ($(filter make, $(BUILD_OPTIONS)),make)
+OBJS += make.o
+endif
 
 ifeq ($(ENVIRONMENT),vc)
 OBJS += subprocess_win.o
@@ -15,8 +21,6 @@ ifeq ($(ENVIRONMENT),gcc)
 OBJS += subprocess_unix.o
 OBJS += file_unix.o
 endif
-
-BUILD_OPTIONS=warnings debug
 
 include bison.mak
 

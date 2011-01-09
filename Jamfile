@@ -1,7 +1,7 @@
 if $(UNIX)
 {
-    C++ = g++ ;
-    LINK = g++ ;
+    C++ = g++ -DMAKEFILE ;
+    LINK = g++ -DMAKEFILE ;
 }
 
 C++FLAGS += `libgcrypt-config --cflags ` ;
