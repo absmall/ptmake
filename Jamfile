@@ -1,12 +1,41 @@
+# We have to define our own yacc rule because we're using c++
+rule Yacc
+{
+    local _h ;
+
+    _h = $(<:BS=.h) ;
+
+    # Some places don't have a yacc.
+
+    MakeLocate $(<) $(_h) : $(LOCATE_SOURCE) ;
+
+    if $(YACC)
+    {
+        Depends $(<) $(_h) : $(>) ;
+        Yacc1 $(<) $(_h) : $(>) ;
+        YaccMv $(<) $(_h) : $(>) ;
+        Clean clean : $(<) $(_h) ;
+    }
+
+    # make sure someone includes $(_h) else it will be
+    # a deadly independent target
+
+    Includes $(<) : $(_h) ;
+}
+
 if $(UNIX)
 {
     C++ = g++ ;
     LINK = g++ ;
 }
 
-SOURCES = main.cc build.cc find.cc argpc.cc argpcoption.cc exception.cc rules.cc ;
+C++FLAGS += `libgcrypt-config --cflags ` ;
+LINKFLAGS += `libgcrypt-config --cflags --libs` -ldb ;
 
-if $(UNIX) { SOURCES += subprocess_unix.c ; }
-if $(NT) { SOURCES += subprocess_win.c ; }
+SOURCES = main.cc build.cc find.cc argpc.cc argpcoption.cc exception.cc rules.cc parser.cc dependencies.cc ;
 
+if $(UNIX) { SOURCES += subprocess_unix.cc file_unix.cc ; }
+if $(NT) { SOURCES += subprocess_win.cc ; }
+
+Yacc parser.cc : parser.y ;
 Main make : $(SOURCES) ;

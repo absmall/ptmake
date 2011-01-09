@@ -6,7 +6,6 @@ ENVIRONMENT=vc
 endif
 
 OBJS = main.o build.o find.o argpc.o argpcoption.o exception.o rules.o parser.o dependencies.o
-LIBS = -ldb
 
 ifeq ($(ENVIRONMENT),vc)
 OBJS += subprocess_win.o
@@ -31,7 +30,7 @@ endif
 .SUFFIXES: 
 .PHONY:clean
 
-all: make.exe
+all: make
 
 clean:
 	rm -f *.o parser.cc parser.hh make.exe

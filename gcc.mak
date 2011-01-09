@@ -20,5 +20,5 @@ OUTPUT=-o
 %.o : %.c
 	gcc -c $(CPPFLAGS) `libgcrypt-config --cflags` -o $@ $<
 
-make.exe : $(OBJS)
-	$(LD) `libgcrypt-config --cflags --libs` -o $@ $^
+make : $(OBJS)
+	$(LD) `libgcrypt-config --cflags --libs` -ldb -o $@ $^
