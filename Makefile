@@ -33,7 +33,7 @@ endif
 all: make
 
 clean:
-	rm -f *.o parser.cc parser.hh make.exe
+	rm -f *.o parser.cc parser.hh make
 
 %.hh %.cc:%.y
 	$(YACC) -d -o $*.cc $<
