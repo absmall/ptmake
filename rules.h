@@ -7,7 +7,10 @@
 /* A class which encompasses a rule for building a set of targets using a set
  * of shell commands
  */
+class GraphViz;
+
 class Rule : public Subprocess {
+	friend class GraphViz;
 	public:
 		Rule();
 

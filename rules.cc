@@ -13,7 +13,7 @@
 using namespace std;
 
 extern bool debug;
-std::list<Rule *> Rule::rules;
+list<Rule *> Rule::rules;
 
 void Rule::print()
 {
