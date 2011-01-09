@@ -1,28 +1,3 @@
-# We have to define our own yacc rule because we're using c++
-rule Yacc
-{
-    local _h ;
-
-    _h = $(<:BS=.h) ;
-
-    # Some places don't have a yacc.
-
-    MakeLocate $(<) $(_h) : $(LOCATE_SOURCE) ;
-
-    if $(YACC)
-    {
-        Depends $(<) $(_h) : $(>) ;
-        Yacc1 $(<) $(_h) : $(>) ;
-        YaccMv $(<) $(_h) : $(>) ;
-        Clean clean : $(<) $(_h) ;
-    }
-
-    # make sure someone includes $(_h) else it will be
-    # a deadly independent target
-
-    Includes $(<) : $(_h) ;
-}
-
 if $(UNIX)
 {
     C++ = g++ ;
