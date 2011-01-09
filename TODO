@@ -1,5 +1,6 @@
 Short-term:
 -Make the program robust against interruption (atomic commits to the database, etc.)
+-Better error descriptions in the parser
 -Parse more gnumake syntax
 -Use gettext
 -Allow a config file to specify the directories to be ignored (/proc, /sys, /tmp)
