@@ -1,16 +1,34 @@
+MAKE = 1 ;
+#JAM = 1 ;
+
 if $(UNIX)
 {
     C++ = g++ -DMAKEFILE ;
-    LINK = g++ -DMAKEFILE ;
+    LINK = g++ ;
 }
+
+if $(MAKE)
+{
+	C++ += -DMAKEFILE ;
+}
+
+if $(JAM)
+{
+	C++ += -DJAMFILE ;
+}
+
 
 C++FLAGS += `libgcrypt-config --cflags ` ;
 LINKFLAGS += `libgcrypt-config --cflags --libs` -ldb ;
 
-SOURCES = main.cc build.cc find.cc argpc.cc argpcoption.cc exception.cc rules.cc make.cc dependencies.cc ;
+SOURCES = main.cc build.cc find.cc argpc.cc argpcoption.cc exception.cc rules.cc dependencies.cc ;
+
+if $(MAKE) { SOURCES += make.cc ; }
+if $(JAM) { SOURCES += jam.cc ; }
 
 if $(UNIX) { SOURCES += subprocess_unix.cc file_unix.cc ; }
 if $(NT) { SOURCES += subprocess_win.cc ; }
 
 Yacc make.cc : make.y ;
+Yacc jam.cc : jam.y ;
 Main make : $(SOURCES) ;

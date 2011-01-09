@@ -37,3 +37,5 @@ subprocess_unix.o:
 make.cc:
 	bison -d -o make.cc make.y
 
+jam.cc:
+	bison -d -o jam.cc jam.y

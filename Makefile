@@ -13,6 +13,10 @@ ifeq ($(filter make, $(BUILD_OPTIONS)),make)
 OBJS += make.o
 endif
 
+ifeq ($(filter jam, $(BUILD_OPTIONS)),jam)
+OBJS += jam.o
+endif
+
 ifeq ($(ENVIRONMENT),vc)
 OBJS += subprocess_win.o
 endif
@@ -37,7 +41,7 @@ endif
 all: make
 
 clean:
-	rm -f *.o make.cc make.hh make
+	rm -f *.o make.cc make.hh make.h jam.cc jam.hh jam.h make
 
 %.hh %.cc:%.y
 	$(YACC) -d -o $*.cc $<
