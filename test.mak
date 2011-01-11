@@ -37,6 +37,9 @@ dependencies.o:
 subprocess_unix.o:
 	g++ -c -Wall -DMAKEFILE -DYYDEBUG -DDEBUG -g3 `libgcrypt-config --cflags` -o subprocess_unix.o subprocess_unix.cc
 
+utilities.o:
+	g++ -c -Wall -DMAKEFILE -DYYDEBUG -DDEBUG -g3 `libgcrypt-config --cflags` -o utilities.o utilities.cc
+
 make.cc:
 	bison -d -o make.cc make.y
 
