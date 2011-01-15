@@ -1,5 +1,5 @@
 make:
-	g++ -ldb -DMAKEFILE -DYYDEBUG -g3 `libgcrypt-config --cflags --libs` -o make main.o build.o find.o file_unix.o argpc.o argpcoption.o subprocess_unix.o exception.o rules.o make.o dependencies.o graphviz.o
+	g++ -ldb -DMAKEFILE -DYYDEBUG -g3 `libgcrypt-config --cflags --libs` -o make main.o build.o find.o file_unix.o argpc.o argpcoption.o subprocess_unix.o exception.o rules.o make.o dependencies.o graphviz.o utilities.o
 
 main.o:
 	g++ -c -Wall -DMAKEFILE -DYYDEBUG -DDEBUG -g3 `libgcrypt-config --cflags` -o main.o main.cc
