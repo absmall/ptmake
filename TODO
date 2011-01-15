@@ -9,8 +9,7 @@ Short-term:
 
 Medium-term:
 -Implement a jam parser
--Implement something to output the dependency database to graphviz (separate program?)
--Track targets as well an dependencies
+-Track targets as well an dependencies, make an automatic clean mode
 -Mode to output when dependencies differ from the dependencies specified (to verify that fallback is working for platforms that can't support ptmake)
 
 Long-term:
