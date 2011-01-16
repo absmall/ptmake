@@ -5,13 +5,13 @@
 #include "argpc.h"
 #include "build.h"
 #include "graphviz.h"
+#include "debug.h"
 
 using namespace std;
 
 bool makefile_specified = false;
 int debug = false;
 string plotfile = "";
-extern int yydebug;
 std::string makefile;
 extern std::string depfile;
 
@@ -34,8 +34,7 @@ void plot( std::string file )
 #ifdef DEBUG
 void debug_mode()
 {
-	yydebug = 1;
-	debug = 1;
+	enable_debug( DEBUG_LEVEL_2 );
 }
 #endif
 

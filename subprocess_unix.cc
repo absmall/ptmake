@@ -14,7 +14,7 @@
 #include <sys/wait.h>
 #include <syscall.h>
 #include "subprocess.h"
-#include "globals.h"
+#include "debug.h"
 
 using namespace std;
 
@@ -93,7 +93,7 @@ void Subprocess::trace(string command)
 	bool insyscall;
 	map<pid_t,bool> insyscallMap;
 
-	if( debug ) {
+	if( get_debug_level( DEBUG_SUBPROCESS ) ) {
 		cout << "Executing ";
 	}
 	cout << command << endl;
@@ -113,7 +113,7 @@ void Subprocess::trace(string command)
 			syscall_id = ptrace(PTRACE_PEEKUSER, child, 8 * ORIG_RAX, NULL);
 #endif
 #ifdef DEBUG
-			if( debug ) {
+			if( get_debug_level( DEBUG_SUBPROCESS ) ) {
 				debugprint( child, syscall_id, returnVal );
 			}
 #endif
@@ -191,7 +191,7 @@ void Subprocess::trace(string command)
 		}
 	}
 
-	if( debug ) {
+	if( get_debug_level( DEBUG_SUBPROCESS ) ) {
 		cout << "Completed " << command << endl;
 	}
 }
