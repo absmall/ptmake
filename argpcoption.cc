@@ -32,7 +32,7 @@ const ArgpcOption &ArgpcOption::operator=(const ArgpcOption &base)
 	valueName = base.valueName;
 	doc = base.doc;
 	hasValue = base.hasValue;
-	values = values;
+	values = base.values;
 	if( group )
 	{
 		delete group;
