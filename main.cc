@@ -9,7 +9,7 @@
 using namespace std;
 
 bool makefile_specified = false;
-bool debug = false;
+int debug = false;
 string plotfile = "";
 extern int yydebug;
 std::string makefile;

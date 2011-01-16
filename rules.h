@@ -1,3 +1,6 @@
+#ifndef __RULES_H__
+#define __RULES_H__
+
 #include <string>
 #include <list>
 #include <set>
@@ -65,3 +68,5 @@ class Rule : public Subprocess {
 		static std::list<Rule *> rules;
 		static std::set<std::string> buildCache;
 };
+
+#endif /* __RULES_H__ */
