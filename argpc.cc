@@ -371,14 +371,14 @@ void Argpc::printHelp( void )
 		cout << i->doc << endl;
 		if( i->values.size( ) )
 		{
-			for( int j = 0; j < 29; j ++ )
+			for( int j = 0; j < 30; j ++ )
 			{
 				cout << " ";
 			}
 			cout << "Options:" << endl;
 			for( vector< basic_string<char> >::iterator v = i->values.begin( ); v != i->values.end( ); v ++ )
 			{
-				for( int j = 0; j < 29; j ++ )
+				for( int j = 0; j < 31; j ++ )
 				{
 					cout << " ";
 				}
