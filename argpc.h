@@ -74,6 +74,12 @@ private:
 	void removeArg( int *argc, char *argv[], int i );
 	void parseShortOption( int *argc, char *argv[], int i );
 	void parseLongOption( int *argc, char *argv[], int i );
+
+	/*
+	 * Validate that a string is a valid argument for this parameter, and execute callback
+	 */
+	void validateAndCallback( std::vector< ArgpcOption >::iterator i, const std::string &s );
+
 	static bool initialized;
 	static Argpc instance;
 	bool hasHelp;
@@ -104,6 +110,18 @@ public:
 	virtual const char *what( void ) const throw( );
 private:
 	std::string name;
+};
+
+
+class BadParameterException : public wexception
+{
+public:
+	BadParameterException( std::string arg, std::string param );
+	virtual ~BadParameterException( void ) throw( );
+	virtual const char *what( void ) const throw( );
+private:
+	std::string arg;
+	std::string param;
 };
 
 

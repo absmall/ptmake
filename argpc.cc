@@ -216,7 +216,7 @@ void Argpc::parseShortOption( int *argc, char *argv[], int i )
 					// The argument follows immediately
 					value = basic_string<char>( argv[ i ] + 2 );
 				}
-				callback->callback.arg( value );
+				validateAndCallback( callback, value );
 			} else {
 				callback->callback.noarg( );
 			}
@@ -264,14 +264,14 @@ void Argpc::parseLongOption( int *argc, char *argv[], int i )
 			if( arg->hasValue )
 			{
 				if( equals ) {
-					arg->callback.arg( equals );
+					validateAndCallback( arg, equals );
 				} else {
 					hasValue = true;
 					if( i + 1 == *argc )
 					{
 						throw MissingArgumentException( argv[ i ] );
 					}
-					arg->callback.arg( argv[ i + 1 ] );
+					validateAndCallback( arg, argv[ i + 1 ] );
 				}
 			} else {
 				arg->callback.noarg( );
@@ -291,6 +291,15 @@ void Argpc::parseLongOption( int *argc, char *argv[], int i )
 		// Didn't find a match
 		argv[ i ] -= 2;
 		throw UnknownArgumentException( name );
+	}
+}
+
+void Argpc::validateAndCallback( vector< ArgpcOption >::iterator i, const string &s )
+{
+	if( i->values.size() == 0 || find(i->values.begin(), i->values.end(), s) != i->values.end() ) {
+		i->callback.arg( s );
+	} else {
+		throw BadParameterException(basic_string<char>(i->name), s);
 	}
 }
 
@@ -445,4 +454,17 @@ MissingArgumentException::~MissingArgumentException( ) throw ( )
 const char *MissingArgumentException::what( void ) const throw( )
 {
 	return (basic_string<char>( "Argument " ) + name + basic_string<char>( " requires a value" )).c_str( );
+}
+
+BadParameterException::BadParameterException( std::basic_string<char> arg, std::basic_string<char> param ) : arg( arg ), param( param )
+{
+}
+
+BadParameterException::~BadParameterException( ) throw ( )
+{
+}
+
+const char *BadParameterException::what( void ) const throw( )
+{
+	return (basic_string<char>("Bad parameter: `") + param + basic_string<char>("' is not a valid option for `") + arg + basic_string<char>("'")).c_str();
 }
