@@ -23,7 +23,7 @@ Design:
 The concept of ptmake is to start at the top when building a target whose
 dependencies are unknown, and at the bottom when building a target whose
 dependencies are known. For example, say B can be built from A using rule 1,
-and C can be built from B using rule 2. On the first attempt to build C, ptrace will do the following:
+and C can be built from B using rule 2. On the first attempt to build C, ptmake will do the following:
 
 1) Execute rule 2 to build C
 2) Trap the kernel entry to access file B.

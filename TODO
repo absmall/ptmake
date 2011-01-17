@@ -6,6 +6,7 @@ Short-term:
 -Allow a config file to specify the directories to be ignored (/proc, /sys, /tmp)
 -Improve the situation with temporary files. I think programs that generate temporary files in the current directory don't work.
 -Deal with relative vs. absolute pathnames (I think this just requires matching either in the target of a rule)
+-Add more options for update detection (currently is timestamp, add hash, and timestamp then hash)
 
 Medium-term:
 -Implement a jam parser
