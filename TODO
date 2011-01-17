@@ -1,5 +1,6 @@
 Short-term:
 -Make the program robust against interruption (atomic commits to the database, etc.)
+-Pattern rules. Follow gnumake and use % as a wildcard? But allow escaping of it?
 -Better error descriptions in the parser
 -Parse more gnumake syntax
 -Use gettext
@@ -12,6 +13,7 @@ Medium-term:
 -Implement a jam parser
 -Track targets as well an dependencies, make an automatic clean mode
 -Mode to output when dependencies differ from the dependencies specified (to verify that fallback is working for platforms that can't support ptmake)
+-Multiple threads for building
 
 Long-term:
 -Turn everything except the parsers and driver into a library that can be shared among the backends.
