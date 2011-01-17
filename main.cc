@@ -10,7 +10,6 @@
 using namespace std;
 
 bool makefile_specified = false;
-int debug = false;
 string plotfile = "";
 std::string makefile;
 extern std::string depfile;
@@ -72,6 +71,8 @@ int main(int argc, char *argv[])
 		debugOption.addValue("dependencies");
 		debugOption.addValue("subprocess");
 		debugOption.addValue("parse");
+		debugOption.addValue("1");
+		debugOption.addValue("2");
 		options->addOption( debugOption );
 #endif
 		options->parse( &argc, argv );

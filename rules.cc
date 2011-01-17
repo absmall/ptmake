@@ -6,13 +6,13 @@
 #include "file.h"
 #include "rules.h"
 #include "build.h"
+#include "debug.h"
 #include "exception.h"
 #include "subprocess.h"
 #include "dependencies.h"
 
 using namespace std;
 
-extern bool debug;
 list<Rule *> Rule::rules;
 
 void Rule::print()
@@ -53,7 +53,7 @@ void print(std::string filename, int status)
 
 void Rule::callback_entry(std::string filename)
 {
-	if( debug ) {
+	if( get_debug_level( DEBUG_DEPENDENCIES ) ) {
 		::print(filename);
 	}
 	try {
@@ -69,7 +69,7 @@ void Rule::callback_exit(std::string filename, bool success)
 {
 	dependencies.insert( pair<string,bool>(filename, success) );
 
-	if( debug ) {
+	if( get_debug_level( DEBUG_DEPENDENCIES ) ) {
 		::print(filename, success);
 	}
 }
@@ -88,7 +88,7 @@ bool Rule::execute()
 		// No target time, so definitely rebuild
 	}
 
-	if( debug ) {
+	if( get_debug_level( DEBUG_DEPENDENCIES ) ) {
 		cout << "Try to build: " << *targets->begin() << "(" << targetTime << ")" << endl;
 	}
 
@@ -107,7 +107,7 @@ bool Rule::execute()
 			// If the file existed before and doesn't exist now, we need to rebuild.
 			// If the file existed before and still exists, we need to rebuild if the
 			// file is newer
-			if( debug ) {
+			if( get_debug_level( DEBUG_DEPENDENCIES ) ) {
 				cout << "Dependency " << i->first << "(" << i->second << ")" << endl;
 			}
 			try {
@@ -124,7 +124,7 @@ bool Rule::execute()
 					// have to rebuild.
 					status = fileTime(i->first, t, &isDir);
 					if( !status || (t > targetTime && !isDir) ) {
-						if( debug ) {
+						if( get_debug_level( DEBUG_DEPENDENCIES ) ) {
 							cout << "Generated file out of date, need to rebuild because of " << i->first << ": (" << status << " ^ " << i->second << ") || " << ctime(&t) << " > " << ctime(&targetTime) << endl;
 						}
 						needsRebuild = true;
@@ -137,7 +137,7 @@ bool Rule::execute()
 
 				status = fileTime(i->first, t, &isDir);
 				if( (status ^ i->second) || (status && t > targetTime && !isDir) ) {
-					if( debug ) {
+					if( get_debug_level( DEBUG_DEPENDENCIES ) ) {
 						cout << "No rule to rebuild " << i->first << ": (" << status << " ^ " << i->second << ") || " << ctime(&t) << "(" << t << ")" << " > " << ctime(&targetTime) << "(" << targetTime << ")" << endl;
 					}
 					needsRebuild = true;
@@ -149,13 +149,13 @@ bool Rule::execute()
 		if( !needsRebuild ) {
 			return false;
 		}
-		if( debug ) {
+		if( get_debug_level( DEBUG_DEPENDENCIES ) ) {
 			cout << "Dependency updated, must build" << endl;
 		}
 	} else {
 		// We don't know the dependencies, have to
 		// build
-		if( debug ) {
+		if( get_debug_level( DEBUG_DEPENDENCIES ) ) {
 			cout << "Dependencies unknown, must build" << endl;
 		}
 	}

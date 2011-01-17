@@ -4,6 +4,7 @@
 #include <string>
 #include <list>
 #include <set>
+#include "debug.h"
 #include "exception.h"
 #include <iostream>
 #include <sstream>
@@ -11,7 +12,6 @@
 
 using namespace std;
 
-extern bool debug;
 string depfile = "makefile.dep";
 
 void clear_dependencies(unsigned char hash[32])
@@ -21,7 +21,7 @@ void clear_dependencies(unsigned char hash[32])
 	u_int32_t flags;
 	int ret;
 
-	if( debug ) {
+	if( get_debug_level( DEBUG_DEPENDENCIES ) ) {
 		cout << "Clearing dependencies for " << printhash(hash) << endl;
 	}
 
@@ -68,7 +68,7 @@ void add_dependencies(unsigned char hash[32], const std::set<std::pair<std::stri
 	u_int32_t flags;
 	unsigned char *tempBuf;
 
-	if( debug ) {
+	if( get_debug_level( DEBUG_DEPENDENCIES ) ) {
 		cout << "Adding list of dependencies for " << printhash(hash) << endl;
 	}
 
@@ -124,7 +124,7 @@ list<pair<string, bool> > *retrieve_dependencies(unsigned char hash[32])
 	int ret;
 	list<pair<string, bool> > *deps = NULL;
 
-	if( debug ) {
+	if( get_debug_level( DEBUG_DEPENDENCIES ) ) {
 		cout << "Retrieving dependencies for " << printhash(hash) << endl;
 	}
 
