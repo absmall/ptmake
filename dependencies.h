@@ -8,6 +8,16 @@
  * This module caches dependencies in a Berkeley DB
  */
 
+/*
+ * Open the database
+ */
+void dependencies_init();
+
+/*
+ * Close the database
+ */
+void dependencies_deinit();
+
 /* Clear all the dependencies associated with a particular rule */
 void clear_dependencies(unsigned char hash[32]);
 

@@ -6,6 +6,7 @@
 #include "build.h"
 #include "graphviz.h"
 #include "debug.h"
+#include "dependencies.h"
 
 using namespace std;
 
@@ -77,6 +78,8 @@ int main(int argc, char *argv[])
 #endif
 		options->parse( &argc, argv );
 
+		dependencies_init();
+
 		if( !makefile_specified ) {
 			makefile = find_makefile( );
 		}
@@ -92,7 +95,9 @@ int main(int argc, char *argv[])
 		}
 	} catch ( const std::exception &e ) {
 		cerr << "make: " << e.what() << endl;
+		dependencies_deinit();
 		return 1;
 	}
+	dependencies_deinit();
 	return ret;
 }
