@@ -72,14 +72,14 @@ sourcelist:						{ $$ = new_stringlist(); }
 	;
 
 %%
-bool isspecial(char c)
+bool isSpecial(char c)
 {
 	return strchr( "|:\n\t", c ) != NULL;
 }
 
 bool isidchar(char c)
 {
-	return !isspecial(c) && c != ' ';
+	return !isSpecial(c) && c != ' ';
 }
 
 void eatSpace()
@@ -134,7 +134,7 @@ int yylex()
 	}
 
 	// Choose the token type based on the first character
-	if( isspecial( inputBuffer[ inputBufferOffset ] ) ) {
+	if( isSpecial( inputBuffer[ inputBufferOffset ] ) ) {
 		bufferChar = inputBuffer[ inputBufferOffset + 1 ];
 		return inputBuffer[ inputBufferOffset ++ ];
 	} else {

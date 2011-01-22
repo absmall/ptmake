@@ -1,8 +1,12 @@
-OS := $(shell uname -o)
+OS := $(shell uname -s)
 ifeq ($(OS),GNU/Linux)
 ENVIRONMENT=gcc
 else
+ifeq ($(OS),Darwin)
+ENVIRONMENT=gcc
+else
 ENVIRONMENT=vc
+endif
 endif
 
 all: 
@@ -14,8 +18,13 @@ ifeq ($(ENVIRONMENT),vc)
 OBJS += subprocess_win.o
 endif
 
-ifeq ($(ENVIRONMENT),gcc)
+ifeq ($(OS),GNU/Linux)
 OBJS += subprocess_unix.o
+OBJS += file_unix.o
+endif
+
+ifeq ($(OS),Darwin)
+OBJS += subprocess_mach.o
 OBJS += file_unix.o
 endif
 

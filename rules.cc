@@ -15,6 +15,10 @@ using namespace std;
 
 list<Rule *> Rule::rules;
 
+Subprocess::~Subprocess( )
+{
+}
+
 void Rule::print()
 {
 	cout << "Rule:" << endl;

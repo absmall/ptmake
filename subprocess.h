@@ -6,6 +6,8 @@
 class Subprocess
 {
 public:
+	virtual ~Subprocess( );
+	
 	/* Execute a command, while calling callbacks on entry and exit to each
 	 * kernel filesystem access
 	 */
