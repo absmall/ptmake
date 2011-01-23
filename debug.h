@@ -4,15 +4,18 @@
 enum DebugLevel {
 	DEBUG_NONE,
 
-	DEBUG_DEPENDENCIES,
+	DEBUG_REASON,
 	DEBUG_LEVEL_1,
 
+	DEBUG_DEPENDENCIES,
 	DEBUG_SUBPROCESS,
 	DEBUG_PARSE,
 	DEBUG_LEVEL_2,
 
 	DEBUG_LEVEL_MAX
 };
+
+void debug_init( );
 
 bool enable_debug(DebugLevel level);
 

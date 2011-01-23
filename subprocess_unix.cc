@@ -113,6 +113,7 @@ void Subprocess::trace(string command)
 			syscall_id = ptrace(PTRACE_PEEKUSER, child, 8 * ORIG_RAX, NULL);
 #endif
 #ifdef DEBUG
+			returnVal = ptrace(PTRACE_PEEKUSER, child, RETURNVAL, NULL);
 			if( get_debug_level( DEBUG_SUBPROCESS ) ) {
 				debugprint( child, syscall_id, returnVal );
 			}
@@ -130,7 +131,9 @@ void Subprocess::trace(string command)
 					map<pid_t,bool>::iterator it = insyscallMap.find(child);
 
 					if( it != insyscallMap.end() ) {
-						it->second ^= 1;
+						if( it->second || returnVal == -ENOSYS ) {
+							it->second ^= 1;
+						}
 						insyscall = it->second;
 					} else {
 						// New process
@@ -174,10 +177,11 @@ void Subprocess::trace(string command)
 					if( !strncmp(s.c_str(), "/tmp", 4 ) ) break;
 					if( !strncmp(s.c_str(), ".", 2 ) ) break;
 
+					returnVal = ptrace(PTRACE_PEEKUSER, child, RETURNVAL, NULL);
 					if( insyscall ) {
 						callback_entry(s);
 					} else {
-						callback_exit(s, ptrace(PTRACE_PEEKUSER, child, RETURNVAL, NULL) >= 0);
+						callback_exit(s, returnVal >= 0);
 					}
 				}
 			}
