@@ -15,6 +15,8 @@ enum DebugLevel {
 	DEBUG_LEVEL_MAX
 };
 
+void debug_init( );
+
 bool enable_debug(DebugLevel level);
 
 bool get_debug_level(DebugLevel level);
