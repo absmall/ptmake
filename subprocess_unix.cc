@@ -105,6 +105,12 @@ void Subprocess::trace(string command)
 			child = wait(&status);
 			ptrace(PTRACE_SETOPTIONS, child, NULL, PTRACE_O_TRACEFORK | PTRACE_O_TRACEVFORK | PTRACE_O_TRACECLONE | PTRACE_O_TRACEEXEC);
 			if(WIFEXITED(status)) break;
+
+			// Make sure we're being called for a trap
+			if(!WIFSTOPPED(status) || WSTOPSIG(status) != SIGTRAP) {
+				ptrace(PTRACE_SYSCALL, child, NULL, NULL);
+				continue;
+			}
 #if defined(__i386)
 			syscall_id = ptrace(PTRACE_PEEKUSER, child, 4 * ORIG_EAX, NULL);
 #elif defined(__x86_64)
@@ -129,9 +135,7 @@ void Subprocess::trace(string command)
 					map<pid_t,bool>::iterator it = insyscallMap.find(child);
 
 					if( it != insyscallMap.end() ) {
-						if( it->second || returnVal == -ENOSYS ) {
-							it->second ^= 1;
-						}
+						it->second ^= 1;
 						insyscall = it->second;
 					} else {
 						// New process
