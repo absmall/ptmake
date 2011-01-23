@@ -18,7 +18,6 @@
 
 using namespace std;
 
-#ifdef DEBUG
 struct
 {
 	int id;
@@ -70,7 +69,6 @@ void debugprint( int pid, long syscall_id, int returnVal )
 	}
 	cout << pid << " made a system call " << syscall_id << " returning " << returnVal << endl;
 }
-#endif
 
 #if defined(__i386)
 #define RETURNVAL (4 * EAX)

@@ -306,7 +306,7 @@ void Argpc::validateAndCallback( vector< ArgpcOption >::iterator i, const string
 void Argpc::printHelp( void )
 {
 	basic_string<char> lastgroup;
-	cout << "Usage: " << instance.progName << " [OPTION...] " << instance.argumentDescription << endl;
+	cout << "Usage: " << instance.progName << " [OPTION] " << instance.argumentDescription << endl;
 	cout << instance.progName;
 	if( instance.version != "" )
 	{

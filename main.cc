@@ -44,14 +44,12 @@ int main(int argc, char *argv[])
 		options->setVersion( "0.1" );
 		options->setBugAddress( "Aaron Small <a.small@unb.ca>" );
 		options->setDoc( "Yet another make clone" );
-		options->setArgumentDescription( "FILE ..." );
+		options->setArgumentDescription( "..." );
 		options->addOption( ArgpcOption( "file", 'f', "file", "Read FILE as a makefile.", set_makefile ) );
 		options->addOption( ArgpcOption( "depfile", 'b', "depfile", "Use specified file as dependency database.", set_depfile ) );
 		options->addOption( ArgpcOption( "plot", 'p', "graphfile", "Draw the cached dependency information", plot ) );
 
-#ifdef DEBUG
 		debug_init( );
-#endif
 
 		options->parse( &argc, argv );
 
