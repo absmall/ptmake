@@ -124,7 +124,7 @@ bool Rule::execute()
 					// have to rebuild.
 					status = fileTime(i->first, t, &isDir);
 					if( !status || (t > targetTime && !isDir) ) {
-						if( get_debug_level( DEBUG_DEPENDENCIES ) ) {
+						if( get_debug_level( DEBUG_REASON ) ) {
 							cout << "Generated file out of date, need to rebuild because of " << i->first << ": (" << status << " ^ " << i->second << ") || " << ctime(&t) << " > " << ctime(&targetTime) << endl;
 						}
 						needsRebuild = true;
@@ -137,7 +137,7 @@ bool Rule::execute()
 
 				status = fileTime(i->first, t, &isDir);
 				if( (status ^ i->second) || (status && t > targetTime && !isDir) ) {
-					if( get_debug_level( DEBUG_DEPENDENCIES ) ) {
+					if( get_debug_level( DEBUG_REASON ) ) {
 						cout << "No rule to rebuild " << i->first << ": (" << status << " ^ " << i->second << ") || " << ctime(&t) << "(" << t << ")" << " > " << ctime(&targetTime) << "(" << targetTime << ")" << endl;
 					}
 					needsRebuild = true;
@@ -155,7 +155,7 @@ bool Rule::execute()
 	} else {
 		// We don't know the dependencies, have to
 		// build
-		if( get_debug_level( DEBUG_DEPENDENCIES ) ) {
+		if( get_debug_level( DEBUG_REASON ) ) {
 			cout << "Dependencies unknown, must build" << endl;
 		}
 	}

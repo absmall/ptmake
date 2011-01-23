@@ -38,6 +38,8 @@ void debug_mode( std::string option )
 		enable_debug( DEBUG_DEPENDENCIES );
 	} else if( option == "subprocess" ) {
 		enable_debug( DEBUG_SUBPROCESS );
+	} else if( option == "reason" ) {
+		enable_debug( DEBUG_REASON );
 	} else if( option == "parse" ) {
 		enable_debug( DEBUG_PARSE );
 	} else if( option == "1" ) {
@@ -72,6 +74,7 @@ int main(int argc, char *argv[])
 		debugOption.addValue("dependencies");
 		debugOption.addValue("subprocess");
 		debugOption.addValue("parse");
+		debugOption.addValue("reason");
 		debugOption.addValue("1");
 		debugOption.addValue("2");
 		options->addOption( debugOption );
