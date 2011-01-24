@@ -49,3 +49,8 @@ time_t fileTimeEarliest(const std::list<std::string> &files)
 
 	return earliest;
 }
+
+bool fileIsAbsolute( const std::string &file )
+{
+	return file[ 0 ] == '/';
+}

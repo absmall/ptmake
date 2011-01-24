@@ -1,5 +1,6 @@
 #include <iostream>
 #include <fstream>
+#include "file.h"
 #include "graphviz.h"
 #include "dependencies.h"
 #include "utilities.h"
@@ -20,15 +21,15 @@ void GraphViz::output(const std::string &filename)
 		dependencies = retrieve_dependencies( (*i)->hash );
 		if( dependencies != NULL ) {
 			for( list<pair<string, bool> >::iterator j = dependencies->begin(); j != dependencies->end(); j ++ ) {
-				out  << "\""<< j->first  << "\" -> \"" << printhash((*i)->hash) << "\"" << endl;
+				if( !fileIsAbsolute( j->first ) ) {
+					for( list<string>::iterator k = (*i)->targets->begin(); k != (*i)->targets->end(); k ++ ) {
+						out << "\"" << j->first << "\" -> \"" << *k << "\"" << endl;
+					}
+				}
 			}
 			delete dependencies;
 		}
 
-		// Print targets
-		for( list<string>::iterator j = (*i)->targets->begin(); j != (*i)->targets->end(); j ++ ) {
-			out << "\"" << printhash((*i)->hash) << "\" -> \"" << *j << "\"" << endl;
-		}
 	}
 	out << "}" << endl;
 }

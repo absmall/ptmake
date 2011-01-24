@@ -22,4 +22,9 @@ bool fileTime(const std::string &file, time_t &time, bool *isDir);
  */
 time_t fileTimeEarliest(const std::list<std::string> &files);
 
+/*
+ * Return whether or not a path is an absolute path
+ */
+bool fileIsAbsolute( const std::string &file );
+
 #endif /* __FILE_H__ */
