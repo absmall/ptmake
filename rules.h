@@ -10,10 +10,7 @@
 /* A class which encompasses a rule for building a set of targets using a set
  * of shell commands
  */
-class GraphViz;
-
 class Rule : public Subprocess {
-	friend class GraphViz;
 	public:
 		Rule();
 
@@ -54,7 +51,7 @@ class Rule : public Subprocess {
 		 */
 		static void setDefaultTargets(void);
 
-	private:
+	protected:
 		/* Recalculate a hash that describes this rule. It's based on all paramters
 		 * that are user-configurable
 		 */

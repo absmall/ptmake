@@ -4,10 +4,10 @@
 #include "rules.h"
 #include <string>
 
-class GraphViz
+class GraphViz : public Rule
 {
 	public:
-		void output(const std::string &filename);
+		static void output(const std::string &filename);
 };
 
 #endif /* __GRAPHVIZ_H__ */

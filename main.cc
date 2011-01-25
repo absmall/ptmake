@@ -65,8 +65,7 @@ int main(int argc, char *argv[])
 		set_default_target();
 		ret = build_targets();
 		if( plotfile != "" ) {
-			GraphViz g;
-			g.output( plotfile );
+			GraphViz::output( plotfile );
 		}
 	} catch ( const std::exception &e ) {
 		cerr << "make: " << e.what() << endl;
