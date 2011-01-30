@@ -3,6 +3,7 @@
 #include <iostream>
 #include <algorithm>
 #include <gcrypt.h>
+#include "re.h"
 #include "file.h"
 #include "rules.h"
 #include "build.h"
@@ -191,13 +192,15 @@ Rule *Rule::find(const string &target)
 		if( (*i)->targets == NULL ) continue;
 		b = (*i)->targets->begin();
 		e = (*i)->targets->end();
-		if( e != std::find(b, e, target) ) {
-			if( foundARule ) {
-				// We have multiple rules to build the target
-				throw runtime_wexception( "Multiple rules" );
+		for( te = b; te != e; te ++ ) {
+			if( match( *te, target ) ) {
+				if( foundARule ) {
+					// We have multiple rules to build the target
+					throw runtime_wexception( "Multiple rules" );
+				}
+				foundARule = true;
+				r = *i;
 			}
-			foundARule = true;
-			r = *i;
 		}
 	}
 

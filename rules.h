@@ -8,7 +8,9 @@
 #include <gcrypt.h>
 
 /* A class which encompasses a rule for building a set of targets using a set
- * of shell commands
+ * of shell commands. \ is used as an escape for special characters. Special
+ * characters include * which is used as a wildcard, and {} which are used
+ * to reference previous wildcards
  */
 class Rule : public Subprocess {
 	public:
