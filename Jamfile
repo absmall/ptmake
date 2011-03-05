@@ -21,7 +21,7 @@ if $(JAM)
 C++FLAGS += `libgcrypt-config --cflags ` ;
 LINKFLAGS += `libgcrypt-config --cflags --libs` -ldb ;
 
-SOURCES = main.cc build.cc find.cc argpc.cc argpcoption.cc exception.cc rules.cc dependencies.cc graphviz.cc utilities.cc debug.cc re.cc ;
+SOURCES = main.cc build.cc find.cc argpc.cc argpcoption.cc exception.cc rules.cc dependencies.cc graphviz.cc utilities.cc debug.cc re.cc variables.cc ;
 
 if $(MAKE) { SOURCES += make.cc ; }
 if $(JAM) { SOURCES += jam.cc ; }

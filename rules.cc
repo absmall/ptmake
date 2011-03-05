@@ -8,6 +8,7 @@
 #include "rules.h"
 #include "build.h"
 #include "debug.h"
+#include "parse.h"
 #include "exception.h"
 #include "subprocess.h"
 #include "dependencies.h"
@@ -163,7 +164,7 @@ bool Rule::execute()
 	
 	clear_dependencies( hash );
 	for(list<string >::iterator i = commands->begin(); i != commands->end(); i ++ ) {
-		trace(*i);
+		trace( expand_command( *i ) );
 
 		// Touch the targets in case something else updated last in the build process 
 	}
