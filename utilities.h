@@ -6,6 +6,6 @@
 /*
  * Convert a hash to a printable form
  */
-std::string printhash(unsigned char hash[32]);
+std::string printhash(const unsigned char hash[32]);
 
 #endif /* __UTILITIES_H__ */

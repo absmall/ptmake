@@ -2,7 +2,7 @@
 
 using namespace std;
 
-string printhash(unsigned char hash[32])
+string printhash(const unsigned char hash[32])
 {
 	char buf[64];
 	int i;
