@@ -50,7 +50,7 @@ debug.o:
 	g++ -c -Wall -DMAKEFILE -DYYDEBUG -DDEBUG -g3 -fPIC `libgcrypt-config --cflags` -o debug.o debug.cc
 
 make_parse.cc:
-	bison -d -o make_parse.cc make_parse.y
+	bison -o make_parse.cc make_parse.y
 
 jam_parse.cc:
-	bison -d -o jam_parse.cc jam_parse.y
+	bison -o jam_parse.cc jam_parse.y

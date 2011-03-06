@@ -35,4 +35,4 @@ clean:
 	rm -f *.o make_parse.cc make_parse.hh jam_parse.cc jam_parse.hh make jam libptmake.so
 
 %.hh %.cc:%.y
-	$(YACC) -d -o $*.cc $<
+	$(YACC) -o $*.cc $<
