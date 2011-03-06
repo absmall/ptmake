@@ -1,5 +1,5 @@
 MAKE = 1 ;
-#JAM = 1 ;
+JAM = 1 ;
 
 if $(UNIX)
 {
@@ -7,28 +7,23 @@ if $(UNIX)
     LINK = g++ ;
 }
 
-if $(MAKE)
-{
-	C++ += -DMAKEFILE ;
-}
-
-if $(JAM)
-{
-	C++ += -DJAMFILE ;
-}
-
-
 C++FLAGS += `libgcrypt-config --cflags ` ;
 LINKFLAGS += `libgcrypt-config --cflags --libs` -ldb ;
 
-SOURCES = main.cc build.cc find.cc argpc.cc argpcoption.cc exception.cc rules.cc dependencies.cc graphviz.cc utilities.cc debug.cc ;
+LIBSOURCES = build.cc argpc.cc argpcoption.cc exception.cc rules.cc dependencies.cc graphviz.cc utilities.cc debug.cc ;
+SOURCES = main.cc find.cc ;
 
-if $(MAKE) { SOURCES += make.cc ; }
-if $(JAM) { SOURCES += jam.cc ; }
+if $(UNIX) { LIBSOURCES += subprocess_unix.cc file_unix.cc ; }
+if $(NT) { LIBSOURCES += subprocess_win.cc ; }
 
-if $(UNIX) { SOURCES += subprocess_unix.cc file_unix.cc ; }
-if $(NT) { SOURCES += subprocess_win.cc ; }
-
-Yacc make.cc : make.y ;
-Yacc jam.cc : jam.y ;
-Main make : $(SOURCES) ;
+Yacc make_parse.cc : make_parse.y ;
+Yacc jam_parse.cc : jam_parse.y ;
+Library libptmake : $(LIBSOURCES) ;
+if $(MAKE) {
+	Main make : make.cc make_parse.cc $(SOURCES) ;
+	LinkLibraries make : libptmake ;
+}
+if $(JAM) {
+	Main jam : jam.cc jam_parse.cc $(SOURCES) ;
+	LinkLibraries jam : libptmake ;
+}
