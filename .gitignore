@@ -1,6 +1,8 @@
 *.o
+jam
 make
 makefile.dep
 tags
-parser.cc
-parser.hh
+jam.hh
+make.hh
+libptmake.so

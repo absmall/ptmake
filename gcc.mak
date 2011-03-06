@@ -24,5 +24,24 @@ OUTPUT=-o
 %.o : %.c
 	gcc -c $(CPPFLAGS) `libgcrypt-config --cflags` -o $@ $<
 
-make : $(OBJS)
-	$(LD) `libgcrypt-config --cflags --libs` -ldb -o $@ $^
+libptmake.so : CXXFLAGS += -fPIC
+libptmake.so : $(OBJS)
+	$(LD) -shared -Wl,-soname,libptmake.so `libgcrypt-config --cflags --libs` -ldb -o $@ $^
+
+# Look for the library in the current directory for a debug build, so we don't
+# need to install it all the time
+ifeq ($(filter debug, $(BUILD_OPTIONS)),debug)
+LSEARCH=-Wl,-rpath,. -L.
+endif
+
+ifeq ($(filter make, $(BUILD_OPTIONS)),make)
+all : make
+make : make.o main.o libptmake.so
+	$(LD) $(LSEARCH) -o $@ $< main.o -lptmake
+endif
+
+ifeq ($(filter jam, $(BUILD_OPTIONS)),jam)
+all : jam
+jam : jam.o main.o libptmake.so
+	$(LD) $(LSEARCH) -o $@ $< main.o -lptmake
+endif

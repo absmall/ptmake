@@ -67,7 +67,7 @@ bool enable_debug(DebugLevel level)
 	}
 
 	// Special handling because yacc doesn't use our debug API
-	yydebug = debug_settings[ DEBUG_PARSE ];
+	//yydebug = debug_settings[ DEBUG_PARSE ];
 
 	return true;
 }

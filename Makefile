@@ -5,17 +5,10 @@ else
 ENVIRONMENT=vc
 endif
 
-BUILD_OPTIONS=warnings debug make
+all: 
+BUILD_OPTIONS=warnings debug make jam
 
-OBJS = main.o build.o find.o argpc.o argpcoption.o exception.o rules.o dependencies.o graphviz.o utilities.o debug.o
-
-ifeq ($(filter make, $(BUILD_OPTIONS)),make)
-OBJS += make.o
-endif
-
-ifeq ($(filter jam, $(BUILD_OPTIONS)),jam)
-OBJS += jam.o
-endif
+OBJS = build.o find.o argpc.o argpcoption.o exception.o rules.o dependencies.o graphviz.o utilities.o debug.o
 
 ifeq ($(ENVIRONMENT),vc)
 OBJS += subprocess_win.o
@@ -38,10 +31,8 @@ endif
 .SUFFIXES: 
 .PHONY:clean
 
-all: make
-
 clean:
-	rm -f *.o make.cc make.hh make.h jam.cc jam.hh jam.h make
+	rm -f *.o make.cc make.hh make.h jam.cc jam.hh jam.h make jam libptmake.so
 
 %.hh %.cc:%.y
 	$(YACC) -d -o $*.cc $<
