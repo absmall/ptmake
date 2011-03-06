@@ -3,6 +3,6 @@ jam
 make
 makefile.dep
 tags
-jam.hh
-make.hh
+jam_parse.hh
+make_parse.hh
 libptmake.so

@@ -19,7 +19,7 @@ const char *makefileNames[ ] =
 #error must specify a file type
 #endif
 
-bool test_file_exists( std::string pattern )
+static bool test_file_exists( std::string pattern )
 {
 	struct stat buf;
 

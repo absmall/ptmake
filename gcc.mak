@@ -1,16 +1,12 @@
 # Filter out the options we can parse
-CPPFLAGS:=$(filter warnings debug make jam, $(BUILD_OPTIONS))
-CXXFLAGS:=$(filter warnings debug make jam, $(BUILD_OPTIONS))
+CPPFLAGS:=$(filter warnings debug, $(BUILD_OPTIONS))
+CXXFLAGS:=$(filter warnings debug, $(BUILD_OPTIONS))
 LDFLAGS:=$(filter debug, $(BUILD_OPTIONS))
 
 CPPFLAGS:=$(subst warnings,-Wall,$(CPPFLAGS))
 CPPFLAGS:=$(subst debug,-DYYDEBUG -DDEBUG -g3,$(CPPFLAGS))
-CPPFLAGS:=$(subst make,-DMAKEFILE,$(CPPFLAGS))
-CPPFLAGS:=$(subst jam,-DJAMFILE,$(CPPFLAGS))
 CXXFLAGS:=$(subst warnings,-Wall,$(CXXFLAGS))
 CXXFLAGS:=$(subst debug,-DYYDEBUG -DDEBUG -g3,$(CXXFLAGS))
-CXXFLAGS:=$(subst make,-DMAKEFILE,$(CXXFLAGS))
-CXXFLAGS:=$(subst jam,-DJAMFILE,$(CXXFLAGS))
 LDFLAGS:=$(subst debug,-DYYDEBUG -g3,$(LDFLAGS))
 
 CC=gcc -c $(CPPFLAGS)
@@ -36,12 +32,12 @@ endif
 
 ifeq ($(filter make, $(BUILD_OPTIONS)),make)
 all : make
-make : make.o main.o libptmake.so
-	$(LD) $(LSEARCH) -o $@ $< main.o -lptmake
+make : make_parse.o main.o find.o libptmake.so
+	$(LD) $(LSEARCH) -o $@ $< main.o find.o -lptmake
 endif
 
 ifeq ($(filter jam, $(BUILD_OPTIONS)),jam)
 all : jam
-jam : jam.o main.o libptmake.so
-	$(LD) $(LSEARCH) -o $@ $< main.o -lptmake
+jam : jam_parse.o main.o find.o libptmake.so
+	$(LD) $(LSEARCH) -o $@ $< main.o find.o -lptmake
 endif
