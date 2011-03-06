@@ -3,21 +3,8 @@
 #include <sys/stat.h>
 #include <stdexcept>
 
-#if defined(MAKEFILE)
-const char *makefileNames[ ] = 
-{
-	"GNUmakefile",
-	"makefile",
-	"Makefile"
-};
-#elif defined(JAMFILE)
-const char *makefileNames[ ] = 
-{
-	"Jamfile"
-};
-#else
-#error must specify a file type
-#endif
+extern const char *makefileNames[];
+extern const unsigned int makefileNameCount;
 
 static bool test_file_exists( std::string pattern )
 {
@@ -29,18 +16,12 @@ static bool test_file_exists( std::string pattern )
 
 std::string find_makefile( void )
 {
-	for( unsigned int i = 0; i < sizeof( makefileNames ) / sizeof( char * ); i ++ )
+	for( unsigned int i = 0; i < makefileNameCount; i ++ )
 	{
 		if( test_file_exists( makefileNames[ i ] ) ) {
 			return makefileNames[ i ];
 		}
 	}
 
-#if defined(MAKEFILE)
 	throw std::runtime_error( "No makefile found" );
-#elif defined(JAMFILE)
-	throw std::runtime_error( "No jamfile found" );
-#else
-#error must specify a file type
-#endif
 }

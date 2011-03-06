@@ -32,12 +32,12 @@ endif
 
 ifeq ($(filter make, $(BUILD_OPTIONS)),make)
 all : make
-make : make_parse.o main.o find.o libptmake.so
-	$(LD) $(LSEARCH) -o $@ $< main.o find.o -lptmake
+make : make.o make_parse.o main.o find.o libptmake.so
+	$(LD) $(LSEARCH) -o $@ make.o make_parse.o main.o find.o -lptmake
 endif
 
 ifeq ($(filter jam, $(BUILD_OPTIONS)),jam)
 all : jam
-jam : jam_parse.o main.o find.o libptmake.so
-	$(LD) $(LSEARCH) -o $@ $< main.o find.o -lptmake
+jam : jam.o jam_parse.o main.o find.o libptmake.so
+	$(LD) $(LSEARCH) -o $@ jam.o jam_parse.o main.o find.o -lptmake
 endif
