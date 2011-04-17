@@ -19,12 +19,12 @@ void dependencies_init();
 void dependencies_deinit();
 
 /* Clear all the dependencies associated with a particular rule */
-void clear_dependencies(unsigned char hash[32]);
+void clear_dependencies(const unsigned char hash[32]);
 
 /* Add a set of dependencies associated with a particular rule */
-void add_dependencies(unsigned char hash[32], const std::set<std::pair<std::string, bool> > &deps);
+void add_dependencies(const unsigned char hash[32], const std::set<std::pair<std::string, bool> > &deps);
 
 /* Retrieve the dependenices for a rule from the database */
-std::list<std::pair<std::string, bool> > *retrieve_dependencies(unsigned char hash[32]);
+std::list<std::pair<std::string, bool> > *retrieve_dependencies(const unsigned char hash[32]);
 
 #endif /* __DEPENDENCIES_H__ */

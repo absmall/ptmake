@@ -45,7 +45,7 @@ void dependencies_deinit()
 	dbp->close(dbp, 0);
 }
 
-void clear_dependencies(unsigned char hash[32])
+void clear_dependencies(const unsigned char hash[32])
 {
 	DBT key;
 	int ret;
@@ -56,7 +56,7 @@ void clear_dependencies(unsigned char hash[32])
 
 	memset( &key, 0, sizeof(DBT) );
 
-	key.data = hash;
+	key.data = (unsigned char *)hash;
 	key.size = 32;
 	key.flags = 0;
 
@@ -68,7 +68,7 @@ void clear_dependencies(unsigned char hash[32])
 	}
 }
 
-void add_dependencies(unsigned char hash[32], const std::set<std::pair<std::string, bool> > &deps)
+void add_dependencies(const unsigned char hash[32], const std::set<std::pair<std::string, bool> > &deps)
 {
 	DBT key, data;
 	int ret;
@@ -81,7 +81,7 @@ void add_dependencies(unsigned char hash[32], const std::set<std::pair<std::stri
 	memset(&key, 0, sizeof(DBT));
 	memset(&data, 0, sizeof(DBT));
 
-	key.data = hash;
+	key.data = (unsigned char *)hash;
 	key.size = 32;
 
 	for( std::set<std::pair<std::string, bool> >::const_iterator i = deps.begin(); i != deps.end(); i ++ ) {
@@ -100,7 +100,7 @@ void add_dependencies(unsigned char hash[32], const std::set<std::pair<std::stri
 	}
 }
 
-list<pair<string, bool> > *retrieve_dependencies(unsigned char hash[32])
+list<pair<string, bool> > *retrieve_dependencies(const unsigned char hash[32])
 {
 	DBC *cursor;
 	DBT key, data;
@@ -116,7 +116,7 @@ list<pair<string, bool> > *retrieve_dependencies(unsigned char hash[32])
 	memset( &key, 0, sizeof(DBT) );
 	memset( &data, 0, sizeof(DBT) );
 
-	key.data = hash;
+	key.data = (unsigned char *)hash;
 	key.size = 32;
 
 	data.flags = DB_DBT_REALLOC;
