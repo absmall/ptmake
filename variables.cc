@@ -18,6 +18,11 @@ class RegularVariable
 	std::string value;
 };
 
+Scope::Scope()
+{
+	parent = NULL;
+}
+
 Scope::~Scope()
 {
 	map<string, Variable *>::iterator i;
@@ -35,7 +40,11 @@ string Scope::lookup( string name )
 
 	i = variables.find( name );
 	if( i == variables.end() ) {
-		throw runtime_wexception("Variable not defined");
+		if( parent == NULL ) {
+			throw runtime_wexception("Variable not defined");
+		} else {
+			return parent->lookup( name );
+		}
 	}
 
 	return i->second->Get( );

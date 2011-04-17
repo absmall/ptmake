@@ -15,11 +15,13 @@ class Variable
 class Scope
 {
 public:
+	Scope();
 	std::string lookup( std::string );
 	~Scope();
 	
 private:
 	std::map< std::string, Variable * > variables;
+	Scope *parent;
 };
 
 #endif /* __VARIABLES_H__ */
