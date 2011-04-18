@@ -37,6 +37,9 @@ class Rule : public Subprocess {
 		/* Find a rule that matches a target */
 		static Rule *find(const std::string &target);
 
+		/* Indicates whether or not a rule matches a target */
+		virtual bool match(const std::string &target);
+
 		/* Callback when entering a kernel filesystem call when running the
 		 * commands
 		 */

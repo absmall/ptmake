@@ -189,19 +189,13 @@ Rule *Rule::find(const string &target)
 	
 	for(list<Rule *>::iterator i = rules.begin(); i != rules.end(); i ++ )
 	{
-		std::list<std::string>::iterator b, e, te;
-		if( (*i)->targets == NULL ) continue;
-		b = (*i)->targets->begin();
-		e = (*i)->targets->end();
-		for( te = b; te != e; te ++ ) {
-			if( match( *te, target ) ) {
-				if( foundARule ) {
-					// We have multiple rules to build the target
-					throw runtime_wexception( "Multiple rules" );
-				}
-				foundARule = true;
-				r = *i;
+		if( (*i)->match( target ) ) {
+			if( foundARule ) {
+				// We have multiple rules to build the target
+				throw runtime_wexception( "Multiple rules" );
 			}
+			foundARule = true;
+			r = *i;
 		}
 	}
 
@@ -210,6 +204,22 @@ Rule *Rule::find(const string &target)
 	} else {
 		throw runtime_wexception( "No rule" );
 	}
+}
+
+bool Rule::match(const std::string &target)
+{
+	std::list<std::string>::iterator b, e, te;
+
+	if( targets == NULL ) return false;
+
+	b = targets->begin();
+	e = targets->end();
+	for( te = b; te != e; te ++ ) {
+		if( ::match( *te, target ) ) {
+			return true;
+		}
+	}
+	return false;
 }
 
 void Rule::addTarget(const std::string &target)
