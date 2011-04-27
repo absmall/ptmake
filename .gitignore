@@ -6,3 +6,4 @@ tags
 jam_parse.hh
 make_parse.hh
 libptmake.so
+test/test
