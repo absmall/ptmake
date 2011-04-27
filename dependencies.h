@@ -1,6 +1,7 @@
 #ifndef __DEPENDENCIES_H__
 #define __DEPENDENCIES_H__
 
+#include <set>
 #include <list>
 #include <string>
 

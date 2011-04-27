@@ -164,7 +164,7 @@ bool Rule::execute()
 	
 	clear_dependencies( hash );
 	for(list<string >::iterator i = commands->begin(); i != commands->end(); i ++ ) {
-		trace( expand_command( *i ) );
+		trace( *i );
 
 		// Touch the targets in case something else updated last in the build process 
 	}

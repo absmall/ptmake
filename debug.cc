@@ -2,7 +2,6 @@
 #include "exception.h"
 #include "argpc.h"
 
-extern int yydebug;
 static bool debug_settings[DEBUG_LEVEL_MAX] = { 0 };
 
 struct {
@@ -12,7 +11,6 @@ struct {
 	{ "dependencies", DEBUG_DEPENDENCIES },
 	{ "subprocess", DEBUG_SUBPROCESS },
 	{ "reason", DEBUG_REASON },
-	{ "parse", DEBUG_PARSE },
 	{ "1", DEBUG_LEVEL_1 },
 	{ "2", DEBUG_LEVEL_2 },
 };
@@ -65,9 +63,6 @@ bool enable_debug(DebugLevel level)
 			debug_settings[ level ] = true;
 			break;
 	}
-
-	// Special handling because yacc doesn't use our debug API
-	yydebug = debug_settings[ DEBUG_PARSE ];
 
 	return true;
 }

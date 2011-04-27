@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sstream>
 #include <stdexcept>
 #include "rules.h"
 #include "variables.h"
@@ -166,7 +167,13 @@ void parse_makefile( std::string filename )
 		throw std::runtime_error( "Could not open makefile" );
 	}
 
-	yyparse();
+	try {
+		yyparse();
+	} catch( const std::exception &e ) {
+		std::stringstream ss;
+		ss << "Parse error while reading " << filename;
+		throw(std::runtime_error(ss.str()));
+	}
 
 	free( inputBuffer );
 	fclose( f );
