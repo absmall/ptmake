@@ -10,7 +10,7 @@ BUILD_OPTIONS=warnings debug make
 OBJS = main.o build.o find.o argpc.o argpcoption.o exception.o rules.o dependencies.o graphviz.o utilities.o debug.o re.o variables.o
 
 ifeq ($(filter make, $(BUILD_OPTIONS)),make)
-OBJS += make.o
+OBJS += make.o make_rules.o
 endif
 
 ifeq ($(filter jam, $(BUILD_OPTIONS)),jam)

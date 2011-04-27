@@ -23,7 +23,7 @@ LINKFLAGS += `libgcrypt-config --cflags --libs` -ldb ;
 
 SOURCES = main.cc build.cc find.cc argpc.cc argpcoption.cc exception.cc rules.cc dependencies.cc graphviz.cc utilities.cc debug.cc re.cc variables.cc ;
 
-if $(MAKE) { SOURCES += make.cc ; }
+if $(MAKE) { SOURCES += make.cc make_rules.cc ; }
 if $(JAM) { SOURCES += jam.cc ; }
 
 if $(UNIX) { SOURCES += subprocess_unix.cc file_unix.cc ; }

@@ -1,5 +1,5 @@
 make:
-	g++ -ldb -DMAKEFILE -DYYDEBUG -g3 `libgcrypt-config --cflags --libs` -o make main.o build.o find.o file_unix.o argpc.o argpcoption.o subprocess_unix.o exception.o rules.o make.o dependencies.o graphviz.o utilities.o debug.o re.o variables.o
+	g++ -ldb -DMAKEFILE -DYYDEBUG -g3 `libgcrypt-config --cflags --libs` -o make main.o build.o find.o file_unix.o argpc.o argpcoption.o subprocess_unix.o exception.o rules.o make.o make_rules.o dependencies.o graphviz.o utilities.o debug.o re.o variables.o
 
 main.o:
 	g++ -c -Wall -DMAKEFILE -DYYDEBUG -DDEBUG -g3 `libgcrypt-config --cflags` -o main.o main.cc
@@ -27,6 +27,9 @@ rules.o:
 
 make.o:
 	g++ -c -Wall -DMAKEFILE -DYYDEBUG -DDEBUG -g3 `libgcrypt-config --cflags` -o make.o make.cc
+
+make_rules.o:
+	g++ -c -Wall -DMAKEFILE -DYYDEBUG -DDEBUG -g3 `libgcrypt-config --cflags` -o make_rules.o make_rules.cc
 
 file_unix.o:
 	g++ -c -Wall -DMAKEFILE -DYYDEBUG -DDEBUG -g3 `libgcrypt-config --cflags` -o file_unix.o file_unix.cc
