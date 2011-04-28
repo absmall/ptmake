@@ -56,6 +56,11 @@ class Rule : public Subprocess {
 		 */
 		static void setDefaultTargets(void);
 
+		/*
+		 * Perform variable expansion
+		 */
+		virtual std::string expand_command( const std::string &command );
+
 	protected:
 		/* Recalculate a hash that describes this rule. It's based on all paramters
 		 * that are user-configurable

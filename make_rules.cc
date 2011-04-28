@@ -2,6 +2,8 @@
 #include "re.h"
 #include "make_rules.h"
 
+using namespace std;
+
 bool MakeRule::match(const std::string &target)
 {
 	size_t wildcard;
@@ -30,4 +32,44 @@ bool MakeRule::match(const std::string &target)
 		}
 	}
 	return false;
+}
+
+string MakeRule::expand_command( const string &command )
+{
+	string ret = command;
+	size_t position = 0;
+
+	while( true ) {
+		position = ret.find('$', position);
+		if( position == std::string::npos ) break;
+
+		// If it's the last character, do nothing special
+		if( position == ret.length() - 1 ) return ret;
+
+		// See what follows
+		switch( ret[ position + 1 ] ) {
+			case '@':
+				// Substitute targets
+				ret = ret.replace(position, 2, "hello");
+				position += 5;
+				break;
+#if 0
+			case '<':
+				// Substitute first dependency
+			case '^':
+				// Substitute all dependencies
+			case '(':
+				// Substitute variable
+#endif
+			case '$':
+				// Substitute $
+				ret = ret.erase(position+1, position+2);
+				position++;
+				break;
+			default:
+				// Don't expand
+				position ++;
+		}
+	}
+	return ret;
 }

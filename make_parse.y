@@ -7,7 +7,7 @@
 #include <string.h>
 #include <stdexcept>
 #include <sstream>
-#include "rules.h"
+#include "make_rules.h"
 int yylex(void);
 void yyerror(const char *s);
 void print_rule( void *);
@@ -196,7 +196,7 @@ void * make_rule( void *rule, void *commands)
 
 void * make_rule_header( void *targets, void *dependencies)
 {
-	Rule *r = new Rule;
+	Rule *r = new MakeRule;
 
 	r->addTargetList( (std::list<std::string> *)targets );
 	return r;

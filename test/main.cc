@@ -1,5 +1,6 @@
 #include "tests.h"
 #include "CUnit/Basic.h"
+#include "CUnit/Console.h"
 
 /* The main() function for setting up and running the tests.
  * Returns a CUE_SUCCESS on successful running, another
@@ -58,7 +59,11 @@ int main()
 
    /* Run all tests using the console interface */
    CU_basic_set_mode(CU_BRM_VERBOSE);
+#if defined(INTERACTIVE)
+   CU_console_run_tests();
+#else
    CU_basic_run_tests();
+#endif
    CU_cleanup_registry();
    return CU_get_error();
 }

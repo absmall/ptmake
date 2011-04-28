@@ -1,5 +1,13 @@
-%.o: %.cc
-	g++ -g3 -I.. -c -o $@ $<
+all: test test_interactive
 
-test: main.o deps.o make_rules.o ../make_rules.o
-	g++ -g3 -Wl,-rpath,.. -L.. -o test $^ -lptmake -lcunit
+CXXFLAGS = -g3
+
+%.o: %.cc
+	g++ $(CXXFLAGS) -I.. -c -o $@ $<
+
+test: main.cc deps.o make_rules.o ../make_rules.o
+	g++ $(CXXFLAGS) -Wl,-rpath,.. -L.. -o $@ $^ -lptmake -lcunit
+
+test_interactive: CXXFLAGS += -DINTERACTIVE
+test_interactive: main.cc deps.o make_rules.o ../make_rules.o
+	g++ $(CXXFLAGS) -Wl,-rpath,.. -L.. -o $@ $^ -lptmake -lcunit	

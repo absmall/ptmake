@@ -7,6 +7,9 @@ jam:
 libptmake.so:
 	g++ -g3 -shared -Wl,-soname,libptmake.so `libgcrypt-config --cflags --libs` -ldb -o libptmake.so build.o argpc.o argpcoption.o exception.o rules.o dependencies.o graphviz.o utilities.o debug.o subprocess_unix.o file_unix.o re.o variables.o
 
+%.o: %.cc
+	g++ -c -Wall -DMAKEFILE -DYYDEBUG -DDEBUG -g3 -fPIC `libgcrypt-config --cflags` -o $@ $<
+
 main.o:
 	g++ -c -Wall -DMAKEFILE -DYYDEBUG -DDEBUG -g3 -fPIC `libgcrypt-config --cflags` -o main.o main.cc
 

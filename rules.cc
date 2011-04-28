@@ -164,7 +164,7 @@ bool Rule::execute()
 	
 	clear_dependencies( hash );
 	for(list<string >::iterator i = commands->begin(); i != commands->end(); i ++ ) {
-		trace( *i );
+		trace( expand_command( *i ) );
 
 		// Touch the targets in case something else updated last in the build process 
 	}
@@ -273,6 +273,11 @@ void Rule::setDefaultTargets(void)
 			set_target(*i);
 		}
 	}
+}
+
+string Rule::expand_command( const string &command )
+{
+	return command;
 }
 
 void Rule::recalcHash(void)
