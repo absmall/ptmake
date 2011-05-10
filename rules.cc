@@ -60,7 +60,7 @@ void Rule::callback_entry(std::string filename)
 	}
 	try {
 		Rule *r = Rule::find(filename);
-		r->execute();
+		r->execute( filename );
 		dependencies.insert( pair<string,bool>(filename, true) );
 	} catch( wexception &e ) {
 		// Do nothing
@@ -76,7 +76,7 @@ void Rule::callback_exit(std::string filename, bool success)
 	}
 }
 
-bool Rule::execute()
+bool Rule::execute(const std::string &target)
 {
 	bool needsRebuild = false;
 	list<pair<string, bool> > *deps;
@@ -115,7 +115,7 @@ bool Rule::execute()
 			try {
 				// Use a rule to rebuild
 				Rule *r = Rule::find(i->first);
-				if( r->execute() ) {
+				if( r->execute( i->first ) ) {
 					// It was rebuilt, so we need to rebuild the primary target
 					needsRebuild = true;
 				} else {
@@ -164,7 +164,7 @@ bool Rule::execute()
 	
 	clear_dependencies( hash );
 	for(list<string >::iterator i = commands->begin(); i != commands->end(); i ++ ) {
-		trace( expand_command( *i ) );
+		trace( expand_command( *i, target ) );
 
 		// Touch the targets in case something else updated last in the build process 
 	}
@@ -275,7 +275,7 @@ void Rule::setDefaultTargets(void)
 	}
 }
 
-string Rule::expand_command( const string &command )
+string Rule::expand_command( const string &command, const string &target )
 {
 	return command;
 }

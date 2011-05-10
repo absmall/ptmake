@@ -5,7 +5,7 @@
 
 class MakeRule : public Rule {
 	bool match(const std::string &target);
-	std::string expand_command( const std::string &command );
+	std::string expand_command( const std::string &command, const std::string &target );
 };
 
 #endif /* __MAKE_RULES_H__ */

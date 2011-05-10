@@ -32,7 +32,7 @@ class Rule : public Subprocess {
 		void addCommandList(std::list<std::string> *commandList);
 
 		/* Run the commands to build the targets */
-		bool execute();
+		bool execute(const std::string &target);
 
 		/* Find a rule that matches a target */
 		static Rule *find(const std::string &target);
@@ -59,7 +59,7 @@ class Rule : public Subprocess {
 		/*
 		 * Perform variable expansion
 		 */
-		virtual std::string expand_command( const std::string &command );
+		virtual std::string expand_command( const std::string &command, const std::string &target );
 
 	protected:
 		/* Recalculate a hash that describes this rule. It's based on all paramters

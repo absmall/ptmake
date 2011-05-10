@@ -4,7 +4,7 @@
 
 using namespace std;
 
-bool MakeRule::match(const std::string &target)
+bool MakeRule::match(const string &target)
 {
 	size_t wildcard;
 	std::list<std::string>::iterator b, e, te;
@@ -34,7 +34,7 @@ bool MakeRule::match(const std::string &target)
 	return false;
 }
 
-string MakeRule::expand_command( const string &command )
+string MakeRule::expand_command( const string &command, const string &target )
 {
 	string ret = command;
 	size_t position = 0;
@@ -50,8 +50,8 @@ string MakeRule::expand_command( const string &command )
 		switch( ret[ position + 1 ] ) {
 			case '@':
 				// Substitute targets
-				ret = ret.replace(position, 2, "hello");
-				position += 5;
+				ret = ret.replace(position, 2, target);
+				position += target.length();
 				break;
 #if 0
 			case '<':
