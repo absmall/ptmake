@@ -178,6 +178,7 @@ Rule::Rule( )
 {
 	rules.push_back(this);
 	targets = NULL;
+	declaredDeps = NULL;
 	commands = NULL;
 	built = false;
 }
@@ -241,6 +242,23 @@ void Rule::addTargetList(std::list<std::string> *targetList)
 	targets = targetList;
 
 	recalcHash();
+}
+
+void Rule::addDependency(const std::string &dependency)
+{
+	if( declaredDeps == NULL ) {
+		declaredDeps = new list<string>;
+	}
+	declaredDeps->push_back(dependency);
+}
+
+void Rule::addDependencyList(std::list<std::string> *dependencyList)
+{
+	if( declaredDeps != NULL ) {
+		delete declaredDeps;
+	}
+
+	declaredDeps = dependencyList;
 }
 
 void Rule::addCommand(const std::string &command)

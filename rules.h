@@ -25,6 +25,12 @@ class Rule : public Subprocess {
 		/* Add multiple targets that the rule will build */
 		void addTargetList(std::list<std::string> *targetList);
 
+		/* Add a target that the rule will build */
+		void addDependency(const std::string &dependency);
+
+		/* Add multiple targets that the rule will build */
+		void addDependencyList(std::list<std::string> *dependencyList);
+
 		/* Add a command to run to perform the build */
 		void addCommand(const std::string &command);
 
@@ -70,6 +76,7 @@ class Rule : public Subprocess {
 		unsigned char hash[32];
 		time_t targetTime;
 		std::list<std::string> *targets;
+		std::list<std::string> *declaredDeps;
 		std::list<std::string> *commands;
 		std::set<std::pair<std::string, bool> > dependencies;
 		static std::list<Rule *> rules;
