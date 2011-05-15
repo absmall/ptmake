@@ -7,6 +7,7 @@
 #include <string.h>
 #include <stdexcept>
 #include <sstream>
+#include <utility>
 #include "make_rules.h"
 int yylex(void);
 void yyerror(const char *s);
@@ -199,18 +200,27 @@ void * make_rule_header( void *targets, void *dependencies)
 	Rule *r = new MakeRule;
 
 	r->addTargetList( (std::list<std::string> *)targets );
+	if( dependencies != NULL ) {
+		std::pair<std::list<std::string> *,std::list<std::string> *> *deps = (std::pair<std::list<std::string> *, std::list<std::string> *> *)dependencies;
+
+		// Throw away order-only, we don't use them at this point
+		if( deps->second != NULL ) delete deps->second;
+
+		if( deps->first != NULL ) {
+			r->addDependencyList( (std::list<std::string> *)deps->first );
+		}
+
+		delete deps;
+	}
 	return r;
 }
 
 void * make_dependencies( void *main, void *orderOnly)
 {
-	// We don't currently track dependencies. It may be useful to track them at
-	// some point for debugging, but I never want to expect them
-	delete (std::list<std::string> *)main;
-	if( orderOnly != NULL ) {
-		delete (std::list<std::string> *)orderOnly;
-	}
-	return NULL;
+	// Early out when we don't need to construct anything
+	if( main == NULL && orderOnly == NULL ) return NULL;
+
+	return new std::pair<void *, void *>(main,orderOnly);
 }
 
 void * new_stringlist()
