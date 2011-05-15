@@ -1,12 +1,15 @@
+#include <sstream>
 #include <stdexcept>
 #include "re.h"
 #include "make_rules.h"
+#include <iostream>
 
 using namespace std;
 
 bool MakeRule::match(const string &target)
 {
-	size_t wildcard;
+	// wildcard offsets in the target and dependencies
+	size_t wildcard_t, wildcard_d;
 	std::list<std::string>::iterator b, e, te;
 
 	if( targets == NULL ) return false;
@@ -14,12 +17,24 @@ bool MakeRule::match(const string &target)
 	b = targets->begin();
 	e = targets->end();
 	for( te = b; te != e; te ++ ) {
-		if( ( wildcard = te->find( '%' ) ) != std::string::npos ) {
+		if( ( wildcard_t = te->find( '%' ) ) != std::string::npos ) {
 			// See if prefix and suffix match
-			int length = te->length() - wildcard - 1;
+			int length = te->length() - wildcard_t - 1;
 			try {
-				if( !te->compare( 0, wildcard, target, 0, wildcard )
-				  && !te->compare( wildcard + 1, length, target, target.length() - length, length ) ) {
+				if( !te->compare( 0, wildcard_t, target, 0, wildcard_t )
+				  && !te->compare( wildcard_t + 1, length, target, target.length() - length, length ) ) {
+					// We have a match on the pattern. Now see if we can build the listed dependencies
+					std::list<std::string>::iterator de;
+					if( declaredDeps != NULL ) {
+						for(de = declaredDeps->begin(); de != declaredDeps->end(); de ++ ) {
+							cout << "Considering " << *de << " for " << target << endl;
+							if( ( wildcard_d = de->find( '%' ) ) != std::string::npos ) {
+								stringstream ss;
+								ss << string( *de, 0, wildcard_d ) << target.substr( wildcard_t, target.length() - length ) << string( *de, wildcard_d+1, string::npos );
+								cout << "Try for dependency " << ss.str() << endl;
+							}
+						}
+					}
 					return true;
 				}
 			} catch(std::out_of_range &o) {
