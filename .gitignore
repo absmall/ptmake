@@ -7,3 +7,4 @@ jam_parse.hh
 make_parse.hh
 libptmake.so
 test/test
+test/test_interactive
