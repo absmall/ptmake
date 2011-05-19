@@ -2,7 +2,6 @@
 #include <stdexcept>
 #include "re.h"
 #include "make_rules.h"
-#include <iostream>
 
 using namespace std;
 
@@ -27,11 +26,14 @@ bool MakeRule::match(const string &target)
 					std::list<std::string>::iterator de;
 					if( declaredDeps != NULL ) {
 						for(de = declaredDeps->begin(); de != declaredDeps->end(); de ++ ) {
-							cout << "Considering " << *de << " for " << target << endl;
 							if( ( wildcard_d = de->find( '%' ) ) != std::string::npos ) {
 								stringstream ss;
+								string s;
 								ss << string( *de, 0, wildcard_d ) << target.substr( wildcard_t, target.length() - length ) << string( *de, wildcard_d+1, string::npos );
-								cout << "Try for dependency " << ss.str() << endl;
+								s = ss.str();
+								if( !Rule::canBeBuilt( s ) ) {
+									return false;
+								}
 							}
 						}
 					}

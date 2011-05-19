@@ -27,4 +27,9 @@ time_t fileTimeEarliest(const std::list<std::string> &files);
  */
 bool fileIsAbsolute( const std::string &file );
 
+/*
+ * Return whether the specified file exists.
+ */
+bool fileExists(const std::string &file);
+
 #endif /* __FILE_H__ */

@@ -54,3 +54,10 @@ bool fileIsAbsolute( const std::string &file )
 {
 	return file[ 0 ] == '/';
 }
+
+bool fileExists(const std::string &file)
+{
+	struct stat s;
+
+	return !stat( file.c_str(), &s );
+}

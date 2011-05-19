@@ -223,6 +223,18 @@ bool Rule::match(const std::string &target)
 	return false;
 }
 
+bool Rule::canBeBuilt(const std::string &file)
+{
+	if( fileExists( file ) ) return true;
+
+	try {
+		Rule::find( file );
+		return true;
+	} catch( wexception &e ) {
+		return false;
+	}
+}
+
 void Rule::addTarget(const std::string &target)
 {
 	if( targets == NULL ) {

@@ -43,6 +43,9 @@ class Rule : public Subprocess {
 		/* Find a rule that matches a target */
 		static Rule *find(const std::string &target);
 
+		/* Indicates whether a dependency can be satisfied with known files */
+		static bool canBeBuilt(const std::string &file);
+
 		/* Indicates whether or not a rule matches a target */
 		virtual bool match(const std::string &target);
 
