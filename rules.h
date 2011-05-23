@@ -70,11 +70,16 @@ class Rule : public Subprocess {
 		 */
 		virtual std::string expand_command( const std::string &command, const std::string &target );
 
+		/*
+		 * Check if a target has already been built
+		 */
+		bool built( const std::string &target );
+
 	protected:
 		/* Recalculate a hash that describes this rule. It's based on all paramters
 		 * that are user-configurable
 		 */
-		bool built;
+		std::set<std::string> buildCache;
 		void recalcHash(void);
 		unsigned char hash[32];
 		time_t targetTime;
@@ -83,7 +88,6 @@ class Rule : public Subprocess {
 		std::list<std::string> *commands;
 		std::set<std::pair<std::string, bool> > dependencies;
 		static std::list<Rule *> rules;
-		static std::set<std::string> buildCache;
 };
 
 #endif /* __RULES_H__ */

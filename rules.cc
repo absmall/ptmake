@@ -81,8 +81,10 @@ bool Rule::execute(const std::string &target)
 	bool needsRebuild = false;
 	list<pair<string, bool> > *deps;
 
-	if( built ) return false;
-	built = true;
+	// See if it's already being built
+	if( built( target ) ) return false;
+	buildCache.insert( target );
+
 	if( targets == NULL || commands == NULL ) return false;
 	try {
 		targetTime = fileTimeEarliest( *targets );
@@ -127,7 +129,7 @@ bool Rule::execute(const std::string &target)
 					status = fileTime(i->first, t, &isDir);
 					if( !status || (t > targetTime && !isDir) ) {
 						if( get_debug_level( DEBUG_REASON ) ) {
-							cout << "Generated file out of date, need to rebuild because of " << i->first << ": (" << status << " ^ " << i->second << ") || " << ctime(&t) << " > " << ctime(&targetTime) << endl;
+							cout << "Generated file out of date, need to rebuild " << target << " because of " << i->first << ": (" << status << " ^ " << i->second << ") || " << ctime(&t) << " > " << ctime(&targetTime) << endl;
 						}
 						needsRebuild = true;
 					}
@@ -180,7 +182,6 @@ Rule::Rule( )
 	targets = NULL;
 	declaredDeps = NULL;
 	commands = NULL;
-	built = false;
 }
 
 Rule *Rule::find(const string &target)
@@ -333,4 +334,9 @@ void Rule::recalcHash(void)
 	memcpy( hash, gcry_md_read(hd, 0), 32 );
 
 	gcry_md_close( hd );
+}
+
+bool Rule::built( const std::string &target )
+{
+	return buildCache.find( target ) != buildCache.end();
 }
