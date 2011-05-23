@@ -15,10 +15,9 @@ void GraphViz::output(const std::string &filename)
 	list<Rule *>::iterator i;
 	std::list<std::pair<std::string, bool> > *dependencies;
 
-	gv = (GraphViz *)*i;
-
 	out << "digraph G {" << endl;
 	for( i = Rule::rules.begin(); i != Rule::rules.end(); i ++ ) {
+		gv = (GraphViz *)*i;
 
 		// Print dependencies
 		dependencies = retrieve_dependencies( gv->hash );
