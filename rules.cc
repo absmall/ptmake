@@ -102,51 +102,7 @@ bool Rule::execute(const std::string &target)
 	// don't know the dependencies, we definitely have to rebuild.
 	if( deps != NULL ) {
 		for( list<pair<string, bool> >::iterator i = deps->begin(); i != deps->end(); i ++ ) {
-			// If the file has a rule, we need to try to rebuild it, and rebuild if that
-			// succeeds.
-			// If the file doesn't have a rule, then:
-			// If the file didn't exist before, and it still doesn't, we don't need to
-			// rebuild.
-			// If the file didn't exist before, and it does now, we need to rebuild.
-			// If the file existed before and doesn't exist now, we need to rebuild.
-			// If the file existed before and still exists, we need to rebuild if the
-			// file is newer
-			if( get_debug_level( DEBUG_DEPENDENCIES ) ) {
-				cout << "Dependency " << i->first << "(" << i->second << ")" << endl;
-			}
-			try {
-				// Use a rule to rebuild
-				Rule *r = Rule::find(i->first);
-				if( r->execute( i->first ) ) {
-					// It was rebuilt, so we need to rebuild the primary target
-					needsRebuild = true;
-				} else {
-					bool status;
-					time_t t;
-					bool isDir;
-					// If it wasn't rebuilt, but is already newer, we still
-					// have to rebuild.
-					status = fileTime(i->first, t, &isDir);
-					if( !status || (t > targetTime && !isDir) ) {
-						if( get_debug_level( DEBUG_REASON ) ) {
-							cout << "Generated file out of date, need to rebuild " << target << " because of " << i->first << ": (" << status << " ^ " << i->second << ") || " << ctime(&t) << " > " << ctime(&targetTime) << endl;
-						}
-						needsRebuild = true;
-					}
-				}
-			} catch (...) {
-				bool status;
-				time_t t;
-				bool isDir;
-
-				status = fileTime(i->first, t, &isDir);
-				if( (status ^ i->second) || (status && t > targetTime && !isDir) ) {
-					if( get_debug_level( DEBUG_REASON ) ) {
-						cout << "No rule to rebuild " << i->first << ": (" << status << " ^ " << i->second << ") || " << ctime(&t) << "(" << t << ")" << " > " << ctime(&targetTime) << "(" << targetTime << ")" << endl;
-					}
-					needsRebuild = true;
-				}
-			}
+			needsRebuild |= checkDep( i->first, i->second, targetTime );
 		}
 		delete deps;
 
@@ -336,7 +292,58 @@ void Rule::recalcHash(void)
 	gcry_md_close( hd );
 }
 
-bool Rule::built( const std::string &target )
+bool Rule::built( const string &target )
 {
 	return buildCache.find( target ) != buildCache.end();
+}
+
+bool Rule::checkDep( const string &target, bool exists, time_t targetTime )
+{
+	// If the file has a rule, we need to try to rebuild it, and rebuild if that
+	// succeeds.
+	// If the file doesn't have a rule, then:
+	// If the file didn't exist before, and it still doesn't, we don't need to
+	// rebuild.
+	// If the file didn't exist before, and it does now, we need to rebuild.
+	// If the file existed before and doesn't exist now, we need to rebuild.
+	// If the file existed before and still exists, we need to rebuild if the
+	// file is newer
+	if( get_debug_level( DEBUG_DEPENDENCIES ) ) {
+		cout << "Dependency " << target << "(" << exists << ")" << endl;
+	}
+	try {
+		// Use a rule to rebuild
+		Rule *r = Rule::find(target);
+		if( r->execute( target ) ) {
+			// It was rebuilt, so we need to rebuild the primary target
+			return true;
+		} else {
+			bool status;
+			time_t t;
+			bool isDir;
+			// If it wasn't rebuilt, but is already newer, we still
+			// have to rebuild.
+			status = fileTime(target, t, &isDir);
+			if( !status || (t > targetTime && !isDir) ) {
+				if( get_debug_level( DEBUG_REASON ) ) {
+					cout << "Generated file out of date, need to rebuild " << target << " because of " << target << ": (" << status << " ^ " << exists << ") || " << ctime(&t) << " > " << ctime(&targetTime) << endl;
+				}
+				return true;
+			}
+		}
+	} catch (...) {
+		bool status;
+		time_t t;
+		bool isDir;
+
+		status = fileTime(target, t, &isDir);
+		if( (status ^ exists) || (status && t > targetTime && !isDir) ) {
+			if( get_debug_level( DEBUG_REASON ) ) {
+				cout << "No rule to rebuild " << target << ": (" << status << " ^ " << exists << ") || " << ctime(&t) << "(" << t << ")" << " > " << ctime(&targetTime) << "(" << targetTime << ")" << endl;
+			}
+			return true;
+		}
+	}
+
+	return false;
 }
