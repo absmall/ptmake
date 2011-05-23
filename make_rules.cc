@@ -1,9 +1,53 @@
+#include <assert.h>
 #include <sstream>
 #include <stdexcept>
 #include "re.h"
 #include "make_rules.h"
 
 using namespace std;
+
+bool MakeRule::getDepName( const  std::string &target, const std::string &declTarget, const std::string &declDep, std::string &ret )
+{
+	// wildcard offsets in the target and dependencies
+	size_t wildcard_t, wildcard_d;
+
+	if( ( wildcard_t = declTarget.find( '%' ) ) != std::string::npos ) {
+		// It's a pattern rule, see if the target matches
+
+		int length = declTarget.length() - wildcard_t - 1;
+
+		try {
+			if( !declTarget.compare( 0, wildcard_t, target, 0, wildcard_t )
+			  && !declTarget.compare( wildcard_t + 1, length, target, target.length() - length, length ) ) {
+				if( ( wildcard_d = declDep.find( '%' ) ) != std::string::npos ) {
+					// See if prefix and suffix match
+					stringstream ss;
+					string s;
+					ss << string( declDep, 0, wildcard_d ) << target.substr( wildcard_t, target.length() - length ) << string( declDep, wildcard_d+1, string::npos );
+					ret = ss.str();
+				} else {
+					// Target has %, but dep doesn't, so just return dep
+					ret = declDep;
+				}
+				return true;
+			} else {
+				// Target doesn't match
+				return false;
+			}
+		} catch(std::out_of_range &o) {
+			// Target doesn't match
+			return false;
+		}
+
+	} else {
+		if( ::match( target, declTarget ) ) {
+			ret = declTarget;
+			return true;
+		} else {
+			return false;
+		}
+	}
+}
 
 bool MakeRule::match(const string &target)
 {
@@ -70,9 +114,16 @@ string MakeRule::expand_command( const string &command, const string &target )
 				ret = ret.replace(position, 2, target);
 				position += target.length();
 				break;
-#if 0
 			case '<':
 				// Substitute first dependency
+				{
+					string s;
+					assert( getDepName( target, *targets->begin(), *declaredDeps->begin(), s  ) );
+					ret = ret.replace(position, 2, s);
+					position += s.length();
+				}
+				break;
+#if 0
 			case '^':
 				// Substitute all dependencies
 			case '(':

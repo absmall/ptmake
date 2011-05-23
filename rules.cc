@@ -225,8 +225,10 @@ bool Rule::match(const std::string &target)
 
 bool Rule::canBeBuilt(const std::string &file)
 {
+	// Check if the file already exists
 	if( fileExists( file ) ) return true;
 
+	// If the file doesn't exist, see if we can build it
 	try {
 		Rule::find( file );
 		return true;
