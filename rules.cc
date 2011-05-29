@@ -121,6 +121,19 @@ bool Rule::execute(const std::string &target)
 	// If we know the dependencies, we may be able to avoid building. If we
 	// don't know the dependencies, we definitely have to rebuild.
 	if( deps != NULL ) {
+		// Check for any listed dependencies
+		for( list<string>::iterator i = declaredDeps->begin(); i != declaredDeps->end(); i ++ ) {
+			string depName;
+			// FIXME This is very hacky and should be cleaned up. It needs a
+			// cleaner model for matching targets to dependencies in pattern
+			// rules.
+			// The 'exists' parameter is true, because we have to assume the
+			// file existed and look at time. If it didn't, this rule couldn't
+			// work
+			if( getDepName( target, *targets->begin(), *i, depName  ) );
+			needsRebuild |= checkDep( target, depName, true, targetTime );
+		}
+		// And check for any dependencies we find
 		for( list<pair<string, bool> >::iterator i = deps->begin(); i != deps->end(); i ++ ) {
 			needsRebuild |= checkDep( target, i->first, i->second, targetTime );
 		}
@@ -284,6 +297,12 @@ void Rule::setDefaultTargets(void)
 string Rule::expand_command( const string &command, const string &target )
 {
 	return command;
+}
+
+bool Rule::getDepName( const  string &target, const string &declTarget, const string &declDep, string &ret )
+{
+	ret = declDep;
+	return true;
 }
 
 void Rule::recalcHash(string target, unsigned char hash[32])

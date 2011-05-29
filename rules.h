@@ -71,6 +71,12 @@ class Rule : public Subprocess {
 		virtual std::string expand_command( const std::string &command, const std::string &target );
 
 		/*
+		 * Expand the name of a dependency based on the name of a target. This
+		 * is an identity transform for non-pattern rules
+		 */
+		virtual bool getDepName( const std::string &target, const std::string &declTarget, const std::string &declDep, std::string &ret );
+
+		/*
 		 * Check if a target has already been built
 		 */
 		bool built( const std::string &target );

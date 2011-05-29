@@ -6,7 +6,7 @@
 
 using namespace std;
 
-bool MakeRule::getDepName( const  std::string &target, const std::string &declTarget, const std::string &declDep, std::string &ret )
+bool MakeRule::getDepName( const  string &target, const string &declTarget, const string &declDep, string &ret )
 {
 	// wildcard offsets in the target and dependencies
 	size_t wildcard_t, wildcard_d;
