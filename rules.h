@@ -85,9 +85,11 @@ class Rule : public Subprocess {
 		/* Recalculate a hash that describes this rule. It's based on all paramters
 		 * that are user-configurable
 		 */
+		void recalcHash(std::string target, unsigned char hash[32]);
+
+		// FIXME I think buildCache should be static
 		std::set<std::string> buildCache;
-		void recalcHash(void);
-		unsigned char hash[32];
+		// FIXME This shouldn't be a class member, should be passed on the stack
 		time_t targetTime;
 		std::list<std::string> *targets;
 		std::list<std::string> *declaredDeps;

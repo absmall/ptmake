@@ -92,11 +92,14 @@ void Rule::callback_exit(std::string filename, bool success)
 
 bool Rule::execute(const std::string &target)
 {
+	unsigned char hash[32];
 	bool needsRebuild = false;
 	list<pair<string, bool> > *deps;
 
 	// See if it's already being built
 	if( built( target ) ) return false;
+	// FIXME In a rule with multiple outputs, this should add everything
+	// that was built to buildCache
 	buildCache.insert( target );
 
 	if( targets == NULL || commands == NULL ) return false;
@@ -112,6 +115,7 @@ bool Rule::execute(const std::string &target)
 	}
 	indentation ++;
 
+	recalcHash( target, hash );
 	// See if we have dependencies in the database
 	deps = retrieve_dependencies( hash );
 	// If we know the dependencies, we may be able to avoid building. If we
@@ -221,8 +225,6 @@ void Rule::addTarget(const std::string &target)
 		targets = new list<string>;
 	}
 	targets->push_back(target);
-
-	recalcHash();
 }
 
 void Rule::addTargetList(std::list<std::string> *targetList)
@@ -232,8 +234,6 @@ void Rule::addTargetList(std::list<std::string> *targetList)
 	}
 
 	targets = targetList;
-
-	recalcHash();
 }
 
 void Rule::addDependency(const std::string &dependency)
@@ -259,8 +259,6 @@ void Rule::addCommand(const std::string &command)
 		commands = new list<string>;
 	}
 	commands->push_back(command);
-
-	recalcHash();
 }
 
 void Rule::addCommandList(std::list<std::string> *commandList)
@@ -270,8 +268,6 @@ void Rule::addCommandList(std::list<std::string> *commandList)
 	}
 
 	commands = commandList;
-
-	recalcHash();
 }
 
 void Rule::setDefaultTargets(void)
@@ -290,7 +286,7 @@ string Rule::expand_command( const string &command, const string &target )
 	return command;
 }
 
-void Rule::recalcHash(void)
+void Rule::recalcHash(string target, unsigned char hash[32])
 {
 	gcry_md_hd_t hd;
 
@@ -306,6 +302,7 @@ void Rule::recalcHash(void)
 			gcry_md_write( hd, i->c_str(), i->size() );
 		}
 	}
+	gcry_md_write( hd, target.c_str(), target.size() );
 	gcry_md_final( hd );
 
 	memcpy( hash, gcry_md_read(hd, 0), 32 );
