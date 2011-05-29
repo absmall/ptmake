@@ -152,6 +152,7 @@ bool Rule::execute(const std::string &target)
 		delete deps;
 
 		if( !needsRebuild ) {
+			indentation --;
 			return false;
 		}
 		if( get_debug_level( DEBUG_DEPENDENCIES ) ) {
@@ -163,6 +164,23 @@ bool Rule::execute(const std::string &target)
 		if( get_debug_level( DEBUG_REASON ) ) {
 			cout << "Dependencies unknown, must build" << endl;
 		}
+
+		// Even though we don't know the auto-generated dependencies, there
+		// may be explicit dependencies, so build those
+		try {
+			for( list<string>::iterator i = declaredDeps->begin();
+										i != declaredDeps->end();
+										i ++ ) {
+				Rule *r = Rule::find( *i );
+				r->execute( *i );
+			}
+		} catch (...) {
+			if( get_debug_level( DEBUG_REASON ) ) {
+				cout << "Failed to build explicit dep" << endl;
+			}
+			indentation --;
+			return false;
+		}
 	}
 	
 	clear_dependencies( hash );
@@ -173,6 +191,7 @@ bool Rule::execute(const std::string &target)
 	}
 	add_dependencies( hash, dependencies );
 	dependencies.clear();
+	indentation --;
 	if( get_debug_level( DEBUG_DEPENDENCIES ) ) {
 		indent();
 		cout << "Done trying to build: " << *targets->begin() << "(" << target << "," << targetTime << ")" << endl;
@@ -184,7 +203,6 @@ bool Rule::execute(const std::string &target)
 			plotter->output( target, j->first );
 		}
 	}
-	indentation --;
 
 	return true;
 }

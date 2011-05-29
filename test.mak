@@ -1,3 +1,5 @@
+all: make libptmake.so
+
 make:
 	g++ -g3 -Wl,-rpath,. -L. -o make make.o make_rules.o make_parse.o main.o find.o -lptmake
 
