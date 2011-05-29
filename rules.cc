@@ -15,6 +15,10 @@
 
 using namespace std;
 
+// This is just for controlling the indentation of debug prints
+int indentation = 0;
+
+// List of all active rules
 list<Rule *> Rule::rules;
 
 void Rule::print()
@@ -43,13 +47,23 @@ void Rule::print()
 	}
 }
 
+void indent()
+{
+	int i;
+	for( i = 0; i < indentation; i ++ ) {
+		cout << " ";
+	}
+}
+
 void print(std::string filename)
 {
+	indent();
 	cout << "Depends on " << filename << endl;
 }
 
 void print(std::string filename, int status)
 {
+	indent();
 	cout << "Depends on " << filename << "(" << status << ")" << endl;
 }
 
@@ -93,8 +107,10 @@ bool Rule::execute(const std::string &target)
 	}
 
 	if( get_debug_level( DEBUG_DEPENDENCIES ) ) {
-		cout << "Try to build: " << *targets->begin() << "(" << targetTime << ")" << endl;
+		indent();
+		cout << "Try to build: " << *targets->begin() << "(" << target << "," << targetTime << ")" << endl;
 	}
+	indentation ++;
 
 	// See if we have dependencies in the database
 	deps = retrieve_dependencies( hash );
@@ -102,7 +118,7 @@ bool Rule::execute(const std::string &target)
 	// don't know the dependencies, we definitely have to rebuild.
 	if( deps != NULL ) {
 		for( list<pair<string, bool> >::iterator i = deps->begin(); i != deps->end(); i ++ ) {
-			needsRebuild |= checkDep( i->first, i->second, targetTime );
+			needsRebuild |= checkDep( target, i->first, i->second, targetTime );
 		}
 		delete deps;
 
@@ -128,6 +144,11 @@ bool Rule::execute(const std::string &target)
 	}
 	add_dependencies( hash, dependencies );
 	dependencies.clear();
+	if( get_debug_level( DEBUG_DEPENDENCIES ) ) {
+		indent();
+		cout << "Done trying to build: " << *targets->begin() << "(" << target << "," << targetTime << ")" << endl;
+	}
+	indentation --;
 
 	return true;
 }
@@ -297,7 +318,7 @@ bool Rule::built( const string &target )
 	return buildCache.find( target ) != buildCache.end();
 }
 
-bool Rule::checkDep( const string &target, bool exists, time_t targetTime )
+bool Rule::checkDep( const string &ruleTarget, const string &target, bool exists, time_t targetTime )
 {
 	// If the file has a rule, we need to try to rebuild it, and rebuild if that
 	// succeeds.
@@ -309,6 +330,7 @@ bool Rule::checkDep( const string &target, bool exists, time_t targetTime )
 	// If the file existed before and still exists, we need to rebuild if the
 	// file is newer
 	if( get_debug_level( DEBUG_DEPENDENCIES ) ) {
+		indent();
 		cout << "Dependency " << target << "(" << exists << ")" << endl;
 	}
 	try {
@@ -326,7 +348,12 @@ bool Rule::checkDep( const string &target, bool exists, time_t targetTime )
 			status = fileTime(target, t, &isDir);
 			if( !status || (t > targetTime && !isDir) ) {
 				if( get_debug_level( DEBUG_REASON ) ) {
-					cout << "Generated file out of date, need to rebuild " << target << " because of " << target << ": (" << status << " ^ " << exists << ") || " << ctime(&t) << " > " << ctime(&targetTime) << endl;
+					indent();
+					string t1 = ctime(&t);
+					string t2 = ctime(&targetTime);
+					t1 = t1.substr(0, t1.length() - 1);
+					t2 = t2.substr(0, t2.length() - 1);
+					cout << "Generated file out of date, need to rebuild " << ruleTarget << " because of " << target << ": (" << status << " ^ " << exists << ") || " << t1 << "(" <<  t <<  ") > " << t2 << "(" << targetTime << ")" << endl;
 				}
 				return true;
 			}
@@ -339,7 +366,18 @@ bool Rule::checkDep( const string &target, bool exists, time_t targetTime )
 		status = fileTime(target, t, &isDir);
 		if( (status ^ exists) || (status && t > targetTime && !isDir) ) {
 			if( get_debug_level( DEBUG_REASON ) ) {
-				cout << "No rule to rebuild " << target << ": (" << status << " ^ " << exists << ") || " << ctime(&t) << "(" << t << ")" << " > " << ctime(&targetTime) << "(" << targetTime << ")" << endl;
+				indent();
+				if( status && !exists ) {
+					cout << "No rule to rebuild " << target << ": (new)" << endl;
+				} else if( !status && exists ) {
+					cout << "No rule to rebuild " << target << ": (deleted)" << endl;
+				} else {
+					string t1 = ctime(&t);
+					string t2 = ctime(&targetTime);
+					t1 = t1.substr(0, t1.length() - 1);
+					t2 = t2.substr(0, t2.length() - 1);
+					cout << "No rule to rebuild " << target << ": " << t1 << " (" << t << ")" << " > " << t2 << " (" << targetTime << ")" << endl;
+				}
 			}
 			return true;
 		}

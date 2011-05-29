@@ -79,7 +79,7 @@ class Rule : public Subprocess {
 		 * Check if a dependency need to be rebuilt (see rules.txt for the conditions
 		 * in which it does)
 		 */
-		bool checkDep( const std::string &target, bool exists, time_t targetTime );
+		bool checkDep( const std::string &ruleTarget, const std::string &target, bool exists, time_t targetTime );
 
 	protected:
 		/* Recalculate a hash that describes this rule. It's based on all paramters
