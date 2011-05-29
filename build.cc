@@ -36,7 +36,7 @@ int build_targets()
 	for(list<string>::iterator i = targets.begin(); i != targets.end(); i ++ ) {
 		try {
 			Rule *r = Rule::find( *i );
-			if( !r->execute() ) {
+			if( !r->execute( *i ) ) {
 				cout << "ptmake: `" << *i << "' is up to date." << endl;
 			}
 		} catch (wexception &e) {

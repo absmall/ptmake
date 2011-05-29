@@ -3,16 +3,22 @@
 #include <iostream>
 #include <algorithm>
 #include <gcrypt.h>
+#include "re.h"
 #include "file.h"
 #include "rules.h"
 #include "build.h"
 #include "debug.h"
+#include "parse.h"
 #include "exception.h"
 #include "subprocess.h"
 #include "dependencies.h"
 
 using namespace std;
 
+// This is just for controlling the indentation of debug prints
+int indentation = 0;
+
+// List of all active rules
 list<Rule *> Rule::rules;
 
 Subprocess::~Subprocess( )
@@ -45,13 +51,23 @@ void Rule::print()
 	}
 }
 
+void indent()
+{
+	int i;
+	for( i = 0; i < indentation; i ++ ) {
+		cout << " ";
+	}
+}
+
 void print(std::string filename)
 {
+	indent();
 	cout << "Depends on " << filename << endl;
 }
 
 void print(std::string filename, int status)
 {
+	indent();
 	cout << "Depends on " << filename << "(" << status << ")" << endl;
 }
 
@@ -62,7 +78,7 @@ void Rule::callback_entry(std::string filename)
 	}
 	try {
 		Rule *r = Rule::find(filename);
-		r->execute();
+		r->execute( filename );
 		dependencies.insert( pair<string,bool>(filename, true) );
 	} catch( wexception &e ) {
 		// Do nothing
@@ -78,75 +94,52 @@ void Rule::callback_exit(std::string filename, bool success)
 	}
 }
 
-bool Rule::execute()
+bool Rule::execute(const std::string &target)
 {
+	unsigned char hash[32];
 	bool needsRebuild = false;
 	list<pair<string, bool> > *deps;
 
-	if( built ) return false;
-	built = true;
+	// See if it's already being built
+	if( built( target ) ) return false;
+	// FIXME In a rule with multiple outputs, this should add everything
+	// that was built to buildCache
+	buildCache.insert( target );
+
 	if( targets == NULL || commands == NULL ) return false;
 	try {
-		targetTime = fileTimeEarliest( *targets );
+		targetTime = fileTime( target );
 	} catch( ... ) {
 		// No target time, so definitely rebuild
 	}
 
 	if( get_debug_level( DEBUG_DEPENDENCIES ) ) {
-		cout << "Try to build: " << *targets->begin() << "(" << targetTime << ")" << endl;
+		indent();
+		cout << "Try to build: " << *targets->begin() << "(" << target << "," << targetTime << ")" << endl;
 	}
+	indentation ++;
 
+	recalcHash( target, hash );
 	// See if we have dependencies in the database
 	deps = retrieve_dependencies( hash );
 	// If we know the dependencies, we may be able to avoid building. If we
 	// don't know the dependencies, we definitely have to rebuild.
 	if( deps != NULL ) {
+		// Check for any listed dependencies
+		for( list<string>::iterator i = declaredDeps->begin(); i != declaredDeps->end(); i ++ ) {
+			string depName;
+			// FIXME This is very hacky and should be cleaned up. It needs a
+			// cleaner model for matching targets to dependencies in pattern
+			// rules.
+			// The 'exists' parameter is true, because we have to assume the
+			// file existed and look at time. If it didn't, this rule couldn't
+			// work
+			if( getDepName( target, *targets->begin(), *i, depName  ) );
+			needsRebuild |= checkDep( target, depName, true, targetTime );
+		}
+		// And check for any dependencies we find
 		for( list<pair<string, bool> >::iterator i = deps->begin(); i != deps->end(); i ++ ) {
-			// If the file has a rule, we need to try to rebuild it, and rebuild if that
-			// succeeds.
-			// If the file doesn't have a rule, then:
-			// If the file didn't exist before, and it still doesn't, we don't need to
-			// rebuild.
-			// If the file didn't exist before, and it does now, we need to rebuild.
-			// If the file existed before and doesn't exist now, we need to rebuild.
-			// If the file existed before and still exists, we need to rebuild if the
-			// file is newer
-			if( get_debug_level( DEBUG_DEPENDENCIES ) ) {
-				cout << "Dependency " << i->first << "(" << i->second << ")" << endl;
-			}
-			try {
-				// Use a rule to rebuild
-				Rule *r = Rule::find(i->first);
-				if( r->execute() ) {
-					// It was rebuilt, so we need to rebuild the primary target
-					needsRebuild = true;
-				} else {
-					bool status;
-					time_t t;
-					bool isDir;
-					// If it wasn't rebuilt, but is already newer, we still
-					// have to rebuild.
-					status = fileTime(i->first, t, &isDir);
-					if( !status || (t > targetTime && !isDir) ) {
-						if( get_debug_level( DEBUG_REASON ) ) {
-							cout << "Generated file out of date, need to rebuild because of " << i->first << ": (" << status << " ^ " << i->second << ") || " << ctime(&t) << " > " << ctime(&targetTime) << endl;
-						}
-						needsRebuild = true;
-					}
-				}
-			} catch (...) {
-				bool status;
-				time_t t;
-				bool isDir;
-
-				status = fileTime(i->first, t, &isDir);
-				if( (status ^ i->second) || (status && t > targetTime && !isDir) ) {
-					if( get_debug_level( DEBUG_REASON ) ) {
-						cout << "No rule to rebuild " << i->first << ": (" << status << " ^ " << i->second << ") || " << ctime(&t) << "(" << t << ")" << " > " << ctime(&targetTime) << "(" << targetTime << ")" << endl;
-					}
-					needsRebuild = true;
-				}
-			}
+			needsRebuild |= checkDep( target, i->first, i->second, targetTime );
 		}
 		delete deps;
 
@@ -166,12 +159,17 @@ bool Rule::execute()
 	
 	clear_dependencies( hash );
 	for(list<string >::iterator i = commands->begin(); i != commands->end(); i ++ ) {
-		trace(*i);
+		trace( expand_command( *i, target ) );
 
 		// Touch the targets in case something else updated last in the build process 
 	}
 	add_dependencies( hash, dependencies );
 	dependencies.clear();
+	if( get_debug_level( DEBUG_DEPENDENCIES ) ) {
+		indent();
+		cout << "Done trying to build: " << *targets->begin() << "(" << target << "," << targetTime << ")" << endl;
+	}
+	indentation --;
 
 	return true;
 }
@@ -180,8 +178,8 @@ Rule::Rule( )
 {
 	rules.push_back(this);
 	targets = NULL;
+	declaredDeps = NULL;
 	commands = NULL;
-	built = false;
 }
 
 Rule *Rule::find(const string &target)
@@ -191,11 +189,7 @@ Rule *Rule::find(const string &target)
 	
 	for(list<Rule *>::iterator i = rules.begin(); i != rules.end(); i ++ )
 	{
-		std::list<std::string>::iterator b, e, te;
-		if( (*i)->targets == NULL ) continue;
-		b = (*i)->targets->begin();
-		e = (*i)->targets->end();
-		if( e != std::find(b, e, target) ) {
+		if( (*i)->match( target ) ) {
 			if( foundARule ) {
 				// We have multiple rules to build the target
 				throw runtime_wexception( "Multiple rules" );
@@ -212,14 +206,42 @@ Rule *Rule::find(const string &target)
 	}
 }
 
+bool Rule::match(const std::string &target)
+{
+	std::list<std::string>::iterator b, e, te;
+
+	if( targets == NULL ) return false;
+
+	b = targets->begin();
+	e = targets->end();
+	for( te = b; te != e; te ++ ) {
+		if( ::match( *te, target ) ) {
+			return true;
+		}
+	}
+	return false;
+}
+
+bool Rule::canBeBuilt(const std::string &file)
+{
+	// Check if the file already exists
+	if( fileExists( file ) ) return true;
+
+	// If the file doesn't exist, see if we can build it
+	try {
+		Rule::find( file );
+		return true;
+	} catch( wexception &e ) {
+		return false;
+	}
+}
+
 void Rule::addTarget(const std::string &target)
 {
 	if( targets == NULL ) {
 		targets = new list<string>;
 	}
 	targets->push_back(target);
-
-	recalcHash();
 }
 
 void Rule::addTargetList(std::list<std::string> *targetList)
@@ -229,8 +251,23 @@ void Rule::addTargetList(std::list<std::string> *targetList)
 	}
 
 	targets = targetList;
+}
 
-	recalcHash();
+void Rule::addDependency(const std::string &dependency)
+{
+	if( declaredDeps == NULL ) {
+		declaredDeps = new list<string>;
+	}
+	declaredDeps->push_back(dependency);
+}
+
+void Rule::addDependencyList(std::list<std::string> *dependencyList)
+{
+	if( declaredDeps != NULL ) {
+		delete declaredDeps;
+	}
+
+	declaredDeps = dependencyList;
 }
 
 void Rule::addCommand(const std::string &command)
@@ -239,8 +276,6 @@ void Rule::addCommand(const std::string &command)
 		commands = new list<string>;
 	}
 	commands->push_back(command);
-
-	recalcHash();
 }
 
 void Rule::addCommandList(std::list<std::string> *commandList)
@@ -250,8 +285,6 @@ void Rule::addCommandList(std::list<std::string> *commandList)
 	}
 
 	commands = commandList;
-
-	recalcHash();
 }
 
 void Rule::setDefaultTargets(void)
@@ -265,7 +298,18 @@ void Rule::setDefaultTargets(void)
 	}
 }
 
-void Rule::recalcHash(void)
+string Rule::expand_command( const string &command, const string &target )
+{
+	return command;
+}
+
+bool Rule::getDepName( const  string &target, const string &declTarget, const string &declDep, string &ret )
+{
+	ret = declDep;
+	return true;
+}
+
+void Rule::recalcHash(string target, unsigned char hash[32])
 {
 	gcry_md_hd_t hd;
 
@@ -281,9 +325,83 @@ void Rule::recalcHash(void)
 			gcry_md_write( hd, i->c_str(), i->size() );
 		}
 	}
+	gcry_md_write( hd, target.c_str(), target.size() );
 	gcry_md_final( hd );
 
 	memcpy( hash, gcry_md_read(hd, 0), 32 );
 
 	gcry_md_close( hd );
+}
+
+bool Rule::built( const string &target )
+{
+	return buildCache.find( target ) != buildCache.end();
+}
+
+bool Rule::checkDep( const string &ruleTarget, const string &target, bool exists, time_t targetTime )
+{
+	// If the file has a rule, we need to try to rebuild it, and rebuild if that
+	// succeeds.
+	// If the file doesn't have a rule, then:
+	// If the file didn't exist before, and it still doesn't, we don't need to
+	// rebuild.
+	// If the file didn't exist before, and it does now, we need to rebuild.
+	// If the file existed before and doesn't exist now, we need to rebuild.
+	// If the file existed before and still exists, we need to rebuild if the
+	// file is newer
+	if( get_debug_level( DEBUG_DEPENDENCIES ) ) {
+		indent();
+		cout << "Dependency " << target << "(" << exists << ")" << endl;
+	}
+	try {
+		// Use a rule to rebuild
+		Rule *r = Rule::find(target);
+		if( r->execute( target ) ) {
+			// It was rebuilt, so we need to rebuild the primary target
+			return true;
+		} else {
+			bool status;
+			time_t t;
+			bool isDir;
+			// If it wasn't rebuilt, but is already newer, we still
+			// have to rebuild.
+			status = fileTime(target, t, &isDir);
+			if( !status || (t > targetTime && !isDir) ) {
+				if( get_debug_level( DEBUG_REASON ) ) {
+					indent();
+					string t1 = ctime(&t);
+					string t2 = ctime(&targetTime);
+					t1 = t1.substr(0, t1.length() - 1);
+					t2 = t2.substr(0, t2.length() - 1);
+					cout << "Generated file out of date, need to rebuild " << ruleTarget << " because of " << target << ": (" << status << " ^ " << exists << ") || " << t1 << "(" <<  t <<  ") > " << t2 << "(" << targetTime << ")" << endl;
+				}
+				return true;
+			}
+		}
+	} catch (...) {
+		bool status;
+		time_t t;
+		bool isDir;
+
+		status = fileTime(target, t, &isDir);
+		if( (status ^ exists) || (status && t > targetTime && !isDir) ) {
+			if( get_debug_level( DEBUG_REASON ) ) {
+				indent();
+				if( status && !exists ) {
+					cout << "No rule to rebuild " << target << ": (new)" << endl;
+				} else if( !status && exists ) {
+					cout << "No rule to rebuild " << target << ": (deleted)" << endl;
+				} else {
+					string t1 = ctime(&t);
+					string t2 = ctime(&targetTime);
+					t1 = t1.substr(0, t1.length() - 1);
+					t2 = t2.substr(0, t2.length() - 1);
+					cout << "No rule to rebuild " << target << ": " << t1 << " (" << t << ")" << " > " << t2 << " (" << targetTime << ")" << endl;
+				}
+			}
+			return true;
+		}
+	}
+
+	return false;
 }

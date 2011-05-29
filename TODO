@@ -8,14 +8,16 @@ Short-term:
 -Improve the situation with temporary files. I think programs that generate temporary files in the current directory don't work.
 -Deal with relative vs. absolute pathnames (Actually, this is pretty hard. How to do it? Naively, just canonicalize the path (tried using realpath, it's very slow, I think because of following symlinks). But then ideally you should follow symlinks. But then ideally you should follow hardlinks (which I don't think is possible). But then... maybe not worth it.)
 -Add more options for update detection (currently is timestamp, add hash, and timestamp then hash)
+-Do profiling, and put at least some of it in the unit tests
 
 Medium-term:
 -Implement a jam parser
--Implement a test suite
+-Implement a test suite (started)
 -Track targets as well an dependencies, make an automatic clean mode
 -Mode to output when dependencies differ from the dependencies specified (to verify that fallback is working for platforms that can't support ptmake)
 -Multiple threads for building
 
 Long-term:
 -See if I can use this as a backend with gnumake's frontend
+-See if I can use this as a backend with cmake's frontend
 -Implement a daemon mode that monitors the filesystem for changes to any dependencies

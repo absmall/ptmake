@@ -1,0 +1,16 @@
+Scopes:
+
+-Global variables
+-Rule-specific variables
+
+Types:
+
+-Recursive variables
+-Regular variable
+
+Test cases:
+A = b
+B = C
+
+b:c A=e
+a:b B=d

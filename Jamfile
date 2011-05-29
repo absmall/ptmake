@@ -10,7 +10,7 @@ if $(UNIX)
 C++FLAGS += `libgcrypt-config --cflags ` ;
 LINKFLAGS += `libgcrypt-config --cflags --libs` -ldb ;
 
-LIBSOURCES = build.cc argpc.cc argpcoption.cc exception.cc rules.cc dependencies.cc graphviz.cc utilities.cc debug.cc ;
+LIBSOURCES = build.cc argpc.cc argpcoption.cc exception.cc rules.cc dependencies.cc graphviz.cc utilities.cc debug.cc re.cc variables.cc ;
 SOURCES = main.cc find.cc ;
 
 if $(UNIX) { LIBSOURCES += subprocess_unix.cc file_unix.cc ; }
@@ -20,7 +20,7 @@ Yacc make_parse.cc : make_parse.y ;
 Yacc jam_parse.cc : jam_parse.y ;
 Library libptmake : $(LIBSOURCES) ;
 if $(MAKE) {
-	Main make : make.cc make_parse.cc $(SOURCES) ;
+	Main make : make.cc make_rules.cc make_parse.cc $(SOURCES) ;
 	LinkLibraries make : libptmake ;
 }
 if $(JAM) {

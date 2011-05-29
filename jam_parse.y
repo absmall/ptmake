@@ -8,6 +8,7 @@
 #include <sstream>
 #include <stdexcept>
 #include "rules.h"
+#include "variables.h"
 int yylex(void);
 void yyerror(const char *s);
 void print_rule( void *);
@@ -176,6 +177,11 @@ void parse_makefile( std::string filename )
 
 	free( inputBuffer );
 	fclose( f );
+}
+
+std::string expand_command( std::string command )
+{
+	return command;
 }
 
 void yyerror(const char *s)

@@ -1,0 +1,21 @@
+Use cases for rules:
+
+1) One file is built from one or more others.
+A B -> C
+
+#The %.c is there to set $<. This also restricts the rule, because we don't
+#want to try building just any target, because we would definitely fail to build
+#the source in a *lot* of cases. So with this rule, we have to be able to trace rules
+#back to something where the targets are all explicitly listed.
+
+%.o: %.c
+	gcc -o $@ $<
+
+2) Multiple outputs from one file
+A -> B C
+
+%.o: %.c %.h #The %.c is there to set $<.
+	gcc -o $@ $<
+
+3) Multiple outputs from multiple inputs:
+A B -> C D
