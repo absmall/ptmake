@@ -5,6 +5,7 @@
 #include <list>
 #include <set>
 #include "subprocess.h"
+#include "plotter.h"
 #include <gcrypt.h>
 
 /* A class which encompasses a rule for building a set of targets using a set
@@ -66,6 +67,10 @@ class Rule : public Subprocess {
 		static void setDefaultTargets(void);
 
 		/*
+		 * Set up for debug output
+		 */
+		static void setPlotter( Plotter *p );
+		/*
 		 * Perform variable expansion
 		 */
 		virtual std::string expand_command( const std::string &command, const std::string &target );
@@ -102,6 +107,7 @@ class Rule : public Subprocess {
 		std::list<std::string> *commands;
 		std::set<std::pair<std::string, bool> > dependencies;
 		static std::list<Rule *> rules;
+		static Plotter *plotter;
 };
 
 #endif /* __RULES_H__ */

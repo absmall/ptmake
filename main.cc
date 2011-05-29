@@ -4,7 +4,7 @@
 #include "parse.h"
 #include "argpc.h"
 #include "build.h"
-#include "graphviz.h"
+#include "plotter.h"
 #include "debug.h"
 #include "dependencies.h"
 
@@ -33,7 +33,9 @@ void plot( std::string file )
 
 int main(int argc, char *argv[])
 {
+	Plotter p;
 	int ret;
+
 	try {
 		Argpc *options = Argpc::getInstance( );
 
@@ -63,10 +65,11 @@ int main(int argc, char *argv[])
 			set_target( argv[i] );
 		}
 		set_default_target();
-		ret = build_targets();
 		if( plotfile != "" ) {
-			GraphViz::output( plotfile );
+			p.open( plotfile );
+			set_plotter( &p );
 		}
+		ret = build_targets();
 	} catch ( const std::exception &e ) {
 		cerr << "make: " << e.what() << endl;
 		dependencies_deinit();

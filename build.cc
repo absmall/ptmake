@@ -21,6 +21,11 @@ void set_default_target()
 	}
 }
 
+void set_plotter(Plotter *p)
+{
+	Rule::setPlotter(p);
+}
+
 void set_target(string target)
 {
 	targets.push_back(target);

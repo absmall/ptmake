@@ -1,6 +1,7 @@
 #ifndef __BUILD_H__
 #define __BUILD_H__
 
+#include "plotter.h"
 #include <string>
 
 /*
@@ -8,6 +9,11 @@
  * the first rule.
  */
 void set_default_target();
+
+/*
+ * Set the plotter to use for output visualization
+ */
+void set_plotter(Plotter *p);
 
 /*
  * Sets a specified target that the user wants to build.

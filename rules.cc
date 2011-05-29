@@ -21,6 +21,8 @@ int indentation = 0;
 // List of all active rules
 list<Rule *> Rule::rules;
 
+Plotter *Rule::plotter = NULL;
+
 Subprocess::~Subprocess( )
 {
 }
@@ -136,10 +138,16 @@ bool Rule::execute(const std::string &target)
 			// work
 			if( getDepName( target, *targets->begin(), *i, depName  ) );
 			needsRebuild |= checkDep( target, depName, true, targetTime );
+			if( plotter != NULL ) {
+				plotter->output( target, depName );
+			}
 		}
 		// And check for any dependencies we find
 		for( list<pair<string, bool> >::iterator i = deps->begin(); i != deps->end(); i ++ ) {
 			needsRebuild |= checkDep( target, i->first, i->second, targetTime );
+			if( plotter != NULL ) {
+				plotter->output( target, i->first );
+			}
 		}
 		delete deps;
 
@@ -168,6 +176,13 @@ bool Rule::execute(const std::string &target)
 	if( get_debug_level( DEBUG_DEPENDENCIES ) ) {
 		indent();
 		cout << "Done trying to build: " << *targets->begin() << "(" << target << "," << targetTime << ")" << endl;
+	}
+	if( plotter != NULL ) {
+		for( set<pair<string, bool> >::iterator j = dependencies.begin();
+												j != dependencies.end();
+												j ++ ) {
+			plotter->output( target, j->first );
+		}
 	}
 	indentation --;
 
@@ -296,6 +311,11 @@ void Rule::setDefaultTargets(void)
 			set_target(*i);
 		}
 	}
+}
+
+void Rule::setPlotter( Plotter *p )
+{
+	plotter = p;
 }
 
 string Rule::expand_command( const string &command, const string &target )

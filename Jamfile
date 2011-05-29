@@ -10,7 +10,7 @@ if $(UNIX)
 C++FLAGS += `libgcrypt-config --cflags ` ;
 LINKFLAGS += `libgcrypt-config --cflags --libs` -ldb ;
 
-LIBSOURCES = build.cc argpc.cc argpcoption.cc exception.cc rules.cc dependencies.cc graphviz.cc utilities.cc debug.cc re.cc variables.cc ;
+LIBSOURCES = build.cc argpc.cc argpcoption.cc exception.cc rules.cc dependencies.cc plotter.cc utilities.cc debug.cc re.cc variables.cc ;
 SOURCES = main.cc find.cc ;
 
 if $(UNIX) { LIBSOURCES += subprocess_unix.cc file_unix.cc ; }
