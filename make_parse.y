@@ -60,7 +60,7 @@ dependencies:
 	;
 	
 rulebody:
-	RULECOMMAND 				{ $$ = add_stringlist(new_stringlist(), $1); }
+				 				{ $$ = new_stringlist(); }
 	| rulebody RULECOMMAND 		{ $$ = add_stringlist($1, $2); }
 	;
 
