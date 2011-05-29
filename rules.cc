@@ -101,7 +101,7 @@ bool Rule::execute(const std::string &target)
 
 	if( targets == NULL || commands == NULL ) return false;
 	try {
-		targetTime = fileTimeEarliest( *targets );
+		targetTime = fileTime( target );
 	} catch( ... ) {
 		// No target time, so definitely rebuild
 	}
