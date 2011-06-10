@@ -41,7 +41,7 @@ bool MakeRule::getDepName( const  string &target, const string &declTarget, cons
 
 	} else {
 		if( ::match( target, declTarget ) ) {
-			ret = declTarget;
+			ret = declDep;
 			return true;
 		} else {
 			return false;

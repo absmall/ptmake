@@ -96,6 +96,21 @@ void Rule::callback_exit(std::string filename, bool success)
 	}
 }
 
+bool Rule::build(const std::string &target)
+{
+	try {
+		Rule *r = find( target );
+		return r->execute( target );
+	} catch(...) {
+		// No rule to build the target. But if it exists, that's still okay
+		if( fileExists( target ) ) {
+			return false;
+		} else {
+			throw;
+		}
+	}
+}
+
 bool Rule::execute(const std::string &target)
 {
 	unsigned char hash[32];
@@ -171,8 +186,21 @@ bool Rule::execute(const std::string &target)
 			for( list<string>::iterator i = declaredDeps->begin();
 										i != declaredDeps->end();
 										i ++ ) {
-				Rule *r = Rule::find( *i );
-				r->execute( *i );
+				string s;
+				time_t t;
+				bool dir;
+				getDepName( target, *targets->begin(), *i, s  );
+				if( get_debug_level( DEBUG_DEPENDENCIES ) ) {
+					cout << "Building explicit dependency `" << *i << "'" << endl;
+				}
+				if( !fileTime( s, t, &dir ) || t > targetTime ) {
+					Rule *r = Rule::find( s );
+					r->execute( s );
+				} else {
+					if( get_debug_level( DEBUG_REASON ) ) {
+						cout << "Cannot build explicit dep `" << s << "'" << endl;
+					}
+				}
 			}
 		} catch (...) {
 			if( get_debug_level( DEBUG_REASON ) ) {

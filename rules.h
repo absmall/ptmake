@@ -38,6 +38,11 @@ class Rule : public Subprocess {
 		/* Add multiple commands to run in order to perform the build */
 		void addCommandList(std::list<std::string> *commandList);
 
+		/* Build a specified target. Returns whether on not an update action was 
+		 * needed
+		 */
+		static bool build(const std::string &target);
+
 		/* Run the commands to build the targets */
 		bool execute(const std::string &target);
 
