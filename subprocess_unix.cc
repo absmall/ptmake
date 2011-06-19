@@ -99,7 +99,7 @@ void Subprocess::trace(string command)
 	child = fork();
 	if( child == 0 ) {
 		ptrace(PTRACE_TRACEME, 0, NULL, NULL);
-		execl("/bin/sh", "sh", "-c", command.c_str(), NULL);
+		execl("/bin/sh", "sh", "-c", command.c_str(), (char *)NULL);
 	} else {
 		while(1) {
 			child = wait(&status);
