@@ -47,9 +47,9 @@ void test_make_rules_3(void)
 	CU_ASSERT( r->match( ".hello") == true );
 	CU_ASSERT( r->match( "a.hello") == true );
 	CU_ASSERT( r->match( "a.goodbye") == false );
-	CU_ASSERT( r->expand_command( "echo $@" ) == string( "echo hello" ) );
-	CU_ASSERT( r->expand_command( "$@ echo" ) == string( "hello echo" ) );
-	CU_ASSERT( r->expand_command( "echo $@ $@ echo" ) == string( "echo hello hello echo" ) );
+	CU_ASSERT( r->expand_command( "echo $@", "target.hello" ) == string( "echo hello" ) );
+	CU_ASSERT( r->expand_command( "$@ echo", "target.hello" ) == string( "hello echo" ) );
+	CU_ASSERT( r->expand_command( "echo $@ $@ echo", "target.hello" ) == string( "echo hello hello echo" ) );
 
 	delete r;
 }

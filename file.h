@@ -32,4 +32,10 @@ bool fileIsAbsolute( const std::string &file );
  */
 bool fileExists(const std::string &file);
 
+/*
+ * Return the absolute path to a file from a path that may
+ * be absolute or relative
+ */
+std::string fileCanonicalize( std::string path );
+
 #endif /* __FILE_H__ */
