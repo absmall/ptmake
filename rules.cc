@@ -75,13 +75,14 @@ void print(std::string filename, int status)
 
 void Rule::callback_entry(std::string filename)
 {
+	string canon = fileCanonicalize( filename );
 	if( get_debug_level( DEBUG_DEPENDENCIES ) ) {
-		::print(filename);
+		::print(canon);
 	}
 	try {
-		Rule *r = Rule::find(filename);
-		r->execute( filename );
-		dependencies.insert( pair<string,bool>(filename, true) );
+		Rule *r = Rule::find(canon);
+		r->execute( canon );
+		dependencies.insert( pair<string,bool>(canon, true) );
 	} catch( wexception &e ) {
 		// Do nothing
 	}
@@ -89,17 +90,18 @@ void Rule::callback_entry(std::string filename)
 
 void Rule::callback_exit(std::string filename, bool success)
 {
-	dependencies.insert( pair<string,bool>(filename, success) );
+	string canon = fileCanonicalize( filename );
+	dependencies.insert( pair<string,bool>(canon, success) );
 
 	if( get_debug_level( DEBUG_DEPENDENCIES ) ) {
-		::print(filename, success);
+		::print(canon, success);
 	}
 }
 
 bool Rule::build(const std::string &target)
 {
 	try {
-		Rule *r = find( target );
+		Rule *r = find( fileCanonicalize( target ) );
 		return r->execute( target );
 	} catch(...) {
 		// No rule to build the target. But if it exists, that's still okay
@@ -302,16 +304,18 @@ void Rule::addTarget(const std::string &target)
 	if( targets == NULL ) {
 		targets = new list<string>;
 	}
-	targets->push_back(target);
+	targets->push_back(fileCanonicalize(target));
 }
 
 void Rule::addTargetList(std::list<std::string> *targetList)
 {
-	if( targets != NULL ) {
-		delete targets;
+	if( targets == NULL ) {
+		targets = new list<string>;
 	}
 
-	targets = targetList;
+	for( list<string>::iterator i = targetList->begin(); i != targetList->end(); i ++ ) {
+		targets->push_back(fileCanonicalize(*i));
+	}
 }
 
 void Rule::addDependency(const std::string &dependency)
@@ -319,16 +323,18 @@ void Rule::addDependency(const std::string &dependency)
 	if( declaredDeps == NULL ) {
 		declaredDeps = new list<string>;
 	}
-	declaredDeps->push_back(dependency);
+	declaredDeps->push_back(fileCanonicalize(dependency));
 }
 
 void Rule::addDependencyList(std::list<std::string> *dependencyList)
 {
-	if( declaredDeps != NULL ) {
-		delete declaredDeps;
+	if( declaredDeps == NULL ) {
+		declaredDeps = new list<string>;
 	}
 
-	declaredDeps = dependencyList;
+	for( list<string>::iterator i = dependencyList->begin(); i != dependencyList->end(); i ++ ) {
+		declaredDeps->push_back(fileCanonicalize(*i));
+	}
 }
 
 void Rule::addCommand(const std::string &command)
