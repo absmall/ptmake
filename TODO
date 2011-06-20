@@ -1,17 +1,20 @@
 Short-term:
 -Make the program robust against interruption (atomic commits to the database, etc.)
 -Better error descriptions in the parser
--Parse more gnumake syntax
 -Use gettext
--Allow a config file to specify the directories to be ignored (/proc, /sys, /tmp)
--Improve the situation with temporary files. I think programs that generate temporary files in the current directory don't work.
+-Allow a config file to specify the directories to be ignored (/proc, /sys, /tmp). Or default these per-platform but give a way to override. Maybe something like a variable in the makefile?
+-Improve the situation with temporary files. I think programs that generate temporary files in the current directory don't work. There are certainly intermediate files showing up in the deps that shouldn't be there.
 -Deal with relative vs. absolute pathnames (Actually, this is pretty hard. How to do it? Naively, just canonicalize the path (using realpath, it's very slow, I think because of following symlinks but that's what it does now). But then ideally you should follow symlinks. But then ideally you should follow hardlinks, bind mounts, etc. (which I don't think is possible). May drop symlink support and use of realpath to make it faster. Should it be preserved as a mode?
 -Add more options for update detection (currently is timestamp, add hash, and timestamp then hash)
 -Do profiling, and put at least some of it in the unit tests
+-Purge exceptions from the codebase. I keep trying to use them, but always end up regretting it :( They just aren't that useful, and are painful for debugging.
+-Fully document the rules class. It's so complicated now I really don't understand it anymore.
+-Do canonicalization later, so that we don't canonicalize before executing rules, leading to all expanded variables having absolute paths
 
 Medium-term:
 -Implement a jam parser
 -Implement a test suite (started)
+-Parse more gnumake syntax
 -Pattern rules. Gnumake pattern rules (a single target, an arbitrary number of deps, the one wildcard in the target is substituted for the wildcard in any deps that contain the wildcard. See if I can abstract this more to somehow have different wildcards in different targets, and match a wildcard in a dep to a specific target.
 -Track targets as well an dependencies, make an automatic clean mode
 -Mode to output when dependencies differ from the dependencies specified (to verify that fallback is working for platforms that can't support ptmake)
