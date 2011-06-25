@@ -130,6 +130,7 @@ bool Rule::execute(const std::string &target)
 		targetTime = fileTime( target );
 	} catch( ... ) {
 		// No target time, so definitely rebuild
+		targetTime = 0;
 	}
 
 	if( get_debug_level( DEBUG_DEPENDENCIES ) ) {
