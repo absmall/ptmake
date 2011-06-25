@@ -118,6 +118,7 @@ bool Rule::execute(const std::string &target)
 	unsigned char hash[32];
 	bool needsRebuild = false;
 	list<pair<string, bool> > *deps;
+	time_t targetTime;
 
 	// See if it's already being built
 	if( built( target ) ) return false;

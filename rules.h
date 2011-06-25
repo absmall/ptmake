@@ -105,8 +105,6 @@ class Rule : public Subprocess {
 
 		// FIXME I think buildCache should be static
 		std::set<std::string> buildCache;
-		// FIXME This shouldn't be a class member, should be passed on the stack
-		time_t targetTime;
 		std::list<std::string> *targets;
 		std::list<std::string> *declaredDeps;
 		std::list<std::string> *commands;
