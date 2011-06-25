@@ -20,6 +20,8 @@ int indentation = 0;
 
 // List of all active rules
 list<Rule *> Rule::rules;
+// What has been build already
+std::set<std::string> Rule::buildCache;
 
 Plotter *Rule::plotter = NULL;
 

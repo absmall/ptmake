@@ -103,8 +103,7 @@ class Rule : public Subprocess {
 		 */
 		void recalcHash(std::string target, unsigned char hash[32]);
 
-		// FIXME I think buildCache should be static
-		std::set<std::string> buildCache;
+		static std::set<std::string> buildCache;
 		std::list<std::string> *targets;
 		std::list<std::string> *declaredDeps;
 		std::list<std::string> *commands;
