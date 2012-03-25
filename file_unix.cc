@@ -12,50 +12,57 @@
 
 using namespace std;
 
-bool fileTime(const string &file, time_t &time, bool *isDir)
+int fileTime(const string &file, time_t *time, bool *isDir)
 {
     struct stat s;
 
     if( stat( file.c_str(), &s ) ) {
-        return false;
+        return -1;
     }
 
-    time = s.st_mtime;
+    *time = s.st_mtime;
     *isDir = S_ISDIR(s.st_mode);
-    return true;
+    return 0;
 }
 
-time_t fileTime(const string &file)
+int fileTime(const string &file, time_t *time)
 {
     struct stat s;
 
     if( stat( file.c_str(), &s ) ) {
-        throw runtime_wexception( "Cannot access file time" );
+        return -1;
     }
 
-    return s.st_mtime;
+    *time = s.st_mtime;
+    return 0;
 }
 
-time_t fileTimeEarliest(const list<string> &files)
+int fileTimeEarliest(const list<string> &files, time_t *time)
 {
     list<string>::const_iterator i;
     time_t earliest, t;
 
     if( files.empty() ) {
-        throw runtime_wexception( "Retrieving timestamp with no files" );
+        errno = EINVAL;
+        return -1;
     }
 
     i = files.begin();
 
-    earliest = fileTime( *i );
+    if( !fileTime( *i, &earliest ) ) {
+        return -1;
+    }
 
     while( i != files.end() ) {
-        t = fileTime( *i );
+        if( !fileTime( *i, &t ) ) {
+            return -1;
+        }
         if( t < earliest ) earliest = t;
         i ++;
     }
 
-    return earliest;
+    *time = earliest;
+    return 0;
 }
 
 bool fileIsAbsolute( const string &file )

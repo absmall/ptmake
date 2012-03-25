@@ -77,16 +77,17 @@ void print(std::string filename, int status)
 
 void Rule::callback_entry(std::string filename)
 {
+    Rule *r;
+
     string canon = fileCanonicalize( filename );
     if( get_debug_level( DEBUG_DEPENDENCIES ) ) {
         ::print(canon);
     }
-    try {
-        Rule *r = Rule::find(canon);
+
+    r = Rule::find(canon);
+    if( r ) {
         r->execute( canon );
         dependencies.insert( pair<string,bool>(canon, true) );
-    } catch( wexception &e ) {
-        // Do nothing
     }
 }
 
@@ -100,17 +101,21 @@ void Rule::callback_exit(std::string filename, bool success)
     }
 }
 
-bool Rule::build(const std::string &target)
+bool Rule::build(const std::string &target, bool *updated)
 {
-    try {
-        Rule *r = find( fileCanonicalize( target ) );
-        return r->execute( target );
-    } catch(...) {
+    Rule *r;
+    
+    r = find( fileCanonicalize( target ) );
+    if( r ) {
+        *updated = r->execute( target );
+        return true;
+    } else {
         // No rule to build the target. But if it exists, that's still okay
         if( fileExists( target ) ) {
-            return false;
+            *updated = false;
+            return true;
         } else {
-            throw;
+            return false;
         }
     }
 }
@@ -129,9 +134,8 @@ bool Rule::execute(const std::string &target)
     buildCache.insert( target );
 
     if( targets == NULL || commands == NULL ) return false;
-    try {
-        targetTime = fileTime( target );
-    } catch( ... ) {
+
+    if( fileTime( target, &targetTime ) ) {
         // No target time, so definitely rebuild
         targetTime = 0;
     }
@@ -188,32 +192,25 @@ bool Rule::execute(const std::string &target)
 
         // Even though we don't know the auto-generated dependencies, there
         // may be explicit dependencies, so build those
-        try {
-            for( list<string>::iterator i = declaredDeps->begin();
-                                        i != declaredDeps->end();
-                                        i ++ ) {
-                string s;
-                time_t t;
-                bool dir;
-                getDepName( target, *targets->begin(), *i, s  );
-                if( get_debug_level( DEBUG_DEPENDENCIES ) ) {
-                    cout << "Building explicit dependency `" << *i << "'" << endl;
-                }
-                if( !fileTime( s, t, &dir ) || t > targetTime ) {
-                    Rule *r = Rule::find( s );
-                    r->execute( s );
-                } else {
+        for( list<string>::iterator i = declaredDeps->begin();
+                                    i != declaredDeps->end();
+                                    i ++ ) {
+            string s;
+            time_t t;
+            bool updated;
+            getDepName( target, *targets->begin(), *i, s  );
+            if( get_debug_level( DEBUG_DEPENDENCIES ) ) {
+                cout << "Building explicit dependency `" << s << "'" << endl;
+            }
+            if( !fileTime( s, &t ) || t <= targetTime ) {
+                if( !build( s, &updated ) ) {
                     if( get_debug_level( DEBUG_REASON ) ) {
                         cout << "Cannot build explicit dep `" << s << "'" << endl;
                     }
+                    indentation --;
+                    return false;
                 }
             }
-        } catch (...) {
-            if( get_debug_level( DEBUG_REASON ) ) {
-                cout << "Failed to build explicit dep" << endl;
-            }
-            indentation --;
-            return false;
         }
     }
     
@@ -251,26 +248,20 @@ Rule::Rule( )
 
 Rule *Rule::find(const string &target)
 {
-    Rule *r;
-    bool foundARule = false;
+    Rule *r = NULL;
     
     for(list<Rule *>::iterator i = rules.begin(); i != rules.end(); i ++ )
     {
         if( (*i)->match( target ) ) {
-            if( foundARule ) {
+            if( r ) {
                 // We have multiple rules to build the target
-                throw runtime_wexception( "Multiple rules" );
+                return NULL;
             }
-            foundARule = true;
             r = *i;
         }
     }
 
-    if( foundARule ) {
-        return r;
-    } else {
-        throw runtime_wexception( "No rule" );
-    }
+    return r;
 }
 
 bool Rule::match(const std::string &target)
@@ -295,12 +286,7 @@ bool Rule::canBeBuilt(const std::string &file)
     if( fileExists( file ) ) return true;
 
     // If the file doesn't exist, see if we can build it
-    try {
-        Rule::find( file );
-        return true;
-    } catch( wexception &e ) {
-        return false;
-    }
+    return Rule::find( file );
 }
 
 void Rule::addTarget(const std::string &target)
@@ -416,6 +402,7 @@ bool Rule::built( const string &target )
 
 bool Rule::checkDep( const string &ruleTarget, const string &target, bool exists, time_t targetTime )
 {
+    Rule *r;
     // If the file has a rule, we need to try to rebuild it, and rebuild if that
     // succeeds.
     // If the file doesn't have a rule, then:
@@ -429,9 +416,9 @@ bool Rule::checkDep( const string &ruleTarget, const string &target, bool exists
         indent();
         cout << "Dependency " << target << "(" << exists << ")" << endl;
     }
-    try {
+    r = Rule::find(target);
+    if( r ) {
         // Use a rule to rebuild
-        Rule *r = Rule::find(target);
         if( r->execute( target ) ) {
             // It was rebuilt, so we need to rebuild the primary target
             return true;
@@ -441,7 +428,7 @@ bool Rule::checkDep( const string &ruleTarget, const string &target, bool exists
             bool isDir;
             // If it wasn't rebuilt, but is already newer, we still
             // have to rebuild.
-            status = fileTime(target, t, &isDir);
+            status = !fileTime(target, &t, &isDir);
             if( !status || (t > targetTime && !isDir) ) {
                 if( get_debug_level( DEBUG_REASON ) ) {
                     indent();
@@ -454,12 +441,12 @@ bool Rule::checkDep( const string &ruleTarget, const string &target, bool exists
                 return true;
             }
         }
-    } catch (...) {
+    } else {
         bool status;
         time_t t;
         bool isDir;
 
-        status = fileTime(target, t, &isDir);
+        status = !fileTime(target, &t, &isDir);
         if( (status ^ exists) || (status && t > targetTime && !isDir) ) {
             if( get_debug_level( DEBUG_REASON ) ) {
                 indent();

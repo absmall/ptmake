@@ -34,17 +34,18 @@ void set_target(string target)
 // For each target, look for a rule that builds the target
 int build_targets()
 {
+    bool updated;
     int ret = 0;
     if( targets.empty() ) {
         cerr << "No target specified" << endl;
     }
     for(list<string>::iterator i = targets.begin(); i != targets.end(); i ++ ) {
-        try {
-            if( !Rule::build( *i ) ) {
+        if( Rule::build( *i, &updated ) ) {
+            if( !updated ) {
                 cout << "ptmake: `" << *i << "' is up to date." << endl;
             }
-        } catch (wexception &e) {
-            cerr << "Building " << *i << " failed: " << e.what() << endl;
+        } else {
+            cerr << "Building " << *i << " failed" << endl;
             ret = 1;
         }
     }
