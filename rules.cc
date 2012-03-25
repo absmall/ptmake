@@ -120,18 +120,25 @@ bool Rule::build(const std::string &target, bool *updated)
     }
 }
 
-bool Rule::execute(const std::string &target)
+bool Rule::execute(const string &target)
 {
     unsigned char hash[32];
     bool needsRebuild = false;
+    list<string>::iterator targeti;
     list<pair<string, bool> > *deps;
     time_t targetTime;
+    string targetName;
 
     // See if it's already being built
     if( built( target ) ) return false;
-    // FIXME In a rule with multiple outputs, this should add everything
-    // that was built to buildCache
+
+    // Insert the name in the build cache
+    for(targeti = targets->begin(); targeti != targets->end(); targeti ++ ) {
+        getDepName( target, *targeti, *targeti, targetName );
+        buildCache.insert( targetName );
+    }
     buildCache.insert( target );
+
 
     if( targets == NULL || commands == NULL ) return false;
 
