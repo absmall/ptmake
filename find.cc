@@ -1,3 +1,4 @@
+#include "file.h"
 #include "find.h"
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -6,19 +7,11 @@
 extern const char *makefileNames[];
 extern const unsigned int makefileNameCount;
 
-static bool test_file_exists( std::string pattern )
-{
-	struct stat buf;
-
-	return !stat(pattern.c_str(), &buf);
-
-}
-
 std::string find_makefile( void )
 {
 	for( unsigned int i = 0; i < makefileNameCount; i ++ )
 	{
-		if( test_file_exists( makefileNames[ i ] ) ) {
+		if( fileExists( makefileNames[ i ] ) ) {
 			return makefileNames[ i ];
 		}
 	}
