@@ -45,6 +45,13 @@ void dependencies_deinit()
 	dbp->close(dbp, 0);
 }
 
+void dependencies_reset()
+{
+    dependencies_deinit();
+    unlink(depfile.c_str());
+    dependencies_init();
+}
+
 void clear_dependencies(const unsigned char hash[32])
 {
 	DBT key;
@@ -61,8 +68,11 @@ void clear_dependencies(const unsigned char hash[32])
 	key.flags = 0;
 
 	ret = dbp->del(dbp, NULL, &key, 0);
-	if( ret != 0 && ret != DB_NOTFOUND ) {
-		dbp->close(dbp, 0);
+
+    // Database corrupt
+    if( ret == DB_PAGE_NOTFOUND ) {
+        dependencies_reset();
+    } else if( ret != 0 && ret != DB_NOTFOUND ) {
 		printf("ret=%s\n", db_strerror(ret));
 		throw runtime_wexception("Failed to delete key");
 	}
@@ -122,7 +132,7 @@ list<pair<string, bool> > *retrieve_dependencies(const unsigned char hash[32])
 	data.flags = DB_DBT_REALLOC;
 
 	ret = cursor->get(cursor, &key, &data, DB_SET);
-	while( ret != DB_NOTFOUND ) {
+	while( ret == 0 ) {
 		if( deps == NULL ) {
 			deps = new list<pair<string, bool> >;
 		}
