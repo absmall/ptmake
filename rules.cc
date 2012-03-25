@@ -187,7 +187,7 @@ bool Rule::execute(const std::string &target)
         // We don't know the dependencies, have to
         // build
         if( get_debug_level( DEBUG_REASON ) ) {
-            cout << "Dependencies unknown, must build" << endl;
+            cout << "Dependencies unknown, must build \"" << target << "\"" << endl;
         }
 
         // Even though we don't know the auto-generated dependencies, there
@@ -421,6 +421,9 @@ bool Rule::checkDep( const string &ruleTarget, const string &target, bool exists
         // Use a rule to rebuild
         if( r->execute( target ) ) {
             // It was rebuilt, so we need to rebuild the primary target
+            if( get_debug_level( DEBUG_REASON ) ) {
+                cout << "Dependency \"" << target << "\" rebuilt, need to rebuild \"" << ruleTarget << "\"" << endl;
+            }
             return true;
         } else {
             bool status;
@@ -436,7 +439,11 @@ bool Rule::checkDep( const string &ruleTarget, const string &target, bool exists
                     string t2 = ctime(&targetTime);
                     t1 = t1.substr(0, t1.length() - 1);
                     t2 = t2.substr(0, t2.length() - 1);
-                    cout << "Generated file out of date, need to rebuild " << ruleTarget << " because of " << target << ": (" << status << " ^ " << exists << ") || " << t1 << "(" <<  t <<  ") > " << t2 << "(" << targetTime << ")" << endl;
+                    if( !status ) {
+                        cout << "Dependency \"" << ruleTarget << "\" missing, need to rebuild \"" << ruleTarget << "\"" << endl;
+                    } else {
+                        cout << ruleTarget << "(" << t2 << ") is newer than target (" << t1 << "), build needed" << endl;
+                    }
                 }
                 return true;
             }
@@ -451,15 +458,15 @@ bool Rule::checkDep( const string &ruleTarget, const string &target, bool exists
             if( get_debug_level( DEBUG_REASON ) ) {
                 indent();
                 if( status && !exists ) {
-                    cout << "No rule to rebuild " << target << ": (new)" << endl;
+                    cout << "No rule to rebuild \"" << target << "\" and it has been created, must rebuild \"" << ruleTarget << "\"" << endl;
                 } else if( !status && exists ) {
-                    cout << "No rule to rebuild " << target << ": (deleted)" << endl;
+                    cout << "No rule to rebuild \"" << target << "\" and it has been deleted, must rebuild \"" << ruleTarget << "\"" << endl;
                 } else {
                     string t1 = ctime(&t);
                     string t2 = ctime(&targetTime);
                     t1 = t1.substr(0, t1.length() - 1);
                     t2 = t2.substr(0, t2.length() - 1);
-                    cout << "No rule to rebuild " << target << ": " << t1 << " (" << t << ")" << " > " << t2 << " (" << targetTime << ")" << endl;
+                    cout << "No rule to rebuild \"" << target << "\"(" << t1 << ") and it is newer than \"" << ruleTarget << "\"(" << t2 << "), must rebuild \"" << ruleTarget << "\"" << endl;
                 }
             }
             return true;
