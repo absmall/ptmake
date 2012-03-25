@@ -6,18 +6,18 @@
 class wexception
 {
 public:
-	virtual ~wexception( );
-	virtual const char *what( void ) const throw( ) = 0;
+    virtual ~wexception( );
+    virtual const char *what( void ) const throw( ) = 0;
 };
 
 class runtime_wexception : public wexception
 {
 public:
-	runtime_wexception( const std::string &s );
-	virtual ~runtime_wexception( );
-	const char *what( void ) const throw( );
+    runtime_wexception( const std::string &s );
+    virtual ~runtime_wexception( );
+    const char *what( void ) const throw( );
 private:
-	std::string s;
+    std::string s;
 };
 
 #endif /* __EXCEPTION_H__ */

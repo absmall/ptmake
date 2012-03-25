@@ -14,5 +14,5 @@ runtime_wexception::~runtime_wexception( )
 
 const char *runtime_wexception::what( void ) const throw( )
 {
-	return s.c_str( );
+    return s.c_str( );
 }
