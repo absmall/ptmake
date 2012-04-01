@@ -27,10 +27,10 @@ class Rule : public Subprocess {
         void addTargetList(std::list<std::string> *targetList);
 
         /* Add a target that the rule will build */
-        void addDependency(const std::string &dependency);
+        void addDependency(const std::string &dependency, bool exists);
 
         /* Add multiple targets that the rule will build */
-        void addDependencyList(std::list<std::string> *dependencyList);
+        void addDependencyList(std::list<std::pair<std::string,bool> > *dependencyList);
 
         /* Add a command to run to perform the build */
         void addCommand(const std::string &command);
@@ -105,8 +105,8 @@ class Rule : public Subprocess {
 
         static std::set<std::string> buildCache;
         std::list<std::string> *targets;
-        std::list<std::string> *declaredDeps;
         std::list<std::string> *commands;
+        std::list<std::pair<std::string, bool> > *declaredDeps;
         std::set<std::pair<std::string, bool> > dependencies;
         static std::list<Rule *> rules;
         static Plotter *plotter;

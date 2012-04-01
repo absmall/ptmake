@@ -197,6 +197,7 @@ void * make_rule( void *rule, void *commands)
 
 void * make_rule_header( void *targets, void *dependencies)
 {
+    std::list<std::string>::iterator i;
 	Rule *r = new MakeRule;
 
 	r->addTargetList( (std::list<std::string> *)targets );
@@ -207,7 +208,9 @@ void * make_rule_header( void *targets, void *dependencies)
 		if( deps->second != NULL ) delete deps->second;
 
 		if( deps->first != NULL ) {
-			r->addDependencyList( (std::list<std::string> *)deps->first );
+            for(i = deps->first->begin(); i != deps->first->end(); i ++ ) {
+                r->addDependency( *i, true );
+            }
 		}
 
 		delete deps;

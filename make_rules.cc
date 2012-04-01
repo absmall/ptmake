@@ -53,7 +53,7 @@ bool MakeRule::match(const string &target)
 {
     // wildcard offsets in the target and dependencies
     size_t wildcard_t, wildcard_d;
-    std::list<std::string>::iterator b, e, te;
+    list<string>::iterator b, e, te;
 
     if( targets == NULL ) return false;
 
@@ -67,13 +67,13 @@ bool MakeRule::match(const string &target)
                 if( !te->compare( 0, wildcard_t, target, 0, wildcard_t )
                   && !te->compare( wildcard_t + 1, length, target, target.length() - length, length ) ) {
                     // We have a match on the pattern. Now see if we can build the listed dependencies
-                    std::list<std::string>::iterator de;
+                    std::list<std::pair<std::string,bool> >::iterator de;
                     if( declaredDeps != NULL ) {
                         for(de = declaredDeps->begin(); de != declaredDeps->end(); de ++ ) {
-                            if( ( wildcard_d = de->find( '%' ) ) != std::string::npos ) {
+                            if( ( wildcard_d = de->first.find( '%' ) ) != std::string::npos ) {
                                 stringstream ss;
                                 string s;
-                                ss << string( *de, 0, wildcard_d ) << target.substr( wildcard_t, target.length() - length ) << string( *de, wildcard_d+1, string::npos );
+                                ss << string( de->first, 0, wildcard_d ) << target.substr( wildcard_t, target.length() - length ) << string( de->first, wildcard_d+1, string::npos );
                                 s = ss.str();
                                 if( !Rule::canBeBuilt( s ) ) {
                                     return false;
@@ -118,7 +118,7 @@ string MakeRule::expand_command( const string &command, const string &target )
                 // Substitute first dependency
                 {
                     string s;
-                    assert( getDepName( target, *targets->begin(), *declaredDeps->begin(), s  ) );
+                    assert( getDepName( target, *targets->begin(), declaredDeps->begin()->first, s  ) );
                     ret = ret.replace(position, 2, s);
                     position += s.length();
                 }

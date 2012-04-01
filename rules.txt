@@ -19,3 +19,9 @@ A -> B C
 
 3) Multiple outputs from multiple inputs:
 A B -> C D
+
+# This doesn't work with make syntax because there's no way to refer to %.c and
+# %.h independently in the rule. But an alternate frontend could support this
+# in the backend
+%.c %.h:%.y %.l
+    prog --header_out=$o2 --c_out=$o1 --grammar=$i1 --lexer=$i2

@@ -137,8 +137,6 @@ bool Rule::execute(const string &target)
         getDepName( target, *targeti, *targeti, targetName );
         buildCache.insert( targetName );
     }
-    buildCache.insert( target );
-
 
     if( targets == NULL || commands == NULL ) return false;
 
@@ -159,17 +157,15 @@ bool Rule::execute(const string &target)
     // If we know the dependencies, we may be able to avoid building. If we
     // don't know the dependencies, we definitely have to rebuild.
     if( deps != NULL ) {
+        // Find which target from the list of targets in the rule is used to build this target
         // Check for any listed dependencies
-        for( list<string>::iterator i = declaredDeps->begin(); i != declaredDeps->end(); i ++ ) {
+        for( list<pair<string,bool> >::iterator i = declaredDeps->begin(); i != declaredDeps->end(); i ++ ) {
             string depName;
             // FIXME This is very hacky and should be cleaned up. It needs a
             // cleaner model for matching targets to dependencies in pattern
             // rules.
-            // The 'exists' parameter is true, because we have to assume the
-            // file existed and look at time. If it didn't, this rule couldn't
-            // work
-            if( getDepName( target, *targets->begin(), *i, depName  ) );
-            needsRebuild |= checkDep( target, depName, true, targetTime );
+            if( getDepName( target, *targets->begin(), i->first, depName  ) );
+            needsRebuild |= checkDep( target, depName, i->second, targetTime );
             if( plotter != NULL ) {
                 plotter->output( target, depName );
             }
@@ -199,13 +195,13 @@ bool Rule::execute(const string &target)
 
         // Even though we don't know the auto-generated dependencies, there
         // may be explicit dependencies, so build those
-        for( list<string>::iterator i = declaredDeps->begin();
+        for( list<pair<string, bool> >::iterator i = declaredDeps->begin();
                                     i != declaredDeps->end();
                                     i ++ ) {
             string s;
             time_t t;
             bool updated;
-            getDepName( target, *targets->begin(), *i, s  );
+            getDepName( target, *targets->begin(), i->first, s  );
             if( get_debug_level( DEBUG_DEPENDENCIES ) ) {
                 cout << "Building explicit dependency `" << s << "'" << endl;
             }
@@ -249,7 +245,7 @@ Rule::Rule( )
 {
     rules.push_back(this);
     targets = NULL;
-    declaredDeps = NULL;
+    declaredDeps = new list<pair<string,bool> >;
     commands = NULL;
 }
 
@@ -315,22 +311,15 @@ void Rule::addTargetList(std::list<std::string> *targetList)
     }
 }
 
-void Rule::addDependency(const std::string &dependency)
+void Rule::addDependency(const std::string &dependency, bool exists)
 {
-    if( declaredDeps == NULL ) {
-        declaredDeps = new list<string>;
-    }
-    declaredDeps->push_back(fileCanonicalize(dependency));
+    declaredDeps->push_back(pair<string,bool>(fileCanonicalize(dependency), exists));
 }
 
-void Rule::addDependencyList(std::list<std::string> *dependencyList)
+void Rule::addDependencyList(list<pair<string,bool> > *dependencyList)
 {
-    if( declaredDeps == NULL ) {
-        declaredDeps = new list<string>;
-    }
-
-    for( list<string>::iterator i = dependencyList->begin(); i != dependencyList->end(); i ++ ) {
-        declaredDeps->push_back(fileCanonicalize(*i));
+    for( list<pair<string,bool> >::iterator i = dependencyList->begin(); i != dependencyList->end(); i ++ ) {
+        declaredDeps->push_back(pair<string,bool>(fileCanonicalize(i->first),i->second));
     }
 }
 
