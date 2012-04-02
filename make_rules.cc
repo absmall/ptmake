@@ -56,9 +56,19 @@ string MakeRule::expand_command( const string &command, const string &target, Ma
                     position += s.length();
                 }
                 break;
-#if 0
             case '^':
                 // Substitute all dependencies
+                {
+                    string s;
+                    ret = ret.erase(position, 2);
+                    for( list<pair<string,bool> >::iterator i = declaredDeps->begin(); i != declaredDeps->end(); i ++ ) {
+                        s = m->substitute( i->first ) + " ";
+                        ret = ret.insert(position, s);
+                        position += s.length();
+                    }
+                }
+                break;
+#if 0
             case '(':
                 // Substitute variable
 #endif
