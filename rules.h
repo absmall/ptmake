@@ -5,6 +5,7 @@
 #include <list>
 #include <set>
 #include "subprocess.h"
+#include "match.h"
 #include "plotter.h"
 #include <gcrypt.h>
 
@@ -44,16 +45,16 @@ class Rule : public Subprocess {
         static bool build(const std::string &target, bool *updated);
 
         /* Run the commands to build the targets */
-        bool execute(const std::string &target);
+        bool execute(const std::string &target, Match *m);
 
         /* Find a rule that matches a target */
-        static Rule *find(const std::string &target);
+        static std::pair<Rule *, Match *> find(const std::string &target);
 
         /* Indicates whether a dependency can be satisfied with known files */
         static bool canBeBuilt(const std::string &file);
 
         /* Indicates whether or not a rule matches a target */
-        virtual bool match(const std::string &target);
+        virtual bool match(const std::string &target, Match **match);
 
         /* Callback when entering a kernel filesystem call when running the
          * commands
@@ -78,7 +79,7 @@ class Rule : public Subprocess {
         /*
          * Perform variable expansion
          */
-        virtual std::string expand_command( const std::string &command, const std::string &target );
+        virtual std::string expand_command( const std::string &command, const std::string &target, Match *m );
 
         /*
          * Expand the name of a dependency based on the name of a target. This

@@ -1,8 +1,8 @@
 #include <assert.h>
 #include <sstream>
 #include <stdexcept>
-#include "re.h"
 #include "make_rules.h"
+#include "make_match.h"
 
 using namespace std;
 
@@ -40,7 +40,7 @@ bool MakeRule::getDepName( const  string &target, const string &declTarget, cons
         }
 
     } else {
-        if( ::match( target, declTarget ) ) {
+        if( target == declTarget ) {
             ret = declDep;
             return true;
         } else {
@@ -49,53 +49,29 @@ bool MakeRule::getDepName( const  string &target, const string &declTarget, cons
     }
 }
 
-bool MakeRule::match(const string &target)
+bool MakeRule::match(const string &target, Match **match)
 {
     // wildcard offsets in the target and dependencies
-    size_t wildcard_t, wildcard_d;
+    MakeMatch *makeMatch;
     list<string>::iterator b, e, te;
 
     if( targets == NULL ) return false;
 
+    makeMatch = new MakeMatch;
     b = targets->begin();
     e = targets->end();
     for( te = b; te != e; te ++ ) {
-        if( ( wildcard_t = te->find( '%' ) ) != std::string::npos ) {
-            // See if prefix and suffix match
-            int length = te->length() - wildcard_t - 1;
-            try {
-                if( !te->compare( 0, wildcard_t, target, 0, wildcard_t )
-                  && !te->compare( wildcard_t + 1, length, target, target.length() - length, length ) ) {
-                    // We have a match on the pattern. Now see if we can build the listed dependencies
-                    std::list<std::pair<std::string,bool> >::iterator de;
-                    if( declaredDeps != NULL ) {
-                        for(de = declaredDeps->begin(); de != declaredDeps->end(); de ++ ) {
-                            if( ( wildcard_d = de->first.find( '%' ) ) != std::string::npos ) {
-                                stringstream ss;
-                                string s;
-                                ss << string( de->first, 0, wildcard_d ) << target.substr( wildcard_t, target.length() - length ) << string( de->first, wildcard_d+1, string::npos );
-                                s = ss.str();
-                                if( !Rule::canBeBuilt( s ) ) {
-                                    return false;
-                                }
-                            }
-                        }
-                    }
-                    return true;
-                }
-            } catch(std::out_of_range &o) {
-                // Not a match, but keep checking
-            }
-        } else {
-            if( ::match( *te, target ) ) {
-                return true;
-            }
+        if( makeMatch->initialize(target, *te) ) {
+            *match = makeMatch;
+            return true;
         }
     }
+
+    delete makeMatch;
     return false;
 }
 
-string MakeRule::expand_command( const string &command, const string &target )
+string MakeRule::expand_command( const string &command, const string &target, Match *m )
 {
     string ret = command;
     size_t position = 0;
@@ -118,7 +94,7 @@ string MakeRule::expand_command( const string &command, const string &target )
                 // Substitute first dependency
                 {
                     string s;
-                    assert( getDepName( target, *targets->begin(), declaredDeps->begin()->first, s  ) );
+                    s = m->substitute( declaredDeps->begin()->first );
                     ret = ret.replace(position, 2, s);
                     position += s.length();
                 }

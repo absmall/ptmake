@@ -12,7 +12,7 @@ endif
 all: 
 BUILD_OPTIONS=warnings debug make jam
 
-OBJS = build.o argpc.o argpcoption.o exception.o rules.o dependencies.o plotter.o utilities.o debug.o re.o variables.o
+OBJS = build.o argpc.o argpcoption.o exception.o rules.o match.o dependencies.o plotter.o utilities.o debug.o variables.o
 
 ifeq ($(ENVIRONMENT),vc)
 OBJS += subprocess_win.o

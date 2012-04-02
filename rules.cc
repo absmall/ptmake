@@ -3,7 +3,6 @@
 #include <iostream>
 #include <algorithm>
 #include <gcrypt.h>
-#include "re.h"
 #include "file.h"
 #include "rules.h"
 #include "build.h"
@@ -77,7 +76,7 @@ void print(std::string filename, int status)
 
 void Rule::callback_entry(std::string filename)
 {
-    Rule *r;
+    pair<Rule *, Match *> r;
 
     string canon = fileCanonicalize( filename );
     if( get_debug_level( DEBUG_DEPENDENCIES ) ) {
@@ -85,8 +84,8 @@ void Rule::callback_entry(std::string filename)
     }
 
     r = Rule::find(canon);
-    if( r ) {
-        r->execute( canon );
+    if( r.first ) {
+        r.first->execute( canon, r.second );
         dependencies.insert( pair<string,bool>(canon, true) );
     }
 }
@@ -103,11 +102,12 @@ void Rule::callback_exit(std::string filename, bool success)
 
 bool Rule::build(const std::string &target, bool *updated)
 {
-    Rule *r;
+    pair<Rule *, Match *> r;
     
     r = find( fileCanonicalize( target ) );
-    if( r ) {
-        *updated = r->execute( target );
+    if( r.first ) {
+        *updated = r.first->execute( target, r.second );
+        delete r.second;
         return true;
     } else {
         // No rule to build the target. But if it exists, that's still okay
@@ -120,7 +120,7 @@ bool Rule::build(const std::string &target, bool *updated)
     }
 }
 
-bool Rule::execute(const string &target)
+bool Rule::execute(const string &target, Match *m)
 {
     unsigned char hash[32];
     bool needsRebuild = false;
@@ -219,7 +219,7 @@ bool Rule::execute(const string &target)
     
     clear_dependencies( hash );
     for(list<string >::iterator i = commands->begin(); i != commands->end(); i ++ ) {
-        trace( expand_command( *i, target ) );
+        trace( expand_command( *i, target, m ) );
 
         // Touch the targets in case something else updated last in the build process 
     }
@@ -249,34 +249,55 @@ Rule::Rule( )
     commands = NULL;
 }
 
-Rule *Rule::find(const string &target)
+pair<Rule *,Match *>Rule::find(const string &target)
 {
+    bool depsFound;
+    Match *m, *oldm;
     Rule *r = NULL;
     
     for(list<Rule *>::iterator i = rules.begin(); i != rules.end(); i ++ )
     {
-        if( (*i)->match( target ) ) {
+        if( (*i)->match( target, &m ) ) {
             if( r ) {
                 // We have multiple rules to build the target
-                return NULL;
+                delete oldm;
+                delete m;
+                return pair<Rule *, Match *>(NULL, NULL);
             }
-            r = *i;
+            // Check that we have all the explicit dependencies, or it's not worth even trying
+            depsFound = true;
+            for( list<pair<string,bool> >::iterator j = (*i)->declaredDeps->begin(); j != (*i)->declaredDeps->end(); j ++ ) {
+                // FIXME Convert j->first according to depname
+                if( j->second && !canBeBuilt( m->substitute( j->first ) ) ) {
+                    // Cannot build this file
+                    depsFound = false;
+                    break;
+                }
+            }
+            if( depsFound ) {
+                r = *i;
+                oldm = m;
+            } else {
+                delete m;
+            }
         }
     }
 
-    return r;
+    return pair<Rule *, Match *>(r,m);
 }
 
-bool Rule::match(const std::string &target)
+bool Rule::match(const std::string &target, Match **match)
 {
     std::list<std::string>::iterator b, e, te;
 
     if( targets == NULL ) return false;
 
+    *match = new Match;
+
     b = targets->begin();
     e = targets->end();
     for( te = b; te != e; te ++ ) {
-        if( ::match( *te, target ) ) {
+        if( *te == target ) {
             return true;
         }
     }
@@ -285,11 +306,16 @@ bool Rule::match(const std::string &target)
 
 bool Rule::canBeBuilt(const std::string &file)
 {
+    pair<Rule *,Match *> r;
     // Check if the file already exists
     if( fileExists( file ) ) return true;
 
     // If the file doesn't exist, see if we can build it
-    return Rule::find( file );
+    r = Rule::find( file );
+    if( r.first ) {
+        delete r.second;
+    }
+    return r.first != NULL;
 }
 
 void Rule::addTarget(const std::string &target)
@@ -356,7 +382,7 @@ void Rule::setPlotter( Plotter *p )
     plotter = p;
 }
 
-string Rule::expand_command( const string &command, const string &target )
+string Rule::expand_command( const string &command, const string &target, Match *m )
 {
     return command;
 }
@@ -398,7 +424,7 @@ bool Rule::built( const string &target )
 
 bool Rule::checkDep( const string &ruleTarget, const string &target, bool exists, time_t targetTime )
 {
-    Rule *r;
+    pair<Rule *,Match *>r;
     // If the file has a rule, we need to try to rebuild it, and rebuild if that
     // succeeds.
     // If the file doesn't have a rule, then:
@@ -413,9 +439,10 @@ bool Rule::checkDep( const string &ruleTarget, const string &target, bool exists
         cout << "Dependency " << target << "(" << exists << ")" << endl;
     }
     r = Rule::find(target);
-    if( r ) {
+    if( r.first ) {
         // Use a rule to rebuild
-        if( r->execute( target ) ) {
+        if( r.first->execute( target, r.second ) ) {
+            delete r.second;
             // It was rebuilt, so we need to rebuild the primary target
             if( get_debug_level( DEBUG_REASON ) ) {
                 cout << "Dependency \"" << target << "\" rebuilt, need to rebuild \"" << ruleTarget << "\"" << endl;
@@ -425,6 +452,9 @@ bool Rule::checkDep( const string &ruleTarget, const string &target, bool exists
             bool status;
             time_t t;
             bool isDir;
+
+            delete r.second;
+            // It was rebuilt, so we need to rebuild the primary target
             // If it wasn't rebuilt, but is already newer, we still
             // have to rebuild.
             status = !fileTime(target, &t, &isDir);
