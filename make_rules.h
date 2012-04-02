@@ -4,11 +4,10 @@
 #include "rules.h"
 
 class MakeRule : public Rule {
-    bool match( const std::string &target, Match **match );
-    /* Retrieve the string which would be the dependency corresponding to a
-     * target. This may differ from 'dep' in the case of a pattern rule
+    /* Determine whether a rule matches a target. If it does, return a
+     * Match object describing the match.
      */
-    bool getDepName( const std::string &target, const std::string &declTarget, const std::string &declDep, std::string &ret );
+    bool match( const std::string &target, Match **match );
     std::string expand_command( const std::string &command, const std::string &target, Match *m );
 };
 

@@ -134,7 +134,7 @@ bool Rule::execute(const string &target, Match *m)
 
     // Insert the name in the build cache
     for(targeti = targets->begin(); targeti != targets->end(); targeti ++ ) {
-        getDepName( target, *targeti, *targeti, targetName );
+        targetName = m->substitute( *targeti );
         buildCache.insert( targetName );
     }
 
@@ -161,10 +161,7 @@ bool Rule::execute(const string &target, Match *m)
         // Check for any listed dependencies
         for( list<pair<string,bool> >::iterator i = declaredDeps->begin(); i != declaredDeps->end(); i ++ ) {
             string depName;
-            // FIXME This is very hacky and should be cleaned up. It needs a
-            // cleaner model for matching targets to dependencies in pattern
-            // rules.
-            if( getDepName( target, *targets->begin(), i->first, depName  ) );
+            depName = m->substitute( i->first );
             needsRebuild |= checkDep( target, depName, i->second, targetTime );
             if( plotter != NULL ) {
                 plotter->output( target, depName );
@@ -201,7 +198,7 @@ bool Rule::execute(const string &target, Match *m)
             string s;
             time_t t;
             bool updated;
-            getDepName( target, *targets->begin(), i->first, s  );
+            s = m->substitute( i->first );
             if( get_debug_level( DEBUG_DEPENDENCIES ) ) {
                 cout << "Building explicit dependency `" << s << "'" << endl;
             }
@@ -385,12 +382,6 @@ void Rule::setPlotter( Plotter *p )
 string Rule::expand_command( const string &command, const string &target, Match *m )
 {
     return command;
-}
-
-bool Rule::getDepName( const  string &target, const string &declTarget, const string &declDep, string &ret )
-{
-    ret = declDep;
-    return true;
 }
 
 void Rule::recalcHash(string target, unsigned char hash[32])
