@@ -264,7 +264,6 @@ pair<Rule *,Match *>Rule::find(const string &target)
             // Check that we have all the explicit dependencies, or it's not worth even trying
             depsFound = true;
             for( list<pair<string,bool> >::iterator j = (*i)->declaredDeps->begin(); j != (*i)->declaredDeps->end(); j ++ ) {
-                // FIXME Convert j->first according to depname
                 if( j->second && !canBeBuilt( m->substitute( j->first ) ) ) {
                     // Cannot build this file
                     depsFound = false;
