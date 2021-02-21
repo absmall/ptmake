@@ -9,3 +9,4 @@ make_parse.cc
 libptmake.so
 test/test
 test/test_interactive
+build
