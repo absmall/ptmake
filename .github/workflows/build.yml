@@ -2,12 +2,7 @@ name: ci_meson
 
 on:
   push:
-      - "**.cc"
-      - "**.h"
-  pull_request:
-    paths:
-      - "**.cc"
-      - "**.h"
+    branches: [main]
 
 jobs:
 
