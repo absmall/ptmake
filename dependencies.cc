@@ -1,4 +1,4 @@
-#include <db.h>
+#include <sqlite3.h>
 #include <string.h>
 #include <stdlib.h>
 #include <string>
@@ -20,10 +20,17 @@ void dependencies_init()
     int ret;
     u_int32_t flags;
 
+#ifdef DARWIN
+    dbp = dbopen( &dbp, NULL, 0);
+    if( dbp != nullptr ) {
+        throw runtime_wexception("Failed to create database");
+    }
+#else
     ret = db_create( &dbp, NULL, 0);
     if( ret != 0 ) {
         throw runtime_wexception("Failed to create database");
     }
+#endif
 
     dbp->set_flags(dbp, DB_DUPSORT);
     if( ret != 0 ) {
