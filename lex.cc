@@ -8,9 +8,9 @@
 #include "rules.h"
 #include "parser.hh"
 
+#if 0
 void yyparse();
 
-#if 0
 bool refillBuffer()
 {
     int newdata;

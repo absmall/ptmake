@@ -1,8 +1,10 @@
+#include <openssl/sha.h>
+
 #include <string>
 #include <list>
 #include <iostream>
 #include <algorithm>
-#include <gcrypt.h>
+
 #include "file.h"
 #include "rules.h"
 #include "build.h"
@@ -122,7 +124,7 @@ bool Rule::build(const std::string &target, bool *updated)
 
 bool Rule::execute(const string &target, Match *m)
 {
-    unsigned char hash[32];
+    unsigned char hash[SHA256_DIGEST_LENGTH];
     bool needsRebuild = false;
     list<string>::iterator targeti;
     list<pair<string, bool> > *deps;
@@ -383,28 +385,24 @@ string Rule::expand_command( const string &command, const string &target, Match 
     return command;
 }
 
-void Rule::recalcHash(string target, unsigned char hash[32])
+void Rule::recalcHash(string target, unsigned char *hash)
 {
-    gcry_md_hd_t hd;
+    SHA256_CTX sha256;
+    SHA256_Init(&sha256);
 
-    gcry_md_open( &hd, GCRY_MD_SHA256, 0);
     if( targets != NULL ) {
         for(list<string>::iterator i = targets->begin(); i != targets->end(); i ++ ) {
-            gcry_md_write( hd, i->c_str(), i->size() );
+          SHA256_Update(&sha256, i->c_str(), i->size() );
         }
     }
 
     if (commands != NULL ) {
         for(list<string>::iterator i = commands->begin(); i != commands->end(); i ++ ) {
-            gcry_md_write( hd, i->c_str(), i->size() );
+            SHA256_Update(&sha256, i->c_str(), i->size() );
         }
     }
-    gcry_md_write( hd, target.c_str(), target.size() );
-    gcry_md_final( hd );
-
-    memcpy( hash, gcry_md_read(hd, 0), 32 );
-
-    gcry_md_close( hd );
+    SHA256_Update(&sha256, target.c_str(), target.size());
+    SHA256_Final(hash, &sha256);
 }
 
 bool Rule::built( const string &target )

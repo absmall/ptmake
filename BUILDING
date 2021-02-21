@@ -1,0 +1,9 @@
+This project builds using meson, however it targets makefiles, it does not self-build.
+
+This is for historic reasons, if I continue with this, I will switch it to ninja syntax, so that
+it can self-build.
+
+To build:
+meson setup build
+cd build
+ninja

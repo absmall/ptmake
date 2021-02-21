@@ -7,7 +7,6 @@
 #include "subprocess.h"
 #include "match.h"
 #include "plotter.h"
-#include <gcrypt.h>
 
 /* A class which encompasses a rule for building a set of targets using a set
  * of shell commands. \ is used as an escape for special characters. Special
