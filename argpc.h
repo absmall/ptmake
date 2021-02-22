@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 #include "argpcoption.h"
-#include "exception.h"
+#include <stdexcept>
 
 /*
  * Class for parsing command line arguments.
@@ -92,7 +92,7 @@ private:
     std::vector<ArgpcOption> options;
 };
 
-class MissingArgumentException : public wexception
+class MissingArgumentException : public std::exception
 {
 public:
     MissingArgumentException( std::string name );
@@ -102,7 +102,7 @@ private:
     std::string name;
 };
 
-class UnknownArgumentException : public wexception
+class UnknownArgumentException : public std::exception
 {
 public:
     UnknownArgumentException( std::string name );
@@ -113,7 +113,7 @@ private:
 };
 
 
-class BadParameterException : public wexception
+class BadParameterException : public std::exception
 {
 public:
     BadParameterException( std::string arg, std::string param );

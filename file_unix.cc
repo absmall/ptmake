@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include "file.h"
-#include "exception.h"
+#include <stdexcept>
 #include <iostream>
 #include <errno.h>
 #include <string.h>
@@ -96,7 +96,7 @@ string fileCanonicalize( string path )
             // File was not found, so canonicalization doesn't really matter
             return path;
         } else {
-            throw runtime_wexception( string( "Error canonicalizing path '" ) + path + string("'") );
+            throw runtime_error( string( "Error canonicalizing path '" ) + path + string("'") );
         }
     }
     return buf;

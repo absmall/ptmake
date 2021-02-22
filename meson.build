@@ -1,7 +1,7 @@
 project('ptmake', 'cpp')
 ssldep = dependency('libssl')
 cryptodep = dependency('libcrypto')
-sources = ['argpc.cc', 'argpcoption.cc', 'build.cc', 'debug.cc', 'dependencies.cc', 'exception.cc', 'file_unix.cc', 'find.cc', 'lex.cc', 'main.cc', 'make.cc', 'make_match.cc', 'make_rules.cc', 'match.cc', 'plotter.cc', 'rules.cc', 'utilities.cc', 'variables.cc']
+sources = ['argpc.cc', 'argpcoption.cc', 'build.cc', 'debug.cc', 'dependencies.cc', 'file_unix.cc', 'find.cc', 'lex.cc', 'main.cc', 'make.cc', 'make_match.cc', 'make_rules.cc', 'match.cc', 'plotter.cc', 'rules.cc', 'utilities.cc', 'variables.cc']
 
 # Set up platform-specific information
 warning(host_machine.system())

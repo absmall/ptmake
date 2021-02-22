@@ -3,7 +3,6 @@
 #include <iostream>
 #include "build.h"
 #include "rules.h"
-#include "exception.h"
 
 using namespace std;
 

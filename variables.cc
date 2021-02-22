@@ -1,5 +1,6 @@
+#include <stdexcept>
+
 #include "variables.h"
-#include "exception.h"
 
 using namespace std;
 
@@ -41,7 +42,7 @@ string Scope::lookup( string name )
     i = variables.find( name );
     if( i == variables.end() ) {
         if( parent == NULL ) {
-            throw runtime_wexception("Variable not defined");
+            throw runtime_error("Variable not defined");
         } else {
             return parent->lookup( name );
         }

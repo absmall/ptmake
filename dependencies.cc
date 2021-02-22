@@ -5,7 +5,7 @@
 #include <list>
 #include <set>
 #include "debug.h"
-#include "exception.h"
+#include <stdexcept>
 #include <iostream>
 #include <sstream>
 #include "utilities.h"
@@ -23,19 +23,19 @@ void dependencies_init()
 #ifdef DARWIN
     dbp = dbopen( &dbp, NULL, 0);
     if( dbp != nullptr ) {
-        throw runtime_wexception("Failed to create database");
+        throw runtime_error("Failed to create database");
     }
 #else
     ret = db_create( &dbp, NULL, 0);
     if( ret != 0 ) {
-        throw runtime_wexception("Failed to create database");
+        throw runtime_error("Failed to create database");
     }
 #endif
 
     dbp->set_flags(dbp, DB_DUPSORT);
     if( ret != 0 ) {
         dbp->close(dbp, 0);
-        throw runtime_wexception("Failed to make database sorted");
+        throw runtime_error("Failed to make database sorted");
     }
 
     flags = DB_CREATE;
@@ -43,7 +43,7 @@ void dependencies_init()
     ret = dbp->open(dbp, NULL, depfile.c_str(), NULL, DB_BTREE, flags, 0);
     if( ret != 0 ) {
         dbp->close(dbp, 0);
-        throw runtime_wexception("Failed to open database");
+        throw runtime_error("Failed to open database");
     }
 }
 
@@ -81,7 +81,7 @@ void clear_dependencies(const unsigned char hash[32])
         dependencies_reset();
     } else if( ret != 0 && ret != DB_NOTFOUND ) {
         printf("ret=%s\n", db_strerror(ret));
-        throw runtime_wexception("Failed to delete key");
+        throw runtime_error("Failed to delete key");
     }
 }
 
@@ -110,7 +110,7 @@ void add_dependencies(const unsigned char hash[32], const std::set<std::pair<std
 
         ret = dbp->put(dbp, NULL, &key, &data, 0);
         if( ret != 0 ) {
-            throw runtime_wexception("Could not insert record");
+            throw runtime_error("Could not insert record");
         }
 
         free( tempBuf );

@@ -91,7 +91,7 @@ void Argpc::parsePartial( int *argc, char *argv[] )
             }
         }
 
-    } catch( wexception &e ) {
+    } catch( exception &e ) {
         displayArgumentError( e.what( ) );
     }
 }
@@ -139,7 +139,7 @@ void Argpc::parse( int *argc, char *argv[] )
             }
         }
 
-    } catch( wexception &e ) {
+    } catch( exception &e ) {
         displayArgumentError( e.what( ) );
     }
 }

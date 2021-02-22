@@ -1,6 +1,7 @@
 #include "debug.h"
-#include "exception.h"
 #include "argpc.h"
+
+#include <stdexcept>
 
 static bool debug_settings[DEBUG_LEVEL_MAX] = { 0 };
 
@@ -53,7 +54,7 @@ static void debug_set_to_level(DebugLevel level)
 
 bool enable_debug(DebugLevel level)
 {
-    if( level >= DEBUG_LEVEL_MAX ) throw runtime_wexception( "Invalid debug level" );
+    if( level >= DEBUG_LEVEL_MAX ) throw std::runtime_error( "Invalid debug level" );
     switch(level) {
         case DEBUG_LEVEL_1:
         case DEBUG_LEVEL_2:
@@ -69,6 +70,6 @@ bool enable_debug(DebugLevel level)
 
 bool get_debug_level(DebugLevel level)
 {
-    if( level >= DEBUG_LEVEL_MAX ) throw runtime_wexception( "Invalid debug level" );
+    if( level >= DEBUG_LEVEL_MAX ) throw std::runtime_error( "Invalid debug level" );
     return debug_settings[ level ];
 }

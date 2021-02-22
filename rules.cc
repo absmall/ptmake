@@ -4,13 +4,13 @@
 #include <list>
 #include <iostream>
 #include <algorithm>
+#include <stdexcept>
 
 #include "file.h"
 #include "rules.h"
 #include "build.h"
 #include "debug.h"
 #include "parse.h"
-#include "exception.h"
 #include "subprocess.h"
 #include "dependencies.h"
 
@@ -368,7 +368,7 @@ void Rule::setDefaultTargets(void)
 {
     if( !rules.empty() ) {
         Rule *r = *rules.begin();
-        if( r->targets == NULL ) throw runtime_wexception("First rule has no targets");
+        if( r->targets == NULL ) throw runtime_error("First rule has no targets");
         for(list<string>::iterator i = r->targets->begin(); i != r->targets->end(); i ++ ) {
             set_target(*i);
         }
