@@ -1,4 +1,4 @@
-name: ci_meson
+name: build
 
 on:
   push:

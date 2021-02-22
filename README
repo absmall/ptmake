@@ -1,3 +1,5 @@
+![build workflow](https://github.com/absmall/ptmake/actions/workflows/build.yml/badge.svg)
+
 What is ptmake?
 
 ptmake is a make tool which will parse standard makefiles, but ignore the
