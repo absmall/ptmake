@@ -1,12 +1,3 @@
-#include "parse.h"
-#include <string>
-#include <stdio.h>
-#include <iostream>
-#include <stdexcept>
-#include <stdlib.h>
-#include <string.h>
-#include "rules.h"
-#include "parser.hh"
 
 #if 0
 void yyparse();

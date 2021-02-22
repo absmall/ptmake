@@ -1,5 +1,7 @@
 #include "utilities.h"
 
+#include <iosfwd>
+
 using namespace std;
 
 string printhash(const unsigned char hash[32])

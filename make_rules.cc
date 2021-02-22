@@ -1,8 +1,11 @@
-#include <assert.h>
+#include <stddef.h>
 #include <sstream>
-#include <stdexcept>
+#include <list>
+#include <utility>
+
 #include "make_rules.h"
 #include "make_match.h"
+#include "match.h"
 
 using namespace std;
 

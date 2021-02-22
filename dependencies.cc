@@ -1,13 +1,17 @@
 #include <db.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stdio.h>
+#include <sys/types.h>
+#include <unistd.h>
 #include <string>
 #include <list>
 #include <set>
-#include "debug.h"
 #include <stdexcept>
 #include <iostream>
-#include <sstream>
+#include <utility>
+
+#include "debug.h"
 #include "utilities.h"
 
 using namespace std;

@@ -1,8 +1,11 @@
 #include <string>
 #include <list>
 #include <iostream>
+
 #include "build.h"
 #include "rules.h"
+
+class Plotter;
 
 using namespace std;
 

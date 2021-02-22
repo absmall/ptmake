@@ -1,5 +1,7 @@
-#include <exception>
+#include <stdexcept>
 #include <iostream>
+#include <string>
+
 #include "find.h"
 #include "parse.h"
 #include "argpc.h"
@@ -7,6 +9,7 @@
 #include "plotter.h"
 #include "debug.h"
 #include "dependencies.h"
+#include "argpcoption.h"
 
 using namespace std;
 

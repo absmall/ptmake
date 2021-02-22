@@ -1,12 +1,18 @@
 #ifndef __RULES_H__
 #define __RULES_H__
 
+#include <sys/types.h>
 #include <string>
 #include <list>
 #include <set>
+#include <utility>
+
 #include "subprocess.h"
 #include "match.h"
 #include "plotter.h"
+
+class Match;
+class Plotter;
 
 /* A class which encompasses a rule for building a set of targets using a set
  * of shell commands. \ is used as an escape for special characters. Special

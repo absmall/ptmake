@@ -2,13 +2,13 @@
 #include <sys/stat.h>
 #include <limits.h>
 #include <stdlib.h>
-#include <unistd.h>
-#include "file.h"
+#include <errno.h>
 #include <stdexcept>
 #include <iostream>
-#include <errno.h>
-#include <string.h>
 #include <string>
+#include <list>
+
+#include "file.h"
 
 using namespace std;
 

@@ -1,8 +1,7 @@
+#include <stdexcept>
+
 #include "file.h"
 #include "find.h"
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <stdexcept>
 
 extern const char *makefileNames[];
 extern const unsigned int makefileNameCount;

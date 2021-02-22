@@ -1,18 +1,17 @@
 #include <stdlib.h>
-#include <errno.h>
-#include <iostream>
-#include <string>
 #include <string.h>
-#include <map>
 #include <unistd.h>
 #include <fcntl.h>
-#include <sys/types.h>
-#include <sys/stat.h>
 #include <sys/reg.h>
 #include <sys/ptrace.h>
-#include <asm/ptrace-abi.h>
 #include <sys/wait.h>
 #include <syscall.h>
+#include <signal.h>
+#include <iostream>
+#include <string>
+#include <map>
+#include <utility>
+
 #include "subprocess.h"
 #include "debug.h"
 

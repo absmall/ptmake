@@ -1,8 +1,10 @@
 #ifndef __MAKE_MATCH__
 #define __MAKE_MATCH__
 
-#include "match.h"
+#include <stddef.h>
 #include <string>
+
+#include "match.h"
 
 class MakeMatch : public Match {
 public:

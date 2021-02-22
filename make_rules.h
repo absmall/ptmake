@@ -1,7 +1,11 @@
 #ifndef __MAKE_RULES_H__
 #define __MAKE_RULES_H__
 
+#include <string>
+
 #include "rules.h"
+
+class Match;
 
 class MakeRule : public Rule {
     /* Determine whether a rule matches a target. If it does, return a

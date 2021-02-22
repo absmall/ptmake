@@ -1,9 +1,7 @@
-#include <iostream>
 #include <fstream>
+
 #include "file.h"
 #include "plotter.h"
-#include "dependencies.h"
-#include "utilities.h"
 
 using namespace std;
 

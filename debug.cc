@@ -1,7 +1,10 @@
 #include "debug.h"
-#include "argpc.h"
 
 #include <stdexcept>
+#include <string>
+
+#include "argpc.h"
+#include "argpcoption.h"
 
 static bool debug_settings[DEBUG_LEVEL_MAX] = { 0 };
 

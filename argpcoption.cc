@@ -1,4 +1,6 @@
 #include "argpcoption.h"
+
+#include <stddef.h>
 #include <iostream>
 
 using namespace std;

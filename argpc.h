@@ -1,10 +1,12 @@
 #ifndef __ARGPC__
 #define __ARGPC__
 
+#include <stdexcept>
 #include <string>
 #include <vector>
-#include "argpcoption.h"
 #include <stdexcept>
+
+#include "argpcoption.h"
 
 /*
  * Class for parsing command line arguments.

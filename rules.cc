@@ -1,18 +1,18 @@
 #include <openssl/sha.h>
-
+#include <time.h>
 #include <string>
 #include <list>
 #include <iostream>
-#include <algorithm>
 #include <stdexcept>
 
 #include "file.h"
 #include "rules.h"
 #include "build.h"
 #include "debug.h"
-#include "parse.h"
 #include "subprocess.h"
 #include "dependencies.h"
+#include "match.h"
+#include "plotter.h"
 
 using namespace std;
 

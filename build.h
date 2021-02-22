@@ -1,8 +1,11 @@
 #ifndef __BUILD_H__
 #define __BUILD_H__
 
-#include "plotter.h"
 #include <string>
+
+#include "plotter.h"
+
+class Plotter;
 
 /*
  * Set the default target. If there is no target set, it will be the target of
