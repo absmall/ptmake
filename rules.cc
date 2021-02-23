@@ -16,6 +16,10 @@
 
 using namespace std;
 
+// Assert that the digest length is as expected. Don't include openssl.h in rules.h to get the digest length, as it
+// is widely used, just use a hardcoded value and verify here that it is as expected.
+static_assert(32 == SHA256_DIGEST_LENGTH, "Unexpected digest length. Please update rules.h");
+
 // This is just for controlling the indentation of debug prints
 int indentation = 0;
 
@@ -124,7 +128,7 @@ bool Rule::build(const std::string &target, bool *updated)
 
 bool Rule::execute(const string &target, Match *m)
 {
-    unsigned char hash[SHA256_DIGEST_LENGTH];
+    Hash hash;
     bool needsRebuild = false;
     list<string>::iterator targeti;
     list<pair<string, bool> > *deps;
@@ -385,7 +389,7 @@ string Rule::expand_command( const string &command, const string &target, Match 
     return command;
 }
 
-void Rule::recalcHash(string target, unsigned char *hash)
+void Rule::recalcHash(string target, Hash hash)
 {
     SHA256_CTX sha256;
     SHA256_Init(&sha256);
@@ -402,7 +406,7 @@ void Rule::recalcHash(string target, unsigned char *hash)
         }
     }
     SHA256_Update(&sha256, target.c_str(), target.size());
-    SHA256_Final(hash, &sha256);
+    SHA256_Final(hash.data(), &sha256);
 }
 
 bool Rule::built( const string &target )

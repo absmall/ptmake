@@ -2,11 +2,13 @@
 #define __RULES_H__
 
 #include <sys/types.h>
+#include <array>
 #include <string>
 #include <list>
 #include <set>
 #include <utility>
 
+#include "hash.h"
 #include "subprocess.h"
 #include "match.h"
 #include "plotter.h"
@@ -101,7 +103,7 @@ class Rule : public Subprocess {
         /* Recalculate a hash that describes this rule. It's based on all paramters
          * that are user-configurable
          */
-        void recalcHash(std::string target, unsigned char hash[32]);
+        void recalcHash(std::string target, Hash hash);
 
         static std::set<std::string> buildCache;
         std::list<std::string> *targets;

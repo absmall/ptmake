@@ -12,7 +12,7 @@
 #include <utility>
 
 #include "debug.h"
-#include "utilities.h"
+#include "hash.h"
 
 using namespace std;
 
@@ -63,19 +63,19 @@ void dependencies_reset()
     dependencies_init();
 }
 
-void clear_dependencies(const unsigned char hash[32])
+void clear_dependencies(const Hash hash)
 {
     DBT key;
     int ret;
 
     if( get_debug_level( DEBUG_DEPENDENCIES ) ) {
-        cout << "Clearing dependencies for " << printhash(hash) << endl;
+        cout << "Clearing dependencies for " << hash << endl;
     }
 
     memset( &key, 0, sizeof(DBT) );
 
-    key.data = (unsigned char *)hash;
-    key.size = 32;
+    key.data = const_cast<unsigned char *>(hash.data());
+    key.size = hash.size();
     key.flags = 0;
 
     ret = dbp->del(dbp, NULL, &key, 0);
@@ -89,21 +89,21 @@ void clear_dependencies(const unsigned char hash[32])
     }
 }
 
-void add_dependencies(const unsigned char hash[32], const std::set<std::pair<std::string, bool> > &deps)
+void add_dependencies(const Hash hash, const std::set<std::pair<std::string, bool> > &deps)
 {
     DBT key, data;
     int ret;
     unsigned char *tempBuf;
 
     if( get_debug_level( DEBUG_DEPENDENCIES ) ) {
-        cout << "Adding list of dependencies for " << printhash(hash) << endl;
+        cout << "Adding list of dependencies for " << hash << endl;
     }
 
     memset(&key, 0, sizeof(DBT));
     memset(&data, 0, sizeof(DBT));
 
-    key.data = (unsigned char *)hash;
-    key.size = 32;
+    key.data = const_cast<unsigned char *>(hash.data());
+    key.size = hash.size();
 
     for( std::set<std::pair<std::string, bool> >::const_iterator i = deps.begin(); i != deps.end(); i ++ ) {
         tempBuf = (unsigned char *)malloc( i->first.length() + 2 );
@@ -121,7 +121,7 @@ void add_dependencies(const unsigned char hash[32], const std::set<std::pair<std
     }
 }
 
-list<pair<string, bool> > *retrieve_dependencies(const unsigned char hash[32])
+list<pair<string, bool> > *retrieve_dependencies(const Hash hash)
 {
     DBC *cursor;
     DBT key, data;
@@ -129,7 +129,7 @@ list<pair<string, bool> > *retrieve_dependencies(const unsigned char hash[32])
     list<pair<string, bool> > *deps = NULL;
 
     if( get_debug_level( DEBUG_DEPENDENCIES ) ) {
-        cout << "Retrieving dependencies for " << printhash(hash) << endl;
+        cout << "Retrieving dependencies for " << hash << endl;
     }
 
     dbp->cursor(dbp, NULL, &cursor, 0 );
@@ -137,8 +137,8 @@ list<pair<string, bool> > *retrieve_dependencies(const unsigned char hash[32])
     memset( &key, 0, sizeof(DBT) );
     memset( &data, 0, sizeof(DBT) );
 
-    key.data = (unsigned char *)hash;
-    key.size = 32;
+    key.data = const_cast<unsigned char *>(hash.data());
+    key.size = hash.size();
 
     data.flags = DB_DBT_REALLOC;
 
